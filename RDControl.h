@@ -57,6 +57,7 @@ class RDControl {
         // Objects
         int size; // number of RD cells 
         int chemnum; // number of chemicals
+        double timestepsize = 0.1;
         
         TMatrix<double> adjacency; // Weighted Cell adjacency mtrx
         TMatrix<double> cellstate; // reactorsize by chemicalspeciesnumber mtrx

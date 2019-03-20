@@ -62,7 +62,7 @@ TVector<double> RDControl::CellState( int cellindx )
     states.FillContents(0.0);
 
     // loop over chem indx
-    for (int chemindx=0; chemindx<=chemnum; chemindx++)
+    for (int chemindx=0; chemindx<chemnum; chemindx++)
     {
         states(chemindx)=cellstate(cellindx,chemindx);
     }
@@ -79,7 +79,7 @@ void RDControl::NormalizeCellDensity( int cellindx )
     double inversetotal = 0.0;
     
     // sum for total chem
-    for (int chemindx=0;chemindx<=chemnum;chemindx++)
+    for (int chemindx=0;chemindx<chemnum;chemindx++)
     {
         totalchem = cellstate(cellindx,chemindx);
     }
@@ -94,7 +94,7 @@ void RDControl::NormalizeCellDensity( int cellindx )
     inversetotal = 1.0/totalchem;
 
     // normalize each chem by total chem
-    for (int chemindx=0;chemindx<=chemnum;chemindx++)
+    for (int chemindx=0;chemindx<chemnum;chemindx++)
     {
         cellstate(cellindx,chemindx)*=inversetotal;
     }
@@ -103,7 +103,7 @@ void RDControl::NormalizeCellDensity( int cellindx )
 // Sets the chemical state of a cell
 void RDControl::SetCellState(TVector<double> newstate, int cellindx)
 {
-    for (int chemindx=0;chemindx<=chemnum;chemindx++)
+    for (int chemindx=0;chemindx<chemnum;chemindx++)
     {
         cellstate(cellindx,chemindx)=newstate(chemindx);
     }
@@ -148,23 +148,53 @@ void RDControl::SetReactorTopology()
 // DYNAMICS
 
 // Reaction Model
-void Reaction()
+void RDControl::Reaction()
 {
-    int x = 0;
+    //Grey-Scott RD model
+    //params
+    double du = 2.0*10**(-5); //diffusion constant
+    double dv = 10**(-5); // diffusion constant
+    double f  = rdparameter[0];
+    double k  = rdparameter[1];
+
+    for (int target=0; target<size; target++)
+    {
+        
+    }
 }
 
 // Computes Diffusion-time rate for all species for each cell
-TVector<double> Diffusion()
+TVector<double> RDControl::Diffusion()
 {
-    for (int cellindx=0; cellindx<size; cellindx++)
+    //internal declarations
+    TVector<double> dchem;
+    dchem.SetBounds(0,chemnum);
+    dchem.FillContents(0.0);
+    int neighborcount=0;
+
+    for (int target=0; target<size; target++)
     {
+        neighborcount = 0;
         for (int neighbor=0; neighbor<size; neighbor++)
         {
             if (adjacency(target, neighbor)==0.0){continue;}
-            for ( int chemindx = 0; chemindx<=chemnum; chemindx++)
+            neighborcount++;
+            for ( int chemindx = 0; chemindx<chemnum; chemindx++)
             {
-
+                dchem(chemindx)+= cellstate(neighbor, chemindx);
             }
+        }
+        
+        // laplacian= D( Sum(c_n ) - N*c_t ) for each chem
+        for (int chemindx = 0; chemindx<chemnum; chemindx++)
+        {
+            dchem(chemindx) *= timestepsize;
+            dchem(chemindx) -= (neighborcount*timestepsize - 1.0)*cellstate(target,chemindx);
+            //dchem is now the unnormalized next state of target cell
+            // D = 1 should be ok?
+            // dt*(D=1)(c_i+c_j-N*c_t)+c_t= (~)(-dt*N-1)c_t
+            SetCellState(dchem, target);
+            NormalizeCellDensity(target);
         }
     }
 }
