@@ -18,7 +18,7 @@
 // Headers
 #include "RDControl.h"
 #include "VectorMatrix.h"
-//#include "random.h"
+#include "random.h"
 
 using namespace std;
 
@@ -59,12 +59,25 @@ RDControl::~RDControl()
 // Utilities
 // ****************************
 
+//-----------------------------
 // ACCESSORS
+//----------------------------
 
 //Get reactor size
 int RDControl::ReactorSize()
 {
     return size;
+}
+
+//Set Time Step Size
+void RDControl::SetStepSize(double newsize)
+{
+    timestepsize=newsize;
+}
+
+double RDControl::GetStepSize()
+{
+    return(timestepsize);
 }
 
 //Get Tvector of the concentrations of species in a cell
@@ -83,7 +96,9 @@ TVector<double> RDControl::CellState( int cellindx )
     return states;
 }
 
+//-----------------------------
 // SINGLE CELL CONTROL
+//-----------------------------
 
 // Normalize the densities of chemicals in a cell
 void RDControl::NormalizeCellDensity( int cellindx )
@@ -124,6 +139,53 @@ void RDControl::SetCellState(TVector<double> newstate, int cellindx)
     NormalizeCellDensity(cellindx);
 }
 
+// Inject an amount of a chemical into a single cell
+void RDControl::InjectCell(double amount, int cellindx, int chemindx)
+{
+    cellstate(cellindx,chemindx)+=amount;
+    NormalizeCellDensity(cellindx);
+}
+
+//-----------------------------
+// Global Cell Control
+// ----------------------------
+
+// Randomize reactor state
+void RDControl::RandomizeReactorState()
+{
+    // Vars
+    double holder, counter=0.0;
+    
+    // Loop over all cells
+    for (int target=0; target<size; target++)
+   {
+       for ( int chemindx = 0; chemindx<chemnum; chemindx++)
+       {
+            holder = UniformRandom(0.0,1.0);
+            counter += holder;
+            cellstate(target, chemindx)= holder;
+       }    
+       NormalizeCellDensity(target);
+   }
+}
+
+// Set every cell to be 100% the chemical at index 0
+void RDControl::HomogenousReactorState()
+{
+    for (int target=0; target<size; target++)
+    {
+        for (int chemindx=0; chemindx<chemnum; chemindx++)
+        {
+            if (chemindx==0){cellstate(target,chemindx)=1.0;}
+            else{cellstate(target,chemindx)=0.0;}
+        }
+    }
+}
+
+//------------------------------
+// Global Topology Controls
+//------------------------------
+
 // Resize a reactor
 void RDControl::SetReactorSize( int newsize )
 {
@@ -159,7 +221,9 @@ void RDControl::SetReactorTopology()
 
 }
 
+//-----------------------------
 // DYNAMICS
+//----------------------------
 
 // Reaction Model
 void RDControl::Reaction()
@@ -182,7 +246,7 @@ void RDControl::Reaction()
             u = cellstate(target, 0);
             v = cellstate(target, 1);
 
-            diffvec = Diffusion(target); // Why doesn't this work?? = IS overloaded?
+            diffvec = Diffusion(target); // Why doesn't this work?? 
             // Find cell concentration changes
             du = gammau*diffvec(0)-u*pow(v,2)+f*(1.0-u);
             dv = gammav*diffvec(1)-u*pow(v,2)-(f+k)*v;
@@ -236,30 +300,30 @@ TVector<double> RDControl::Diffusion(int target)
    return dchem;
 }
 
-// Diffusion Time Step: Extra Crude And super not optimized Euler method
-void RDControl::RDTimeStepEuler()
-{
-    double weight;
-    
-    for (int r = 0; r<=size-1; r++)
-    {
-        for (int c = 0; c<=size-1; c++)
-        {
-            if (adjacency[r][c]!=0.0)
-            {
-                weight = adjacency[r][c];
-
-            }
-        }
-    }
-}
+//// Diffusion Time Step: Extra Crude And super not optimized Euler method
+//void RDControl::TimeStepEuler()
+//{
+//    double weight;
+//    
+//    for (int r = 0; r<=size-1; r++)
+//    {
+//        for (int c = 0; c<=size-1; c++)
+//        {
+//            if (adjacency[r][c]!=0.0)
+//            {
+//                weight = adjacency[r][c];
+//
+//            }
+//        }
+//    }
+//}
 
 // Topology setting function
-void TopologyLibrary(int topoindx)
-{
-    // TOPOLOGY INDEX:
-    // 0: disconnected
-    // 1: fully connected
-    // 2: 1D ring nearest neighbor
-
-}
+//void TopologyLibrary(int topoindx)
+//{
+//    // TOPOLOGY INDEX:
+//    // 0: disconnected
+//    // 1: fully connected
+//    // 2: 1D ring nearest neighbor
+//
+//}

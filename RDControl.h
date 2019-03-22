@@ -34,22 +34,25 @@ class RDControl {
 
         // Accessors
         int ReactorSize(void);
+        void SetStepSize(double newsize);
+        double GetStepSize();
         TVector<double> CellState( int cellindx );
   
         // Single Cell Control
         void NormalizeCellDensity( int cellindx );
         void SetCellState( TVector<double> newstate, int cellindx);
-        void InjectChemical( double amount, int chemindx, int cellindx);
+        void InjectCell( double amount, int chemindx, int cellindx);
 
          // Global Cell Controls
         void RandomizeReactorState();
+        void HomogenousReactorState();
 
         // Global Topology Control
         void SetReactorSize( int newsize  );
         void SetReactorTopology();
 
         // Dynamics
-        void RDTimeStepEuler();
+        void TimeStepEuler();
         void Reaction();
         TVector<double> Diffusion( int target );
 
