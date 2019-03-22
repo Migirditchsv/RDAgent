@@ -28,7 +28,7 @@
 class RDControl {
     public:
         // Constructor
-        RDControl( int size );
+        RDControl( int size, int model );
         // Destructor
         ~RDControl();
 
@@ -54,11 +54,15 @@ class RDControl {
         TVector<double> Diffusion();
 
 
-        // Objects
+        // Data Objects
         int size; // number of RD cells 
+        int model; // model index, Grey-Scott, BZ etc. 
         int chemnum; // number of chemicals
+        int paramnum; //number of parameters in RD Model
         double timestepsize = 0.1;
         
+        TVector<double> rdparameter;
+
         TMatrix<double> adjacency; // Weighted Cell adjacency mtrx
         TMatrix<double> cellstate; // reactorsize by chemicalspeciesnumber mtrx
 };

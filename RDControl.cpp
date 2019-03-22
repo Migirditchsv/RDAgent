@@ -13,7 +13,7 @@
 
 // Std. libs
 #include <iostream>
-//#include <math.h>
+#include <cmath>
 
 // Headers
 #include "RDControl.h"
@@ -28,10 +28,22 @@ using namespace std;
 
 // Construct reactor
 
-RDControl::RDControl( int size )
+RDControl::RDControl( int size, int model )
 {
     SetReactorSize( size );
-    chemnum = 2;
+
+    // Model 0: Grey-Scott
+    if (model == 0)
+    {
+        chemnum = 2;
+        paramnum = 4;
+
+        rdparameter.SetBounds(0,paramnum);
+        rdparameter(0)=0.055; //k Dale&Husbands 2010
+        rdparameter(1)=0.02; //F Dale&Husbands 2010
+        rdparameter(2)=2.0*pow(10.0,-5.0); //du Dale&Husbands 2010
+        rdparameter(3)=pow(10.0,-5.0); //dv Dale&Husbands 2010
+    }
 }
 
 // Destruct reactor
@@ -152,14 +164,14 @@ void RDControl::Reaction()
 {
     //Grey-Scott RD model
     //params
-    double du = 2.0*10**(-5); //diffusion constant
-    double dv = 10**(-5); // diffusion constant
-    double f  = rdparameter[0];
-    double k  = rdparameter[1];
+    double k  = rdparameter[0];
+    double f  = rdparameter[1];
+    double du = rdparameter[2];
+    double dv = rdparameter[3];
 
     for (int target=0; target<size; target++)
     {
-        
+            
     }
 }
 
