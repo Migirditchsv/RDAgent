@@ -51,7 +51,7 @@ class RDControl {
         // Dynamics
         void RDTimeStepEuler();
         void Reaction();
-        TVector<double> Diffusion();
+        TVector<double> Diffusion( int target );
 
 
         // Data Objects

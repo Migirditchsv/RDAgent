@@ -51,6 +51,8 @@ RDControl::RDControl( int size, int model )
 RDControl::~RDControl()
 {
     SetReactorSize( 0 );
+    rdparameter.SetBounds(0,0);
+    cellstate.SetBounds(0,0,0,0);
 }
 
 // **************************** 
@@ -163,52 +165,75 @@ void RDControl::SetReactorTopology()
 void RDControl::Reaction()
 {
     //Grey-Scott RD model
-    //params
-    double k  = rdparameter[0];
-    double f  = rdparameter[1];
-    double du = rdparameter[2];
-    double dv = rdparameter[3];
-
-    for (int target=0; target<size; target++)
+    if (model==0)
     {
-            
+        //params
+        double k  = rdparameter[0];
+        double f  = rdparameter[1];
+        double gammau = rdparameter[2];// diffusion coeff of chem u
+        double gammav = rdparameter[3];// diffusion coeff of chem v
+        TVector<double> diffvec;
+        //diffvec.SetBounds(0,2);
+        double u,v; // pre-step values of u&v used in step calculation
+        double du, dv; // change in u and v
+
+        for (int target=0; target<size; target++)
+        {
+            u = cellstate(target, 0);
+            v = cellstate(target, 1);
+
+            diffvec = Diffusion(target); // Why doesn't this work?? = IS overloaded?
+            // Find cell concentration changes
+            du = gammau*diffvec(0)-u*pow(v,2)+f*(1.0-u);
+            dv = gammav*diffvec(1)-u*pow(v,2)-(f+k)*v;
+
+            // inject changes into cell
+            cellstate(target, 0)+=du*timestepsize;
+            cellstate(target, 1)+=dv*timestepsize;
+
+            // Normalize cell
+            NormalizeCellDensity(target);
+        }
     }
 }
 
 // Computes Diffusion-time rate for all species for each cell
-TVector<double> RDControl::Diffusion()
+TVector<double> RDControl::Diffusion(int target)
 {
     //internal declarations
     TVector<double> dchem;
     dchem.SetBounds(0,chemnum);
     dchem.FillContents(0.0);
     int neighborcount=0;
+    double weight;
+    double neighborchem;
+    double targetchem;
 
-    for (int target=0; target<size; target++)
-    {
-        neighborcount = 0;
-        for (int neighbor=0; neighbor<size; neighbor++)
-        {
-            if (adjacency(target, neighbor)==0.0){continue;}
-            neighborcount++;
-            for ( int chemindx = 0; chemindx<chemnum; chemindx++)
-            {
-                dchem(chemindx)+= cellstate(neighbor, chemindx);
-            }
-        }
-        
-        // laplacian= D( Sum(c_n ) - N*c_t ) for each chem
-        for (int chemindx = 0; chemindx<chemnum; chemindx++)
-        {
-            dchem(chemindx) *= timestepsize;
-            dchem(chemindx) -= (neighborcount*timestepsize - 1.0)*cellstate(target,chemindx);
-            //dchem is now the unnormalized next state of target cell
-            // D = 1 should be ok?
-            // dt*(D=1)(c_i+c_j-N*c_t)+c_t= (~)(-dt*N-1)c_t
-            SetCellState(dchem, target);
-            NormalizeCellDensity(target);
-        }
-    }
+   for (int neighbor=0; neighbor<size; neighbor++)
+   {
+       weight = adjacency(neighbor, target);
+       if (weight==0.0){continue;}
+       neighborcount++;
+       for ( int chemindx = 0; chemindx<chemnum; chemindx++)
+       {
+           neighborchem = cellstate(neighbor, chemindx);
+           targetchem = cellstate(target, chemindx);
+           dchem(chemindx) = weight*(neighborchem-targetchem);
+       }
+   }
+   
+   // laplacian= D( Sum(c_n ) - N*c_t ) for each chem
+   for (int chemindx = 0; chemindx<chemnum; chemindx++)
+   {
+       dchem(chemindx) *= timestepsize;
+       dchem(chemindx) -= (neighborcount*timestepsize - 1.0)*cellstate(target,chemindx);
+       //dchem is now the unnormalized next state of target cell
+       // D = 1 should be ok?
+       // dt*(D=1)(c_i+c_j-N*c_t)+c_t= (~)(-dt*N-1)c_t
+       SetCellState(dchem, target);
+       NormalizeCellDensity(target);
+   }
+   return dchem;
 }
 
 // Diffusion Time Step: Extra Crude And super not optimized Euler method
