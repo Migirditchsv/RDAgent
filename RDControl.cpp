@@ -150,6 +150,15 @@ void RDControl::InjectCell(double amount, int cellindx, int chemindx)
 // Global Cell Control
 // ----------------------------
 
+// Normalize entire controller
+void RDControl::NormalizeReactorState()
+{
+    for (int target=0; target<size; target++)
+    {
+        NormalizeCellDensity(target);
+    }
+}
+
 // Randomize reactor state
 void RDControl::RandomizeReactorState()
 {
@@ -158,7 +167,7 @@ void RDControl::RandomizeReactorState()
     
     // Loop over all cells
     for (int target=0; target<size; target++)
-   {
+    {
        for ( int chemindx = 0; chemindx<chemnum; chemindx++)
        {
             holder = UniformRandom(0.0,1.0);
@@ -237,7 +246,7 @@ void RDControl::Reaction()
         double gammau = rdparameter[2];// diffusion coeff of chem u
         double gammav = rdparameter[3];// diffusion coeff of chem v
         TVector<double> diffvec;
-        //diffvec.SetBounds(0,2);
+        TMatrix<double> syncstate = cellstate; // for synchronous update
         double u,v; // pre-step values of u&v used in step calculation
         double du, dv; // change in u and v
 
@@ -252,12 +261,14 @@ void RDControl::Reaction()
             dv = gammav*diffvec(1)-u*pow(v,2)-(f+k)*v;
 
             // inject changes into cell
-            cellstate(target, 0)+=du*timestepsize;
-            cellstate(target, 1)+=dv*timestepsize;
-
-            // Normalize cell
-            NormalizeCellDensity(target);
+            syncstate(target, 0)+=du*timestepsize;
+            syncstate(target, 1)+=dv*timestepsize;
         }
+        // copy back to cellstate
+        cellstate = syncstate;
+        // Normalize controller state
+        NormalizeReactorState();
+     
     }
 }
 
@@ -269,7 +280,9 @@ TVector<double> RDControl::Diffusion(int target)
     dchem.SetBounds(0,chemnum);
     dchem.FillContents(0.0);
     int neighborcount=0;
-    double weight;
+    double weight; 
+    // ^^  diffusion network weight. Not the chemical species diffusion rate 
+    // but the spatial diffusion rate between cell i and j.
     double neighborchem;
     double targetchem;
 
@@ -282,20 +295,13 @@ TVector<double> RDControl::Diffusion(int target)
        {
            neighborchem = cellstate(neighbor, chemindx);
            targetchem = cellstate(target, chemindx);
-           dchem(chemindx) = weight*(neighborchem-targetchem);
+           dchem(chemindx) += weight*(neighborchem-targetchem);
        }
    }
-   
-   // laplacian= D( Sum(c_n ) - N*c_t ) for each chem
+   // laplacian= dt*D( Sum(c_n) - N*c_t ) for each chem
    for (int chemindx = 0; chemindx<chemnum; chemindx++)
    {
-       dchem(chemindx) *= timestepsize;
-       dchem(chemindx) -= (neighborcount*timestepsize - 1.0)*cellstate(target,chemindx);
-       //dchem is now the unnormalized next state of target cell
-       // D = 1 should be ok?
-       // dt*(D=1)(c_i+c_j-N*c_t)+c_t= (~)(-dt*N-1)c_t
-       SetCellState(dchem, target);
-       NormalizeCellDensity(target);
+       dchem(chemindx) *= cellsize*timestepsize;
    }
    return dchem;
 }

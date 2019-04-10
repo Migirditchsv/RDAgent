@@ -43,7 +43,8 @@ class RDControl {
         void SetCellState( TVector<double> newstate, int cellindx);
         void InjectCell( double amount, int chemindx, int cellindx);
 
-         // Global Cell Controls
+        // Global Cell Controls
+        void NormalizeReactorState();
         void RandomizeReactorState();
         void HomogenousReactorState();
 
@@ -59,6 +60,7 @@ class RDControl {
 
         // Data Objects
         int size; // number of RD cells 
+        double cellsize = 1.0/size;
         int model; // model index, Grey-Scott, BZ etc. 
         int chemnum; // number of chemicals
         int paramnum; //number of parameters in RD Model
