@@ -55,7 +55,7 @@ class RDControl {
         // Dynamics
         void TimeStepEuler();
         void Reaction();
-        TVector<double> Diffusion( int target );
+        void Diffusion( int target );
 
 
         // Data Objects
@@ -67,6 +67,7 @@ class RDControl {
         double timestepsize = 0.1;
         
         TVector<double> rdparameter;
+        TVector<double> diffvec; // a vector for passing the chem diffusion changes around
 
         TMatrix<double> adjacency; // Weighted Cell adjacency mtrx
         TMatrix<double> cellstate; // reactorsize by chemicalspeciesnumber mtrx

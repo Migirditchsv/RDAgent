@@ -223,7 +223,7 @@ void RDControl::SetReactorTopology()
     cout<<"RDControl.cpp: adjacency main block filled"<<endl;//debug
     // Fix edge cases
     adjacency[0][size]      = 1.0;
-    adjacency[0][1]           = 1.0;
+    adjacency[0][1]         = 1.0;
     adjacency[size][0]      = 1.0;
     adjacency[size][size-1] = 1.0;
     cout<<"RDControl.cpp: adjacency edge cases filled"<<endl;//debug
@@ -255,7 +255,7 @@ void RDControl::Reaction()
             u = cellstate(target, 0);
             v = cellstate(target, 1);
 
-            diffvec = Diffusion(target); // Why doesn't this work?? 
+            Diffusion(target); // Why doesn't this work?? 
             // Find cell concentration changes
             du = gammau*diffvec(0)-u*pow(v,2)+f*(1.0-u);
             dv = gammav*diffvec(1)-u*pow(v,2)-(f+k)*v;
@@ -268,17 +268,13 @@ void RDControl::Reaction()
         cellstate = syncstate;
         // Normalize controller state
         NormalizeReactorState();
-     
     }
 }
 
 // Computes Diffusion-time rate for all species for each cell
-TVector<double> RDControl::Diffusion(int target)
+void RDControl::Diffusion(int target)
 {
     //internal declarations
-    TVector<double> dchem;
-    dchem.SetBounds(0,chemnum);
-    dchem.FillContents(0.0);
     int neighborcount=0;
     double weight; 
     // ^^  diffusion network weight. Not the chemical species diffusion rate 
@@ -295,15 +291,14 @@ TVector<double> RDControl::Diffusion(int target)
        {
            neighborchem = cellstate(neighbor, chemindx);
            targetchem = cellstate(target, chemindx);
-           dchem(chemindx) += weight*(neighborchem-targetchem);
+           diffvec(chemindx) += weight*(neighborchem-targetchem);
        }
    }
    // laplacian= dt*D( Sum(c_n) - N*c_t ) for each chem
    for (int chemindx = 0; chemindx<chemnum; chemindx++)
    {
-       dchem(chemindx) *= cellsize*timestepsize;
+       diffvec(chemindx) *= cellsize*timestepsize;
    }
-   return dchem;
 }
 
 //// Diffusion Time Step: Extra Crude And super not optimized Euler method
