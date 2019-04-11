@@ -8,13 +8,14 @@
 
 //Identifiers
 
-void PrettyPrint(TMatrix<double> &mtrx);
+void PrettyPrint(TMatrix<double> &mtrx, int printindx);
 
 int main()
 {
     using namespace std;
     int size, model;
     double timelimit = 10.0;
+    double stepsize = 0.01;
 
     cout<<"Enter RD Controler Size as integer:";
     cin >> size;
@@ -31,30 +32,38 @@ int main()
     cout<<"Reactor Topology Set"<<endl;
     cout<<RD.adjacency<<endl;
 
-    // Fill every cell with 100% chemical u, but cell 0 has a 50-50 mix
-    RD.HomogenousReactorState();
-    RD.InjectCell(1.0,0,1);
+    // Fill reactor
+    RD.RandomReactorState();
 
-    double stepsize = RD.GetStepSize();
+    // Check fill
+    PrettyPrint( RD.cellstate, 0 );
+    PrettyPrint( RD.cellstate, 1 );
+
+    
     // Grind
     for (double time=0.0; time<timelimit; time+=stepsize)
     {
-        RD.Reaction();
+        //cout<<"TIME:"<<time<<endl;
+        RD.EulerStep( stepsize );
+        RD.InjectCell(100, 1, 0);
     }
 
+    //print state
+    //cout<<RD.cellstate<<endl;
+    PrettyPrint( RD.cellstate, 0 );
+    PrettyPrint( RD.cellstate, 1 );
     return(size);
 }
 
-void PrettyPrint(TMatrix<double> &mtrx)
+void PrettyPrint(TMatrix<double> &mtrx, int printindx)
 {
-    int size = mtrx.RowSize();
+    int size = mtrx.ColumnSize();
+    int rsize = mtrx.RowSize();
+    cout<<"r="<<rsize<<"c="<<size<<endl;
+    cout<<"[";
     for (int r = 0; r <= size; r++)
     {
-        cout<<"[ "; 
-        for (int c = 0; c <= size; c++)
-        {
-            cout<< mtrx[r][c]<<" "<<endl;
-        }
-        cout<<"]"<<endl;
+        cout<< mtrx[printindx][r]<<" ";
     }
+    cout<<"]";
 }

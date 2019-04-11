@@ -12,12 +12,12 @@
 // ****************************
 
 // Std. libs
-#include <iostream>
+//#include <iostream>
 //#include <math.h>
 
 // Headers
 #include "VectorMatrix.h"
-//#include "random.h"
+#include "random.h"
 
 #pragma once
 
@@ -34,8 +34,6 @@ class RDControl {
 
         // Accessors
         int ReactorSize(void);
-        void SetStepSize(double newsize);
-        double GetStepSize();
         TVector<double> CellState( int cellindx );
   
         // Single Cell Control
@@ -45,7 +43,7 @@ class RDControl {
 
         // Global Cell Controls
         void NormalizeReactorState();
-        void RandomizeReactorState();
+        void RandomReactorState();
         void HomogenousReactorState();
 
         // Global Topology Control
@@ -53,21 +51,22 @@ class RDControl {
         void SetReactorTopology();
 
         // Dynamics
-        void TimeStepEuler();
-        void Reaction();
+        void EulerStep( double stepsize );
         void Diffusion( int target );
 
 
         // Data Objects
         int size; // number of RD cells 
-        double cellsize = 1.0/size;
+        double cellsize; // spatial size of cells 1/size.
         int model; // model index, Grey-Scott, BZ etc. 
         int chemnum; // number of chemicals
         int paramnum; //number of parameters in RD Model
-        double timestepsize = 0.1;
+        //double timestepsize = 0.1;
         
+        // reaction parameters
         TVector<double> rdparameter;
-        TVector<double> diffvec; // a vector for passing the chem diffusion changes around
+        // a vector for passing the chem diff rates
+        TVector<double> diffvec;
 
         TMatrix<double> adjacency; // Weighted Cell adjacency mtrx
         TMatrix<double> cellstate; // reactorsize by chemicalspeciesnumber mtrx

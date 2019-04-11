@@ -40,15 +40,15 @@ void VisualAgent::SetPositionX(double newx) {
 
 void VisualAgent::Reset(double ix, double iy, int randomize) {
   cx = ix; cy = iy; vx = 0.0;
-  if (randomize) NervousSystem.RandomizeCircuitState(-0.1, 0.1);
-  else NervousSystem.RandomizeCircuitState(0.0, 0.0);
+  if (randomize) Controller.RandomizeReactorState();
+  else Controller.HomogenousReactorState();
   ResetRays();
 }
 
 void VisualAgent::Reset(RandomState &rs, double ix, double iy, int randomize) {
   cx = ix; cy = iy; vx = 0;
-  if (randomize) NervousSystem.RandomizeCircuitState(-0.1, 0.1, rs);
-  else NervousSystem.RandomizeCircuitState(0.0, 0.0, rs);
+  if (randomize) Controller.RandomizeReactorState();
+  else Controller.HomogenousCircuitState();
   ResetRays();
 }
 
@@ -69,14 +69,16 @@ void VisualAgent::Step(double StepSize, VisualObject &object) {
   for (int i=1; i<=NumRays; i++) {
     object.RayIntersection(Rays[i]);
     double external_input = InputGain*(MaxRayLength - Rays[i].length)/MaxRayLength;
-    NervousSystem.SetNeuronExternalInput(i, external_input);
+    //Replace following line with injector function having a sensor-cell linker.
+    //Controller.SetNeuronExternalInput(i, external_input);
   }
 
   // Step nervous system
-  NervousSystem.EulerStep(StepSize);
+  Controller.EulerStep(StepSize);
 
   // Update agent state
-  vx = VelGain*(NervousSystem.outputs[13] - NervousSystem.outputs[14]);
+  // replace with output reader having cell-actuator linker
+  //vx = VelGain*(Controller.outputs[13] - Controller.outputs[14]);
   cx = cx + StepSize*vx;
   if (cx < -EnvWidth/2) {
     cx = -EnvWidth/2;

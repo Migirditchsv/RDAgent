@@ -14,11 +14,12 @@
 // Std. libs
 #include <iostream>
 #include <cmath>
+#include <random>
 
 // Headers
 #include "RDControl.h"
 #include "VectorMatrix.h"
-#include "random.h"
+//#include "random.h"
 
 using namespace std;
 
@@ -35,6 +36,7 @@ RDControl::RDControl( int size, int model )
     // Model 0: Grey-Scott
     if (model == 0)
     {
+        cellsize = 1.0 / size;
         chemnum = 2;
         paramnum = 4;
 
@@ -67,17 +69,6 @@ RDControl::~RDControl()
 int RDControl::ReactorSize()
 {
     return size;
-}
-
-//Set Time Step Size
-void RDControl::SetStepSize(double newsize)
-{
-    timestepsize=newsize;
-}
-
-double RDControl::GetStepSize()
-{
-    return(timestepsize);
 }
 
 //Get Tvector of the concentrations of species in a cell
@@ -160,18 +151,21 @@ void RDControl::NormalizeReactorState()
 }
 
 // Randomize reactor state
-void RDControl::RandomizeReactorState()
+void RDControl::RandomReactorState()
 {
     // Vars
-    double holder, counter=0.0;
+    double holder;
     
+    //Randomness
+    std::random_device rd;  //seed for the random number engine
+    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+    std::uniform_real_distribution<> dis(1.0, 2.0);
     // Loop over all cells
     for (int target=0; target<size; target++)
     {
        for ( int chemindx = 0; chemindx<chemnum; chemindx++)
        {
-            holder = UniformRandom(0.0,1.0);
-            counter += holder;
+            holder = dis(gen);
             cellstate(target, chemindx)= holder;
        }    
        NormalizeCellDensity(target);
@@ -198,17 +192,17 @@ void RDControl::HomogenousReactorState()
 // Resize a reactor
 void RDControl::SetReactorSize( int newsize )
 {
-    cout<<"RDControl.cpp: Initing new reactor"<<endl;//debug
+    //cout<<"RDControl.cpp: Initing new reactor"<<endl;//debug
     size = newsize;
-    cout<<"RDControl.cpp: newi size set"<<endl;//debug
+    //cout<<"RDControl.cpp: newi size set"<<endl;//debug
     cellstate.SetBounds(0,size,0,chemnum);
-    cout<<"RDControl.cpp: state bounds set"<<endl;//debug
+    //cout<<"RDControl.cpp: state bounds set"<<endl;//debug
     cellstate.FillContents(0.0);
-    cout<<"RDControl.cpp: a and b state zero filled"<<endl;//debug
+    //cout<<"RDControl.cpp: a and b state zero filled"<<endl;//debug
     adjacency.SetBounds(0,size,0,size);
-    cout<<"RDControl.cpp: adjacency bounds set"<<endl;//debug
+    //cout<<"RDControl.cpp: adjacency bounds set"<<endl;//debug
     adjacency.FillContents(0.0);
-    cout<<"RDControl.cpp: adjacency zero filled "<<endl;//debug
+    //cout<<"RDControl.cpp: adjacency zero filled "<<endl;//debug
 }
 
 // Set reactor topology
@@ -220,13 +214,13 @@ void RDControl::SetReactorTopology()
         adjacency[r][r-1]     = 1.0;
         adjacency[r][r+1]     = 1.0;
     }
-    cout<<"RDControl.cpp: adjacency main block filled"<<endl;//debug
+    //cout<<"RDControl.cpp: adjacency main block filled"<<endl;//debug
     // Fix edge cases
     adjacency[0][size]      = 1.0;
     adjacency[0][1]         = 1.0;
     adjacency[size][0]      = 1.0;
     adjacency[size][size-1] = 1.0;
-    cout<<"RDControl.cpp: adjacency edge cases filled"<<endl;//debug
+    //cout<<"RDControl.cpp: adjacency edge cases filled"<<endl;//debug
 
 }
 
@@ -235,7 +229,7 @@ void RDControl::SetReactorTopology()
 //----------------------------
 
 // Reaction Model
-void RDControl::Reaction()
+void RDControl::EulerStep( double timestepsize )
 {
     //Grey-Scott RD model
     if (model==0)
@@ -297,7 +291,7 @@ void RDControl::Diffusion(int target)
    // laplacian= dt*D( Sum(c_n) - N*c_t ) for each chem
    for (int chemindx = 0; chemindx<chemnum; chemindx++)
    {
-       diffvec(chemindx) *= cellsize*timestepsize;
+       diffvec(chemindx) *= cellsize;
    }
 }
 

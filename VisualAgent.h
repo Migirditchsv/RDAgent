@@ -4,8 +4,9 @@
 //  Matthew Setzler 4/19/17
 // ************************************************************
 
-#include "CTRNN.h"
+#include "RDControl.h"
 #include "VisualObject.h"
+#include "random.h"
 
 // Global constants
 
@@ -38,10 +39,10 @@ class VisualAgent {
 
 		// Control
 		void Reset(double ix, double iy, int randomize = 0);
-    void Reset(RandomState &rs, double ix, double iy, int randomize);
+        void Reset(RandomState &rs, double ix, double iy, int randomize);
 		void Step(double StepSize, VisualObject &object);
 
-		CTRNN NervousSystem;
+		RDControl Controller(128,0);
 
 	private:
 		void ResetRays();
