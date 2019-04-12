@@ -13,46 +13,47 @@ void PrettyPrint(TMatrix<double> &mtrx, int printindx);
 int main()
 {
     using namespace std;
-    int size, model;
+    int size, model, topoindx;
     double timelimit = 10.0;
-    double stepsize = 0.01;
+    double stepsize = 1;
 
     cout<<"Enter RD Controler Size as integer:";
     cin >> size;
     
-    cout << "Enter RD Controler Model (0: GS euclidean ring w/ Nearest Neighbor)";
+    cout << "Enter RD Model:\n 0-> Gray-Scott \n____________\n";
     cin >> model;
+    model = 0;
 
     // Initialize Reaction Diffusion Controller
     RDControl RD(size, model);
-    cout<<"RDControler inited"<<endl;
+    cout<<"RDControler Initialilzed"<<endl;
     
     // Apply a 1D euclidean ring geometry
-    RD.SetReactorTopology();
-    cout<<"Reactor Topology Set"<<endl;
+    cout<<"Enter topology index:\n0:1D NN ring\n1:2D Cardinal NN torus\n____________\n"<<endl;
+    cin>>topoindx;
+    RD.SetReactorTopology(topoindx);
+    cout<<"Reactor Topology:"<<endl;
     cout<<RD.adjacency<<endl;
 
     // Fill reactor
     RD.RandomReactorState();
 
     // Check fill
-    PrettyPrint( RD.cellstate, 0 );
-    PrettyPrint( RD.cellstate, 1 );
-
+    cout<<"cellstate pre out:\n"<<RD.cellstate<<endl;
     
     // Grind
     for (double time=0.0; time<timelimit; time+=stepsize)
     {
-        //cout<<"TIME:"<<time<<endl;
+        cout<<"TIME:"<<time<<endl;
         RD.EulerStep( stepsize );
-        RD.InjectCell(100, 1, 0);
+        RD.InjectCell(0.5, 1, 1);
+        RD.InjectCell(0.7, 0, 0);
+
     }
 
     //print state
-    //cout<<RD.cellstate<<endl;
-    PrettyPrint( RD.cellstate, 0 );
-    PrettyPrint( RD.cellstate, 1 );
-    return(size);
+    cout<<"post out:\n"<<RD.cellstate<<endl;
+        return(size);
 }
 
 void PrettyPrint(TMatrix<double> &mtrx, int printindx)
@@ -65,5 +66,5 @@ void PrettyPrint(TMatrix<double> &mtrx, int printindx)
     {
         cout<< mtrx[printindx][r]<<" ";
     }
-    cout<<"]";
+    cout<<"]\n";
 }

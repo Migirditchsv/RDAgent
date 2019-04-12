@@ -32,6 +32,19 @@ class RDControl {
         // Destructor
         ~RDControl();
 
+
+        // Data Objects
+        int size; // number of RD cells 
+        double cellsize; // spatial size of cells 1/size.
+        int model; // model index, Grey-Scott, BZ etc. 
+        int chemnum; // number of chemicals
+        int paramnum; //number of parameters in RD Model
+        TVector<double> rdparameter; // reaction and diffusion parameter
+        TVector<double> diffvec; // a vector for passing the chem diff rates
+        TMatrix<double> adjacency; // Weighted Cell adjacency mtrx
+        TMatrix<double> cellstate; // reactorsize by chemicalspeciesnumber mtrx
+
+
         // Accessors
         int ReactorSize(void);
         TVector<double> CellState( int cellindx );
@@ -48,26 +61,10 @@ class RDControl {
 
         // Global Topology Control
         void SetReactorSize( int newsize  );
-        void SetReactorTopology();
+        void SetReactorTopology( int topologyindex );
 
         // Dynamics
         void EulerStep( double stepsize );
         void Diffusion( int target );
 
-
-        // Data Objects
-        int size; // number of RD cells 
-        double cellsize; // spatial size of cells 1/size.
-        int model; // model index, Grey-Scott, BZ etc. 
-        int chemnum; // number of chemicals
-        int paramnum; //number of parameters in RD Model
-        //double timestepsize = 0.1;
-        
-        // reaction parameters
-        TVector<double> rdparameter;
-        // a vector for passing the chem diff rates
-        TVector<double> diffvec;
-
-        TMatrix<double> adjacency; // Weighted Cell adjacency mtrx
-        TMatrix<double> cellstate; // reactorsize by chemicalspeciesnumber mtrx
 };

@@ -36,15 +36,22 @@ RDControl::RDControl( int size, int model )
     // Model 0: Grey-Scott
     if (model == 0)
     {
+        //Debug
+        cout<<"Gray-Scott Activated"<<endl;
         cellsize = 1.0 / size;
-        chemnum = 2;
+        chemnum = 1;
         paramnum = 4;
+        model = 0;
+
+        cellstate.SetBounds(0,size,0,chemnum);
 
         rdparameter.SetBounds(0,paramnum);
         rdparameter(0)=0.055; //k Dale&Husbands 2010
         rdparameter(1)=0.02; //F Dale&Husbands 2010
         rdparameter(2)=2.0*pow(10.0,-5.0); //du Dale&Husbands 2010
         rdparameter(3)=pow(10.0,-5.0); //dv Dale&Husbands 2010
+
+        diffvec.SetBounds(0,chemnum);
     }
 }
 
@@ -159,17 +166,18 @@ void RDControl::RandomReactorState()
     //Randomness
     std::random_device rd;  //seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<> dis(1.0, 2.0);
+    std::uniform_real_distribution<> dis(0.0, 1.0);
     // Loop over all cells
     for (int target=0; target<size; target++)
     {
        for ( int chemindx = 0; chemindx<chemnum; chemindx++)
        {
             holder = dis(gen);
-            cellstate(target, chemindx)= holder;
+            cellstate(target, chemindx) = holder;
        }    
-       NormalizeCellDensity(target);
    }
+    // Normalize to mass density 1
+    NormalizeReactorState();
 }
 
 // Set every cell to be 100% the chemical at index 0
@@ -206,22 +214,59 @@ void RDControl::SetReactorSize( int newsize )
 }
 
 // Set reactor topology
-void RDControl::SetReactorTopology()
+// 0: 1D Euclidean Nearest Neighbor Ring
+// 1: 2D Euclidean Cardinal NN torus (size has gotta be a square number!!)
+void RDControl::SetReactorTopology(int topologyindx)
 {
-    // 1D Euclidian Nearest Neighbor Ring
-    for (int r = 1; r <= size-1; r++)
+    // Index 0: 1D Euclidian Nearest Neighbor Ring
+    if (topologyindx==0)
     {
-        adjacency[r][r-1]     = 1.0;
-        adjacency[r][r+1]     = 1.0;
+        for (int r = 1; r <= size-1; r++)
+        {
+            adjacency[r][r-1]     = 1.0;
+            adjacency[r][r+1]     = 1.0;
+        }
+        // Fix edge cases
+        adjacency[0][size]      = 1.0;
+        adjacency[0][1]         = 1.0;
+        adjacency[size][0]      = 1.0;
+        adjacency[size][size-1] = 1.0;
     }
-    //cout<<"RDControl.cpp: adjacency main block filled"<<endl;//debug
-    // Fix edge cases
-    adjacency[0][size]      = 1.0;
-    adjacency[0][1]         = 1.0;
-    adjacency[size][0]      = 1.0;
-    adjacency[size][size-1] = 1.0;
-    //cout<<"RDControl.cpp: adjacency edge cases filled"<<endl;//debug
 
+    // Index 1: 2D Cardinal NN torus
+    if (topologyindx == 1)
+    {
+        // warn user if stupid
+        double check = sqrt(size);
+        if ( ceil(check)!=floor(check) )
+        {
+            cout<<"ERROR: RDControl.cpp-SetReactorTopology(indx): array size must be square number to use Index 1: 2D Cardinal NN torus"<<endl;
+            exit(0);
+        }
+
+        // Vars
+        int tr, tc, nr, nc; // target and neighbor row and col respectively
+        int width = sqrt(size); // width of square is sqrt of size
+        int value; // 1 or 0 for topology
+
+                for( int target=0; target<=size; target++ )
+        {
+            tr = target/width;
+            tc = target%width;
+
+            for( int neighbor=0; neighbor<=size; neighbor++ )
+            {
+                nr = neighbor/width;
+                nc = neighbor%width;
+
+                // cardinal nearest neigbor conditional
+                value = (tc==nc) and ( abs(tr-nr)==1 or abs(tr-nr)==width-1 );
+                value += (tr==nr) and ( abs(tc-nc)==1 or abs(tc-nc)==width-1 );
+
+                adjacency[target][neighbor]=value>0;
+            }
+        }
+    }
 }
 
 //-----------------------------
@@ -231,12 +276,15 @@ void RDControl::SetReactorTopology()
 // Reaction Model
 void RDControl::EulerStep( double timestepsize )
 {
+    cout<<"EulerStep| model="<<model<<endl; 
+    int model = 0;
     //Grey-Scott RD model
     if (model==0)
     {
+        cout<<"Grey-Scott Active"<<endl;
         //params
-        double k  = rdparameter[0];
-        double f  = rdparameter[1];
+        double k = rdparameter[0];
+        double f = rdparameter[1];
         double gammau = rdparameter[2];// diffusion coeff of chem u
         double gammav = rdparameter[3];// diffusion coeff of chem v
         TVector<double> diffvec;
@@ -244,15 +292,25 @@ void RDControl::EulerStep( double timestepsize )
         double u,v; // pre-step values of u&v used in step calculation
         double du, dv; // change in u and v
 
+        cout<<"vars initialized"<<endl;
+
         for (int target=0; target<size; target++)
         {
             u = cellstate(target, 0);
             v = cellstate(target, 1);
 
-            Diffusion(target); // Why doesn't this work?? 
+            cout<<"cells read"<<endl;
+
+            Diffusion(target);
+
+            cout<<"diffusion run"<<endl;
+
             // Find cell concentration changes
             du = gammau*diffvec(0)-u*pow(v,2)+f*(1.0-u);
             dv = gammav*diffvec(1)-u*pow(v,2)-(f+k)*v;
+
+            // debug
+            cout<<"RDControl.cpp-eulerstep()| du:"<<du<<"dv"<<dv<<endl;
 
             // inject changes into cell
             syncstate(target, 0)+=du*timestepsize;
@@ -269,7 +327,6 @@ void RDControl::EulerStep( double timestepsize )
 void RDControl::Diffusion(int target)
 {
     //internal declarations
-    int neighborcount=0;
     double weight; 
     // ^^  diffusion network weight. Not the chemical species diffusion rate 
     // but the spatial diffusion rate between cell i and j.
@@ -278,21 +335,28 @@ void RDControl::Diffusion(int target)
 
    for (int neighbor=0; neighbor<size; neighbor++)
    {
-       weight = adjacency(neighbor, target);
+       cout<<"DIF| neighbor:"<<neighbor<<"target:"<<target<<endl;
+       weight = adjacency(target, neighbor);
        if (weight==0.0){continue;}
-       neighborcount++;
        for ( int chemindx = 0; chemindx<chemnum; chemindx++)
        {
+           cout<<"DIF| chemindx:"<<chemindx<<endl;
+           cout<<"DIF| cellstate\n"<<cellstate<<endl;
            neighborchem = cellstate(neighbor, chemindx);
+           cout<<"1"<<endl;
            targetchem = cellstate(target, chemindx);
+           cout<<"2"<<endl;
            diffvec(chemindx) += weight*(neighborchem-targetchem);
+           cout<<"3"<<endl;
        }
+       cout<<"neighbor:"<<neighbor<<"complete"<<endl;
    }
    // laplacian= dt*D( Sum(c_n) - N*c_t ) for each chem
    for (int chemindx = 0; chemindx<chemnum; chemindx++)
    {
        diffvec(chemindx) *= cellsize;
    }
+   cout<<"laplacian applied"<<endl;
 }
 
 //// Diffusion Time Step: Extra Crude And super not optimized Euler method
