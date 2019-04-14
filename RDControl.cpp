@@ -34,10 +34,10 @@ RDControl::RDControl( int size, int model )
     SetReactorSize( size );
 
     // Model 0: Grey-Scott
-    if (model == 0)
+    if ( 0 == 0)
     {
         //Debug
-        cout<<"Gray-Scott Activated"<<endl;
+        cout<<"Gray-Scott Model Initialzing"<<endl;
         cellsize = 1.0 / size;
         chemnum = 1;
         paramnum = 4;
@@ -52,6 +52,9 @@ RDControl::RDControl( int size, int model )
         rdparameter(3)=pow(10.0,-5.0); //dv Dale&Husbands 2010
 
         diffvec.SetBounds(0,chemnum);
+        diffvec.FillContents(0);
+        cout<<"RDC.cpp: Constructor: Diffvec declared:"<<endl;
+        cout<<diffvec<<endl;
     }
 }
 
@@ -87,7 +90,7 @@ TVector<double> RDControl::CellState( int cellindx )
     states.FillContents(0.0);
 
     // loop over chem indx
-    for (int chemindx=0; chemindx<chemnum; chemindx++)
+    for (int chemindx=0; chemindx<=chemnum; chemindx++)
     {
         states(chemindx)=cellstate(cellindx,chemindx);
     }
@@ -106,9 +109,9 @@ void RDControl::NormalizeCellDensity( int cellindx )
     double inversetotal = 0.0;
     
     // sum for total chem
-    for (int chemindx=0;chemindx<chemnum;chemindx++)
+    for (int chemindx=0;chemindx<=chemnum;chemindx++)
     {
-        totalchem = cellstate(cellindx,chemindx);
+        totalchem += cellstate(cellindx,chemindx);
     }
 
     // Division Safety
@@ -121,16 +124,22 @@ void RDControl::NormalizeCellDensity( int cellindx )
     inversetotal = 1.0/totalchem;
 
     // normalize each chem by total chem
-    for (int chemindx=0;chemindx<chemnum;chemindx++)
+    for (int chemindx=0;chemindx<=chemnum;chemindx++)
     {
+        cout<<"RDC.cpp:NormalizeCellDensity:inversetotal="<<inversetotal<<endl;
+        cout<<"RDC.cpp:NormalizeCellDensity:precellstate:"<<endl;
+        cout<<"cellindx,chemindx:"<<cellindx<<","<<chemindx<<endl;
+        cout<<"cellstate:"<<cellstate(cellindx,chemindx)<<endl;
         cellstate(cellindx,chemindx)*=inversetotal;
+        cout<<"Post:"<<endl;
+        cout<<"cellstate:"<<cellstate(cellindx,chemindx)<<endl;
     }
 }
 
 // Sets the chemical state of a cell
 void RDControl::SetCellState(TVector<double> newstate, int cellindx)
 {
-    for (int chemindx=0;chemindx<chemnum;chemindx++)
+    for (int chemindx=0;chemindx<=chemnum;chemindx++)
     {
         cellstate(cellindx,chemindx)=newstate(chemindx);
     }
@@ -151,7 +160,7 @@ void RDControl::InjectCell(double amount, int cellindx, int chemindx)
 // Normalize entire controller
 void RDControl::NormalizeReactorState()
 {
-    for (int target=0; target<size; target++)
+    for (int target=0; target<=size; target++)
     {
         NormalizeCellDensity(target);
     }
@@ -168,12 +177,14 @@ void RDControl::RandomReactorState()
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     std::uniform_real_distribution<> dis(0.0, 1.0);
     // Loop over all cells
-    for (int target=0; target<size; target++)
+    for (int target=0; target<=size; target++)
     {
-       for ( int chemindx = 0; chemindx<chemnum; chemindx++)
+       for ( int chemindx = 0; chemindx<=chemnum; chemindx++)
        {
-            holder = dis(gen);
+            holder = 0.5;//dis(gen);
+            cout<<"RDC.cpp:RandomReactorState: holder="<<holder<<endl;
             cellstate(target, chemindx) = holder;
+            cout<<"RDC.cpp:RandomReactorState:cellstate("<<target<<chemindx<<")="<<cellstate(target,chemindx)<<endl; 
        }    
    }
     // Normalize to mass density 1
@@ -183,12 +194,12 @@ void RDControl::RandomReactorState()
 // Set every cell to be 100% the chemical at index 0
 void RDControl::HomogenousReactorState()
 {
-    for (int target=0; target<size; target++)
+    for (int target=0; target<=size; target++)
     {
-        for (int chemindx=0; chemindx<chemnum; chemindx++)
+        for (int chemindx=0; chemindx<=chemnum; chemindx++)
         {
-            if (chemindx==0){cellstate(target,chemindx)=1.0;}
-            else{cellstate(target,chemindx)=0.0;}
+            if (chemindx==0){cellstate(target,chemindx)=0.5;}
+            else{cellstate(target,chemindx)=0.5;}
         }
     }
 }
@@ -294,7 +305,7 @@ void RDControl::EulerStep( double timestepsize )
 
         cout<<"vars initialized"<<endl;
 
-        for (int target=0; target<size; target++)
+        for (int target=0; target<=size; target++)
         {
             u = cellstate(target, 0);
             v = cellstate(target, 1);
@@ -304,6 +315,8 @@ void RDControl::EulerStep( double timestepsize )
             Diffusion(target);
 
             cout<<"diffusion run"<<endl;
+            cout<<"diffusion vector"<<endl;
+            cout<<diffvec<<endl;
 
             // Find cell concentration changes
             du = gammau*diffvec(0)-u*pow(v,2)+f*(1.0-u);
@@ -333,12 +346,15 @@ void RDControl::Diffusion(int target)
     double neighborchem;
     double targetchem;
 
-   for (int neighbor=0; neighbor<size; neighbor++)
+    
+    diffvec.FillContents(0);
+
+   for (int neighbor=0; neighbor<=size; neighbor++)
    {
        cout<<"DIF| neighbor:"<<neighbor<<"target:"<<target<<endl;
        weight = adjacency(target, neighbor);
        if (weight==0.0){continue;}
-       for ( int chemindx = 0; chemindx<chemnum; chemindx++)
+       for ( int chemindx = 0; chemindx<=chemnum; chemindx++)
        {
            cout<<"DIF| chemindx:"<<chemindx<<endl;
            cout<<"DIF| cellstate\n"<<cellstate<<endl;
@@ -352,7 +368,7 @@ void RDControl::Diffusion(int target)
        cout<<"neighbor:"<<neighbor<<"complete"<<endl;
    }
    // laplacian= dt*D( Sum(c_n) - N*c_t ) for each chem
-   for (int chemindx = 0; chemindx<chemnum; chemindx++)
+   for (int chemindx = 0; chemindx<=chemnum; chemindx++)
    {
        diffvec(chemindx) *= cellsize;
    }

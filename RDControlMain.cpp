@@ -17,11 +17,12 @@ int main()
     double timelimit = 10.0;
     double stepsize = 1;
 
-    cout<<"Enter RD Controler Size as integer:";
-    cin >> size;
+    cout<<"Enter RD Controler Size as integer:0";
+    //cin >> size;
+    size = 9;
     
     cout << "Enter RD Model:\n 0-> Gray-Scott \n____________\n";
-    cin >> model;
+    //cin >> model;
     model = 0;
 
     // Initialize Reaction Diffusion Controller
@@ -30,16 +31,19 @@ int main()
     
     // Apply a 1D euclidean ring geometry
     cout<<"Enter topology index:\n0:1D NN ring\n1:2D Cardinal NN torus\n____________\n"<<endl;
-    cin>>topoindx;
+    //cin>>topoindx;
+    topoindx = 0;
     RD.SetReactorTopology(topoindx);
     cout<<"Reactor Topology:"<<endl;
     cout<<RD.adjacency<<endl;
 
     // Fill reactor
-    RD.RandomReactorState();
+    RD.HomogenousReactorState();
 
     // Check fill
     cout<<"cellstate pre out:\n"<<RD.cellstate<<endl;
+    RD.InjectCell( 10.0, 0, 0 );
+    cout<<"Spiked cell state:"<< RD.cellstate<<endl;
     
     // Grind
     for (double time=0.0; time<timelimit; time+=stepsize)
