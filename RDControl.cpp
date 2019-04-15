@@ -53,8 +53,6 @@ RDControl::RDControl( int size, int model )
 
         diffvec.SetBounds(0,chemnum);
         diffvec.FillContents(0);
-        cout<<"RDC.cpp: Constructor: Diffvec declared:"<<endl;
-        cout<<diffvec<<endl;
     }
 }
 
@@ -126,13 +124,7 @@ void RDControl::NormalizeCellDensity( int cellindx )
     // normalize each chem by total chem
     for (int chemindx=0;chemindx<=chemnum;chemindx++)
     {
-        cout<<"RDC.cpp:NormalizeCellDensity:inversetotal="<<inversetotal<<endl;
-        cout<<"RDC.cpp:NormalizeCellDensity:precellstate:"<<endl;
-        cout<<"cellindx,chemindx:"<<cellindx<<","<<chemindx<<endl;
-        cout<<"cellstate:"<<cellstate(cellindx,chemindx)<<endl;
-        cellstate(cellindx,chemindx)*=inversetotal;
-        cout<<"Post:"<<endl;
-        cout<<"cellstate:"<<cellstate(cellindx,chemindx)<<endl;
+       cellstate(cellindx,chemindx)*=inversetotal;
     }
 }
 
@@ -182,9 +174,7 @@ void RDControl::RandomReactorState()
        for ( int chemindx = 0; chemindx<=chemnum; chemindx++)
        {
             holder = 0.5;//dis(gen);
-            cout<<"RDC.cpp:RandomReactorState: holder="<<holder<<endl;
             cellstate(target, chemindx) = holder;
-            cout<<"RDC.cpp:RandomReactorState:cellstate("<<target<<chemindx<<")="<<cellstate(target,chemindx)<<endl; 
        }    
    }
     // Normalize to mass density 1
@@ -211,17 +201,11 @@ void RDControl::HomogenousReactorState()
 // Resize a reactor
 void RDControl::SetReactorSize( int newsize )
 {
-    //cout<<"RDControl.cpp: Initing new reactor"<<endl;//debug
     size = newsize;
-    //cout<<"RDControl.cpp: newi size set"<<endl;//debug
     cellstate.SetBounds(0,size,0,chemnum);
-    //cout<<"RDControl.cpp: state bounds set"<<endl;//debug
     cellstate.FillContents(0.0);
-    //cout<<"RDControl.cpp: a and b state zero filled"<<endl;//debug
     adjacency.SetBounds(0,size,0,size);
-    //cout<<"RDControl.cpp: adjacency bounds set"<<endl;//debug
     adjacency.FillContents(0.0);
-    //cout<<"RDControl.cpp: adjacency zero filled "<<endl;//debug
 }
 
 // Set reactor topology
@@ -287,44 +271,51 @@ void RDControl::SetReactorTopology(int topologyindx)
 // Reaction Model
 void RDControl::EulerStep( double timestepsize )
 {
-    cout<<"EulerStep| model="<<model<<endl; 
     int model = 0;
     //Grey-Scott RD model
     if (model==0)
     {
-        cout<<"Grey-Scott Active"<<endl;
         //params
         double k = rdparameter[0];
         double f = rdparameter[1];
         double gammau = rdparameter[2];// diffusion coeff of chem u
         double gammav = rdparameter[3];// diffusion coeff of chem v
-        TVector<double> diffvec;
         TMatrix<double> syncstate = cellstate; // for synchronous update
         double u,v; // pre-step values of u&v used in step calculation
         double du, dv; // change in u and v
-
-        cout<<"vars initialized"<<endl;
+        
+//        //Check sycn state == cell state
+//        int flag = 1;
+//        int crows = cellstate.RowSize();
+//        int ccols = cellstate.ColumnSize();
+//        int srows = syncstate.RowSize();
+//        int scols = syncstate.ColumnSize();
+//        //cout<<"crows:"<<crows<<"Ccolls:"<<ccols<<"srows:"<<srows<<"scolls:"<<scols<<endl;
+// 
+//        for( int r = 0; r<=crows-1; r++ )
+//        {
+//            for( int c = 0; c<=ccols-1; c++ )
+//            {
+//                flag *= syncstate(c,r) == cellstate(c,r);
+//            }
+//            if(flag==0)
+//            {
+//                cout<<"ERROR: RDCONTROL::EULERSTEP->SYNCSTATE FAILED"<<endl;
+//                exit(0);
+//            }
+//        }
 
         for (int target=0; target<=size; target++)
         {
             u = cellstate(target, 0);
             v = cellstate(target, 1);
 
-            cout<<"cells read"<<endl;
-
             Diffusion(target);
-
-            cout<<"diffusion run"<<endl;
-            cout<<"diffusion vector"<<endl;
-            cout<<diffvec<<endl;
 
             // Find cell concentration changes
             du = gammau*diffvec(0)-u*pow(v,2)+f*(1.0-u);
             dv = gammav*diffvec(1)-u*pow(v,2)-(f+k)*v;
-
-            // debug
-            cout<<"RDControl.cpp-eulerstep()| du:"<<du<<"dv"<<dv<<endl;
-
+            
             // inject changes into cell
             syncstate(target, 0)+=du*timestepsize;
             syncstate(target, 1)+=dv*timestepsize;
@@ -351,28 +342,25 @@ void RDControl::Diffusion(int target)
 
    for (int neighbor=0; neighbor<=size; neighbor++)
    {
-       cout<<"DIF| neighbor:"<<neighbor<<"target:"<<target<<endl;
-       weight = adjacency(target, neighbor);
-       if (weight==0.0){continue;}
-       for ( int chemindx = 0; chemindx<=chemnum; chemindx++)
-       {
-           cout<<"DIF| chemindx:"<<chemindx<<endl;
-           cout<<"DIF| cellstate\n"<<cellstate<<endl;
-           neighborchem = cellstate(neighbor, chemindx);
-           cout<<"1"<<endl;
-           targetchem = cellstate(target, chemindx);
-           cout<<"2"<<endl;
-           diffvec(chemindx) += weight*(neighborchem-targetchem);
-           cout<<"3"<<endl;
+        weight = adjacency(target, neighbor);
+        if (weight==0.0)
+        {
+            continue;
+        } 
+
+        for ( int chemindx = 0; chemindx<=chemnum; chemindx++)
+        {
+            //cout<<"DIFF| Targ:"<<target<<"Neig:"<<neighbor<<"Chem:"<<chemindx<<"Weight:"<<weight<<endl;
+            neighborchem = cellstate(neighbor, chemindx);
+            targetchem = cellstate(target, chemindx);
+            diffvec(chemindx) += weight*(neighborchem-targetchem);
        }
-       cout<<"neighbor:"<<neighbor<<"complete"<<endl;
    }
    // laplacian= dt*D( Sum(c_n) - N*c_t ) for each chem
    for (int chemindx = 0; chemindx<=chemnum; chemindx++)
    {
        diffvec(chemindx) *= cellsize;
    }
-   cout<<"laplacian applied"<<endl;
 }
 
 //// Diffusion Time Step: Extra Crude And super not optimized Euler method

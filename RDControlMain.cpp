@@ -1,7 +1,8 @@
 // Testbed for RDControl Development
 
 //Includes
-#include <iostream>
+#include <iostream> // cout, cin
+#include <cmath> // fmod, 
 
 //Headers
 #include "RDControl.h"
@@ -15,7 +16,8 @@ int main()
     using namespace std;
     int size, model, topoindx;
     double timelimit = 10.0;
-    double stepsize = 1;
+    double stepsize = 0.01;
+    double printfreq = 1;
 
     cout<<"Enter RD Controler Size as integer:0";
     //cin >> size;
@@ -42,33 +44,23 @@ int main()
 
     // Check fill
     cout<<"cellstate pre out:\n"<<RD.cellstate<<endl;
-    RD.InjectCell( 10.0, 0, 0 );
+    RD.InjectCell( 1.0, 0, 0 );
     cout<<"Spiked cell state:"<< RD.cellstate<<endl;
-    
+
+
     // Grind
     for (double time=0.0; time<timelimit; time+=stepsize)
     {
-        cout<<"TIME:"<<time<<endl;
         RD.EulerStep( stepsize );
-        RD.InjectCell(0.5, 1, 1);
-        RD.InjectCell(0.7, 0, 0);
-
+        RD.InjectCell(5, 7, 1);
+        RD.InjectCell(7, 0, 0);
+        //output
+        if(fmod(time,printfreq)<stepsize  )
+        {
+        cout<<"TIME:"<<time<<endl;
+        cout<<"State:\n"<<RD.cellstate<<endl;
+        }
     }
-
-    //print state
-    cout<<"post out:\n"<<RD.cellstate<<endl;
-        return(size);
+    return(0);
 }
 
-void PrettyPrint(TMatrix<double> &mtrx, int printindx)
-{
-    int size = mtrx.ColumnSize();
-    int rsize = mtrx.RowSize();
-    cout<<"r="<<rsize<<"c="<<size<<endl;
-    cout<<"[";
-    for (int r = 0; r <= size; r++)
-    {
-        cout<< mtrx[printindx][r]<<" ";
-    }
-    cout<<"]\n";
-}
