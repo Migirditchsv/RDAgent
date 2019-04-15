@@ -51,6 +51,9 @@ RDControl::RDControl( int size, int model )
         rdparameter(2)=2.0*pow(10.0,-5.0); //du Dale&Husbands 2010
         rdparameter(3)=pow(10.0,-5.0); //dv Dale&Husbands 2010
 
+        //check rdpaarm
+        cout<<"CONSTRUCT:"<<rdparameter<<endl;
+
         diffvec.SetBounds(0,chemnum);
         diffvec.FillContents(0);
     }
@@ -271,18 +274,19 @@ void RDControl::SetReactorTopology(int topologyindx)
 // Reaction Model
 void RDControl::EulerStep( double timestepsize )
 {
-    int model = 0;
     //Grey-Scott RD model
-    if (model==0)
+    if (1)//(model==0)
     {
         //params
-        double k = rdparameter[0];
-        double f = rdparameter[1];
-        double gammau = rdparameter[2];// diffusion coeff of chem u
-        double gammav = rdparameter[3];// diffusion coeff of chem v
+        double k = rdparameter(0);
+        double f = rdparameter(1);
+        double gammau = rdparameter(2);// diffusion coeff of chem u
+        double gammav = rdparameter(3);// diffusion coeff of chem v
         TMatrix<double> syncstate = cellstate; // for synchronous update
         double u,v; // pre-step values of u&v used in step calculation
         double du, dv; // change in u and v
+
+        //cout<<rdparameter<<cout;
         
 //        //Check sycn state == cell state
 //        int flag = 1;
@@ -314,7 +318,10 @@ void RDControl::EulerStep( double timestepsize )
 
             // Find cell concentration changes
             du = gammau*diffvec(0)-u*pow(v,2)+f*(1.0-u);
-            dv = gammav*diffvec(1)-u*pow(v,2)-(f+k)*v;
+            dv = gammav*diffvec(1)+u*pow(v,2)-(f+k)*v;
+            
+            //debug
+            //cout<<"EULERSTEP| du:"<<du<<"dv:"<<dv<<endl;
             
             // inject changes into cell
             syncstate(target, 0)+=du*timestepsize;

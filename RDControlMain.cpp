@@ -15,9 +15,9 @@ int main()
 {
     using namespace std;
     int size, model, topoindx;
-    double timelimit = 10.0;
-    double stepsize = 0.01;
-    double printfreq = 1;
+    double timelimit = 100.0;
+    double stepsize = 0.1;
+    double printfreq = 10;
 
     cout<<"Enter RD Controler Size as integer:0";
     //cin >> size;
@@ -30,6 +30,7 @@ int main()
     // Initialize Reaction Diffusion Controller
     RDControl RD(size, model);
     cout<<"RDControler Initialilzed"<<endl;
+    cout<<"MAIN| rdparam:"<<RD.rdparameter<<endl;
     
     // Apply a 1D euclidean ring geometry
     cout<<"Enter topology index:\n0:1D NN ring\n1:2D Cardinal NN torus\n____________\n"<<endl;
