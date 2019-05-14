@@ -1,12 +1,17 @@
 // ***********************************************************
-//  A class for visual agents
+//  A class for Reaction Diffusion controlled agents with
+//  simple ray vision-like sensors. Based on code by Matthew
+//  Setzler.
 //
-//  Matthew Setzler 4/19/17
+//  By: Sam Migirditch
+//
+//  05/19| SVM: Converted from VisualAgent to RDAgent
 // ************************************************************
 
 #include "RDControl.h"
 #include "VisualObject.h"
 #include "random.h"
+#include "TVector.h"
 
 // Global constants
 
@@ -42,7 +47,11 @@ class VisualAgent {
         void Reset(RandomState &rs, double ix, double iy, int randomize);
 		void Step(double StepSize, VisualObject &object);
 
+        // Controller Interface
 		RDControl Controller();
+        
+        void RunInputPerceptrons()
+
 
 	private:
 		void ResetRays();
