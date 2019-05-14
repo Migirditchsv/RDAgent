@@ -23,14 +23,25 @@ const double InputGain = 10.0;
 const double VisualAngle = Pi/6;
 const double VelGain = 5;
 
+// Evolutionary Targets
+
+TMatrix<double> inperceptron; // NumRays X MaxLinks X 3(targetcell,chemindx,weight)
+TMatrix<double> outperceptron; // NumRays X MaxLinks X 3(targetcell,chemindx,weight)
+
 // The VisualAgent class declaration
 
 class VisualAgent {
 	public:
 		// The constructor 
 		VisualAgent(double ix = 0.0, double iy = 0.0, int NumRays_ = 7) {
+            // Define Rays
 			NumRays = NumRays_;
 			Rays.SetBounds(1, NumRays);
+
+            // Define links
+            SetInputPerceptronLinks();
+            SetOutputPerceptronLinks();
+            // Initialize position
 			Reset(ix,iy);
 		};
 
@@ -42,7 +53,7 @@ class VisualAgent {
 		void SetPositionX(double newx);
 		double PositionY() {return cy;};
 
-		// Control
+		// Agent State Control
 		void Reset(double ix, double iy, int randomize = 0);
         void Reset(RandomState &rs, double ix, double iy, int randomize);
 		void Step(double StepSize, VisualObject &object);
@@ -50,7 +61,14 @@ class VisualAgent {
         // Controller Interface
 		RDControl Controller();
         
-        void RunInputPerceptrons()
+        void SetInputPerceptronLinks();
+        void SetOutputPerceptronLinks();
+        void FireInputPerceptrons();
+        void FireOutputPerceptrons();
+
+        // Output
+        void SlowPrintState();
+        void PrintConfiguration();
 
 
 	private:

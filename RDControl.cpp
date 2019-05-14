@@ -43,18 +43,18 @@ RDControl::RDControl( int size, int model )
         paramnum = 4;
         model = 0;
 
-        cellstate.SetBounds(0,size,0,chemnum);
+        cellstate.SetBounds(1,size,1,chemnum);
 
-        rdparameter.SetBounds(0,paramnum);
-        rdparameter(0)=0.055; //k Dale&Husbands 2010
-        rdparameter(1)=0.02; //F Dale&Husbands 2010
-        rdparameter(2)=2.0*pow(10.0,-5.0); //du Dale&Husbands 2010
-        rdparameter(3)=pow(10.0,-5.0); //dv Dale&Husbands 2010
+        rdparameter.SetBounds(1,paramnum);
+        rdparameter(1)=0.055; //k Dale&Husbands 2010
+        rdparameter(2)=0.02; //F Dale&Husbands 2010
+        rdparameter(3)=2.0*pow(10.0,-5.0); //du Dale&Husbands 2010
+        rdparameter(4)=pow(10.0,-5.0); //dv Dale&Husbands 2010
 
         //check rdpaarm
         cout<<"CONSTRUCT:"<<rdparameter<<endl;
 
-        diffvec.SetBounds(0,chemnum);
+        diffvec.SetBounds(1,chemnum);
         diffvec.FillContents(0);
     }
 }
@@ -87,11 +87,11 @@ TVector<double> RDControl::CellState( int cellindx )
 {
     // init returnable state vector
     TVector<double> states;
-    states.SetBounds(0,chemnum);
+    states.SetBounds(1,chemnum);
     states.FillContents(0.0);
 
     // loop over chem indx
-    for (int chemindx=0; chemindx<=chemnum; chemindx++)
+    for (int chemindx=1; chemindx<=chemnum; chemindx++)
     {
         states(chemindx)=cellstate(cellindx,chemindx);
     }
@@ -110,7 +110,7 @@ void RDControl::NormalizeCellDensity( int cellindx )
     double inversetotal = 0.0;
     
     // sum for total chem
-    for (int chemindx=0;chemindx<=chemnum;chemindx++)
+    for (int chemindx=1;chemindx<=chemnum;chemindx++)
     {
         totalchem += cellstate(cellindx,chemindx);
     }
@@ -125,7 +125,7 @@ void RDControl::NormalizeCellDensity( int cellindx )
     inversetotal = 1.0/totalchem;
 
     // normalize each chem by total chem
-    for (int chemindx=0;chemindx<=chemnum;chemindx++)
+    for (int chemindx=1;chemindx<=chemnum;chemindx++)
     {
        cellstate(cellindx,chemindx)*=inversetotal;
     }
@@ -134,7 +134,7 @@ void RDControl::NormalizeCellDensity( int cellindx )
 // Sets the chemical state of a cell
 void RDControl::SetCellState(TVector<double> newstate, int cellindx)
 {
-    for (int chemindx=0;chemindx<=chemnum;chemindx++)
+    for (int chemindx=1;chemindx<=chemnum;chemindx++)
     {
         cellstate(cellindx,chemindx)=newstate(chemindx);
     }
@@ -155,7 +155,7 @@ void RDControl::InjectCell(double amount, int cellindx, int chemindx)
 // Normalize entire controller
 void RDControl::NormalizeReactorState()
 {
-    for (int target=0; target<=size; target++)
+    for (int target=1; target<=size; target++)
     {
         NormalizeCellDensity(target);
     }
@@ -172,9 +172,9 @@ void RDControl::RandomReactorState()
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     std::uniform_real_distribution<> dis(0.0, 1.0);
     // Loop over all cells
-    for (int target=0; target<=size; target++)
+    for (int target=1; target<=size; target++)
     {
-       for ( int chemindx = 0; chemindx<=chemnum; chemindx++)
+       for ( int chemindx=1; chemindx<=chemnum; chemindx++)
        {
             holder = 0.5;//dis(gen);
             cellstate(target, chemindx) = holder;
@@ -187,9 +187,9 @@ void RDControl::RandomReactorState()
 // Set every cell to be 100% the chemical at index 0
 void RDControl::HomogenousReactorState()
 {
-    for (int target=0; target<=size; target++)
+    for (int target=1; target<=size; target++)
     {
-        for (int chemindx=0; chemindx<=chemnum; chemindx++)
+        for (int chemindx=1; chemindx<=chemnum; chemindx++)
         {
             if (chemindx==0){cellstate(target,chemindx)=0.5;}
             else{cellstate(target,chemindx)=0.5;}
@@ -205,9 +205,9 @@ void RDControl::HomogenousReactorState()
 void RDControl::SetReactorSize( int newsize )
 {
     size = newsize;
-    cellstate.SetBounds(0,size,0,chemnum);
+    cellstate.SetBounds(1,size,1,chemnum);
     cellstate.FillContents(0.0);
-    adjacency.SetBounds(0,size,0,size);
+    adjacency.SetBounds(1,size,1,size);
     adjacency.FillContents(0.0);
 }
 
@@ -219,15 +219,15 @@ void RDControl::SetReactorTopology(int topologyindx)
     // Index 0: 1D Euclidian Nearest Neighbor Ring
     if (topologyindx==0)
     {
-        for (int r = 1; r <= size-1; r++)
+        for (int r = 2; r <= size-1; r++)
         {
             adjacency[r][r-1]     = 1.0;
             adjacency[r][r+1]     = 1.0;
         }
         // Fix edge cases
-        adjacency[0][size]      = 1.0;
-        adjacency[0][1]         = 1.0;
-        adjacency[size][0]      = 1.0;
+        adjacency[1][size]      = 1.0;
+        adjacency[1][2]         = 1.0;
+        adjacency[size][1]      = 1.0;
         adjacency[size][size-1] = 1.0;
     }
 
@@ -247,12 +247,12 @@ void RDControl::SetReactorTopology(int topologyindx)
         int width = sqrt(size); // width of square is sqrt of size
         int value; // 1 or 0 for topology
 
-                for( int target=0; target<=size; target++ )
+                for( int target=1; target<=size; target++ )
         {
             tr = target/width;
             tc = target%width;
 
-            for( int neighbor=0; neighbor<=size; neighbor++ )
+            for( int neighbor=1; neighbor<=size; neighbor++ )
             {
                 nr = neighbor/width;
                 nc = neighbor%width;
@@ -278,10 +278,10 @@ void RDControl::EulerStep( double timestepsize )
     if (1)//(model==0)
     {
         //params
-        double k = rdparameter(0);
-        double f = rdparameter(1);
-        double gammau = rdparameter(2);// diffusion coeff of chem u
-        double gammav = rdparameter(3);// diffusion coeff of chem v
+        double k = rdparameter(1);
+        double f = rdparameter(2);
+        double gammau = rdparameter(3);// diffusion coeff of chem u
+        double gammav = rdparameter(4);// diffusion coeff of chem v
         TMatrix<double> syncstate = cellstate; // for synchronous update
         double u,v; // pre-step values of u&v used in step calculation
         double du, dv; // change in u and v
@@ -309,23 +309,23 @@ void RDControl::EulerStep( double timestepsize )
 //            }
 //        }
 
-        for (int target=0; target<=size; target++)
+        for (int target=1; target<=size; target++)
         {
-            u = cellstate(target, 0);
-            v = cellstate(target, 1);
+            u = cellstate(target, 1);
+            v = cellstate(target, 2);
 
             Diffusion(target);
 
             // Find cell concentration changes
-            du = gammau*diffvec(0)-u*pow(v,2)+f*(1.0-u);
-            dv = gammav*diffvec(1)+u*pow(v,2)-(f+k)*v;
+            du = gammau*diffvec(1)-u*pow(v,2)+f*(1.0-u);
+            dv = gammav*diffvec(2)+u*pow(v,2)-(f+k)*v;
             
             //debug
             //cout<<"EULERSTEP| du:"<<du<<"dv:"<<dv<<endl;
             
             // inject changes into cell
-            syncstate(target, 0)+=du*timestepsize;
-            syncstate(target, 1)+=dv*timestepsize;
+            syncstate(target, 1)+=du*timestepsize;
+            syncstate(target, 2)+=dv*timestepsize;
         }
         // copy back to cellstate
         cellstate = syncstate;
@@ -347,7 +347,7 @@ void RDControl::Diffusion(int target)
     
     diffvec.FillContents(0);
 
-   for (int neighbor=0; neighbor<=size; neighbor++)
+   for (int neighbor=1; neighbor<=size; neighbor++)
    {
         weight = adjacency(target, neighbor);
         if (weight==0.0)
@@ -355,7 +355,7 @@ void RDControl::Diffusion(int target)
             continue;
         } 
 
-        for ( int chemindx = 0; chemindx<=chemnum; chemindx++)
+        for ( int chemindx=1; chemindx<=chemnum; chemindx++)
         {
             //cout<<"DIFF| Targ:"<<target<<"Neig:"<<neighbor<<"Chem:"<<chemindx<<"Weight:"<<weight<<endl;
             neighborchem = cellstate(neighbor, chemindx);
@@ -364,7 +364,7 @@ void RDControl::Diffusion(int target)
        }
    }
    // laplacian= dt*D( Sum(c_n) - N*c_t ) for each chem
-   for (int chemindx = 0; chemindx<=chemnum; chemindx++)
+   for (int chemindx=1; chemindx<=chemnum; chemindx++)
    {
        diffvec(chemindx) *= cellsize;
    }
