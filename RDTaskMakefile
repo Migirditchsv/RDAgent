@@ -1,0 +1,10 @@
+RDTask: RDTask.o RDAgent.h
+		g++ -pthread -o RDTask RDTask.cpp
+RDAgent.o: RDAgent.cpp RDAgent.h RDControl.o 
+		g++ -c -O3 -flto RDAgent.cpp
+RDControl.o: RDControl.cpp RDControl.h VectorMatrix.h random.h
+		g++ -c -O3 -flto RDControl.cpp
+random.o: random.cpp random.h VectorMatrix.h
+		g++ -c -O3 -flto random.cpp
+clean:
+		rm *.o RDTask

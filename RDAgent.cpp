@@ -1,10 +1,22 @@
 // ***********************************************************
-//  Methods for a VisualAgent
+//  A class for Reaction Diffusion controlled agents with
+//  simple ray vision-like sensors. Based on code by Matthew
+//  Setzler.
 //
-//  Matthew Setzler 4/19/17
+//  By: Sam Migirditch
+//
+//  05/19| SVM: Converted from VisualAgent to RDAgent
 // ************************************************************
 
-#include "VisualAgent.h"
+// Std. Libs
+#include <iostream>//debuging
+//#include <cmath>
+
+// Headers
+#include "RDAgent.h"
+#include "RDControl.h"
+
+using namespace std;
 
 // Utility method for initializing and updating rays
 
@@ -31,28 +43,31 @@ void ResetRay(Ray &ray, double theta, double cx, double cy) {
 
 // Change x-position
 
-void VisualAgent::SetPositionX(double newx) {
+void RDAgent::SetPositionX(double newx) {
   cx = newx;
   ResetRays();
 }
 
 // Reset the state of the agent
 
-void VisualAgent::Reset(double ix, double iy, int randomize) {
-  cx = ix; cy = iy; vx = 0.0;
-  if (randomize) Controller.RandomizeReactorState();
-  else Controller.HomogenousReactorState();
-  ResetRays();
+void RDAgent::Reset(double ix, double iy, int randomize)
+{
+    // Vars
+    cx = ix; cy = iy; vx = 0.0;
+    // Write state
+    if (randomize) Controller.RandomReactorState();
+    else Controller.HomogenousReactorState();
+    ResetRays();
 }
 
-void VisualAgent::Reset(RandomState &rs, double ix, double iy, int randomize) {
-  cx = ix; cy = iy; vx = 0;
-  if (randomize) Controller.RandomizeReactorState();
-  else Controller.HomogenousCircuitState();
-  ResetRays();
-}
+//void RDAgent::Reset(RandomState &rs, double ix, double iy, int randomize) {
+//  cx = ix; cy = iy; vx = 0;
+//  if (randomize) Controller.RandomizeReactorState();
+//  else Controller.HomogenousCircuitState();
+//  ResetRays();
+//}
 
-void VisualAgent::ResetRays() {
+void RDAgent::ResetRays() {
   double theta = -VisualAngle/2;  
   for (int i=1; i<=NumRays; i++) {
     ResetRay(Rays[i], theta, cx, cy);
@@ -63,7 +78,7 @@ void VisualAgent::ResetRays() {
 
 // Step the agent
 
-void VisualAgent::Step(double StepSize, VisualObject &object)
+void RDAgent::Step(double StepSize, VisualObject &object)
 { 
     // Update visual sensors and check inputs
     ResetRays();
@@ -98,7 +113,7 @@ void VisualAgent::Step(double StepSize, VisualObject &object)
 void RunInputPerceptrons()
 {
     // Vars
-    int targetnum = InputPerceptronTargets.CollumnSize;
+    int targetnum = inperceptron.CollumnSize;
     
     // Loop Over each ray
     for(int rayindx = 1; rayindx<=NumRays; rayindx++)

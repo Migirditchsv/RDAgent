@@ -1,0 +1,10 @@
+RDControlDebug: RDControlDebug.o RDControl.o
+		g++ -pthread -o RDControlDebug RDControlDebug.o RDControl.o
+RDControl.o: RDControl.cpp RDControl.h VectorMatrix.h random.h
+		g++ -c -O3 -flto RDControl.cpp
+random.o: random.cpp random.h VectorMatrix.h
+		g++ -c -O3 -flto random.cpp
+RDControlDebug.o: RDControlDebug.cpp
+		g++ -c -O3 -flto RDControlDebug.cpp
+clean:
+		rm *.o RDControlDebug

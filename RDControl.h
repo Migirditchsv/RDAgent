@@ -14,7 +14,7 @@
 
 // Std. libs
 //#include <iostream>
-//#include <math.h>
+//#include <cmath>
 
 // Headers
 #include "VectorMatrix.h"

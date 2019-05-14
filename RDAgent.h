@@ -11,34 +11,41 @@
 #include "RDControl.h"
 #include "VisualObject.h"
 #include "random.h"
-#include "TVector.h"
+#include "VectorMatrix.h"
+
+#pragma once
 
 // Global constants
 
 const double Pi = 3.1415926535897;
-const double BodySize = 30.0; // diameter of agent
+// diameter of agent
+const double BodySize = 30.0; 
 const double EnvWidth = 400.0;
 const double MaxRayLength = 220.0;
 const double InputGain = 10.0;
 const double VisualAngle = Pi/6;
 const double VelGain = 5;
+// Max # of links to RDCells a whisker may have. Each starts with half as many random links
+const double maxlinks = 8;
 
-// Evolutionary Targets
 
-TMatrix<double> inperceptron; // NumRays X MaxLinks X 3(targetcell,chemindx,weight)
-TMatrix<double> outperceptron; // NumRays X MaxLinks X 3(targetcell,chemindx,weight)
 
-// The VisualAgent class declaration
+// The RDAgent class declaration
 
-class VisualAgent {
+class RDAgent {
 	public:
 		// The constructor 
-		VisualAgent(double ix = 0.0, double iy = 0.0, int NumRays_ = 7) {
+		RDAgent(double ix = 0.0, double iy = 0.0, int NumRays_ = 7) {
             // Define Rays
 			NumRays = NumRays_;
 			Rays.SetBounds(1, NumRays);
 
             // Define links
+            // DEBUG: NEED TO DO THE POINTER SHIT FOR 3D MATRICIES.
+            inperceptron.SetBounds(1,NumRays,1,maxlinks,2);//(species,weight)
+            inperceptron.FillContents(-1);
+            outperceptron.SetBounds(1,NumRays,1,maxlinks,2);
+            outperceptron.FillContents(-1);
             SetInputPerceptronLinks();
             SetOutputPerceptronLinks();
             // Initialize position
@@ -46,7 +53,7 @@ class VisualAgent {
 		};
 
 		// The destructor
-		~VisualAgent() {}
+		~RDAgent() {}
 
 		// Accessors
 		double PositionX() {return cx;};
@@ -77,4 +84,10 @@ class VisualAgent {
 		int NumRays;
 		double cx, cy, vx;
 		TVector<Ray> Rays;
+        
+        // Evolutionary Targets
+        
+        TMatrix<double> inperceptron;//NumRaysXMaxLinksX3(targetcell,chemindx,weight)
+        TMatrix<double> outperceptron;//NumRaysXMaxLinksX3(targetcell,chemindx,weight)
+
 };
