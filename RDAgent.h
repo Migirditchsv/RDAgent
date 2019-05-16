@@ -68,12 +68,18 @@ class RDAgent {
         // Controller Interface
 		RDControl Controller();
         
-        void SetInputPerceptronLinks();
-        void SetOutputPerceptronLinks();
-        void FireInputPerceptrons();
-        void FireOutputPerceptrons();
+        //OLD PERCEPTRON STUFF TO BE REPLACED
+        void SetInputLinks();
+        void SetOutputLinks();
+        void ReadInput();
+        void ReadOutput();
+        // index > 0 -> input link, index <0 -> output link
+        void AddLink(int rayindx, int linkindx); 
+        // index > 0 -> input link, index <0 -> output link
+        void DeleteLink(); 
+        void SetSpecies(int x)
 
-        // Output
+        // Data Output
         void SlowPrintState();
         void PrintConfiguration();
 
@@ -87,7 +93,14 @@ class RDAgent {
         
         // Evolutionary Targets
         
-        TMatrix<double> inperceptron;//NumRaysXMaxLinksX3(targetcell,chemindx,weight)
-        TMatrix<double> outperceptron;//NumRaysXMaxLinksX3(targetcell,chemindx,weight)
+        TMatrix<double> InputTargets;//NumRaysXMaxLinks: Controller element targeted
+        TMatrix<double> InputSpecies;//NumRaysXMaxLinks: chemical species to inject
+        TMatrix<double> InputWeight;//NumRaysXMaxLinks: Input[0,1]scalefactor [-1,1]
+        TMatrix<double> outputTargets;
+        TMatrix<double> outputSpecies;//NumRaysXMaxLinks: chemical species to read
+        TMatrix<double> outputWeight;//NumRaysXMaxLinks:output[0,1]scalefactor[-1,1]
+        // Note: Outputs are rounded to fit into the interval [0,maxdouble]
+        // after summation.
+
 
 };
