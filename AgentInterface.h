@@ -20,22 +20,24 @@
 
 // Std. libs
 #include <iostream>// Debug cout,
+#include <vector> // perceptrons structures are stored in vectors.
 //#include <cmath>
 
 // Headers
-#include "VectorMatrix.h"// Duh
-#include "Perceptron.h"
+#include "VectorMatrix.h"// environment, controller and actuator states
 //#include "random.h"
 
 #pragma once
 
+using namespace std;
 // **************************** 
 // Public Globals
 // ****************************
+// Any value which evolution acts on must be a public global
+// Maybe accessor functions should be written to read and set these values
+// instead of making them directly accessible. Yeah that's exactly what needs
+// to happen.
 
-//int inputperceptronnum;// Number of input perceptrons
-//int outputperceptronnum;// Number of output perceptrons
-//TVector<double> perceptronstates;// The state of the perceptron 
 
 // **************************** 
 // Objects
@@ -61,6 +63,11 @@ struct perceptron
 
 class AgentInterface{
     public:
+
+// **************************** 
+// Constructor & destructor
+// ****************************
+
         // Constructor
         AgentInterface(TVector<double> * eptr,
                             TMatrix<double> * cptr,
@@ -91,21 +98,83 @@ class AgentInterface{
             actuatorsize = actuator.Size();
 
             // Initialize Input Perceptrons
-            TVector<perceptron> inperceptrons;
-            inperceptrons.SetBounds(1,inperceptronnum);
-            inperceptrons.source.Setbounds(1,inperceptronnum);//single source
-            inperceptrons.target.SetBounds(1,maxlinknum);
-            inperceptrons.channel.SetBounds(1,maxlinknum);
-            inperceptrons.weight.SetBounds(1,maxlinknum);
+            for(int i=1; i<=innum; i++)
+            {
+                // initialize struct
+                perceptron perc;
+                perc.source.SetBounds(1,1);// single source inputs
+                perc.target.SetBounds(1,maxlinknum);
+                perc.channel.SetBounds(1,maxlinknum);
+                perc.weight.SetBounds(1,maxlinknum);
+                //^ fill struct with default (skip/neutral) values
+                perc.source(1)=i;// one perceptron per sense organ
+                perc.target.FillContents(0);// targets with index =< 0 are skipped
+                perc.channel.FillContents(1);// All links default to channel 1
+                perc.weight.FillContents(0);// To be filled with values on (-1,1)
+                
+                // Push struct onto inperceptrons vector
+                inperceptrons.emplace_back(perc);
+            }
 
             // Initialize Output Perceptrons
-            outperceptrons.SetBounds(1,outperceptronnum);
+            for(int i=1; i<=outnum; i++)
+            {
+                // initialize struct
+                perceptron perc;
+                perc.source.SetBounds(1,maxlinknum);
+                //^ possibly many controller inputs
+                perc.target.SetBounds(1,1);
+                //^ Controller inputs aggregated to one actuator
+                perc.channel.SetBounds(1,maxlinknum);
+                perc.weight.SetBounds(1,maxlinknum);
+                // fill struct with default (skip/neutral) values
+                perc.source.FillContents(0);// Link to controller later
+                perc.target.FillContents(i);// output to assigned actuator
+                perc.channel.FillContents(1);// Read from channel 1
+                perc.weight.FillContents(0);// To be filled with values on (-1,1)
+                
+                // Push struct onto inperceptrons vector
+                outperceptrons.emplace_back(perc);
+            }
+
+            // Set Initial Values 
+            SetRandomInputLinks();
+            SetRandomOutputLinks();
+            SetRandomInputWeights();
+            SetRandomOutputWeights();
+
             };// end constructor
+        
+        //Destructor
+        ~AgentInterface()
+        {
+            inperceptrons.clear();
+            outperceptrons.clear();
+        }
 
+    // **************************** 
+    // Accessors
+    // ****************************
 
+    void ResetInterface();// Resets links and weights to random values
+    void FireInputPerceptrons();// Perturbs the controller based on sensors
+    void FireOutputPerceptrons();// Sets the state of the actuators from controller
 
             
     private:
+    // **************************** 
+    // Private Utility Functions
+    // ****************************
+
+    void SetRandomInputLinks();
+    void SetRandomOutputLinks();
+    void SetRandomInputWeights();
+    void SetRandomOutputWeights();
+
+    void RefreshEnvironmentState();
+    void PushToController();
+
+
     // **************************** 
     // Private Global Vars
     // ****************************
@@ -121,8 +190,9 @@ class AgentInterface{
     int actuatorsize;// Number of actuators under agent control
     
     // Perceptron arrays
-    TVector<perceptron> inperceptrons;
-    TVector<perceptron> outperceptrons;
+    vector<perceptron> inperceptrons;
+    vector<perceptron> outperceptrons;
+
 
     // Pointers for linking
     TVector<double> * environmentptr;
@@ -132,29 +202,5 @@ class AgentInterface{
     TVector<double>  environment;// on [0,1]
     TMatrix<double>  controller;// on [0,1], to be weighted by [-1,1]
     TVector<double>  actuator;// on [0,1]
-    // --------------------------The perceptrons-------------------------------
-    // These arrays use the following convention for perceptron indicies:
-    // indx > 0: input layer perceptron
-    // indx = 0: ignored
-    // indx < 0: output layer perceptron. 
-    // This sign convention is used to autoselect between environment,
-    // controller and actuator for all other indicies as described in the next
-    // section. Don't mess it up!
-    // ------------------------------------------------------------------------
-    // in-layer percs only read from a single source (environmental variable)
-    // and out-layer percs read from multiple sources (controller cells and
-    // channels). The opposite is true for targets. To enforce this, negative 
-    // environment, controller or actuator indicies are ignored. To protect
-    // this convention, the in-layer perceptrons are checked to make sure there
-    // is only one non-positive source index value per perceptron. The same is
-    // done for out-layer perceptrons but for the target index instead.
-    // Sorry, this was the cleanest way I could think to do it.
-    // ------------------------------------------------------------------------
-    // TMatrix<int> source;// The channels a perc pulls from
-    // TMatrix<int> target;// The channels a perc projects onto
-    // TMatrix<double> weight;// The weights applied to values pooled or projected
-    // TMatrix<double> channel;
-    // ^ The channel that an in-layer perc projects to for a given controller cell
-    
-    
-    }// end agentinterface class
+  
+    };// end agentinterface class
