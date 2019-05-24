@@ -85,7 +85,7 @@ class AgentInterface{
             outperceptronnum = outnum;
             maxlinknum = maxnum;
             initlinknum = initnum;
-
+            
             // Pull in objects for warm up
             environment = &environmentptr;
             controller  = &controllerptr;
@@ -98,7 +98,7 @@ class AgentInterface{
             actuatorsize = actuator.Size();
 
             // Initialize Input Perceptrons
-            for(int i=1; i<=innum; i++)
+            for(int i=0; i<innum; i++)
             {
                 // initialize struct
                 perceptron perc;
@@ -112,12 +112,12 @@ class AgentInterface{
                 perc.channel.FillContents(1);// All links default to channel 1
                 perc.weight.FillContents(0);// To be filled with values on (-1,1)
                 
-                // Push struct onto inperceptrons vector
-                inperceptrons.emplace_back(perc);
+                // Push struct onto inperceptron vector
+                inperceptron.emplace_back(perc);
             }
 
             // Initialize Output Perceptrons
-            for(int i=1; i<=outnum; i++)
+            for(int i=0; i<outnum; i++)// vecs index from zero. god forgive me.
             {
                 // initialize struct
                 perceptron perc;
@@ -129,12 +129,12 @@ class AgentInterface{
                 perc.weight.SetBounds(1,maxlinknum);
                 // fill struct with default (skip/neutral) values
                 perc.source.FillContents(0);// Link to controller later
-                perc.target.FillContents(i);// output to assigned actuator
+                perc.target(1)= i;// output to assigned actuator
                 perc.channel.FillContents(1);// Read from channel 1
                 perc.weight.FillContents(0);// To be filled with values on (-1,1)
                 
-                // Push struct onto inperceptrons vector
-                outperceptrons.emplace_back(perc);
+                // Push struct onto inperceptron vector
+                outperceptron.emplace_back(perc);
             }
 
             // Set Initial Values 
@@ -148,8 +148,8 @@ class AgentInterface{
         //Destructor
         ~AgentInterface()
         {
-            inperceptrons.clear();
-            outperceptrons.clear();
+            inperceptron.clear();
+            outperceptron.clear();
         }
 
     // **************************** 
@@ -190,14 +190,14 @@ class AgentInterface{
     int actuatorsize;// Number of actuators under agent control
     
     // Perceptron arrays
-    vector<perceptron> inperceptrons;
-    vector<perceptron> outperceptrons;
-
+    vector<perceptron> inperceptron;
+    vector<perceptron> outperceptron;
 
     // Pointers for linking
     TVector<double> * environmentptr;
     TMatrix<double> * controllerptr;    
     TVector<double> * actuatorptr;
+
     // Local copy of external states
     TVector<double>  environment;// on [0,1]
     TMatrix<double>  controller;// on [0,1], to be weighted by [-1,1]

@@ -20,10 +20,64 @@
 
 // Std. libs
 #include <iostream>// Debug cout,
+#include <vector>// in/out perceptron groups
 //#include <cmath>
 
 // Headers
 #include "VectorMatrix.h"
 #include "AgentInterface.h"
-//#include "random.h"
+#include "random.h"
+
+// **************************** 
+// Accessors
+// ****************************
+
+// Reset Interface: Resets links and weights to random values
+void AgentInterface::ResetInterface()
+{
+    // input layer
+    for(int p=0; p<inperceptronnum; p++ )
+    {
+        // Fill initilized links
+        for( int t=0; t<initlinknum; t++ )
+        {
+        // random target
+        int randomtarget = UniformRandomInteger(1, controllersize);
+        inperceptron[p].target(t) = randomtarget;
+        // random weight for target
+        double randomweight = UniformRandom(0.0,1.0);
+        inperceptron[p].weight(t) = randomweight;
+        }//end fill init links
+        // Fill uninitialized links
+        for( int t=initlinknum; t<maxlinknum; t++ )
+        {
+            inperceptron[p].target=-1;
+            inperceptron[p].weight=0;
+        }// end fill non-init links
+    }// end input layer 
+    // output layer
+    for(int p=0; p<outperceptronnum; p++ )
+    {
+        // Fill initilized links
+        for( int s=0; t<initlinknum; t++ )
+        {
+        // random source
+        int randomsource = UniformRandomInteger(1, controllersize);
+        outperceptron[p].source(s).randomsource;
+        // random weight for source 
+        double randomweight = UniformRandom(0.0,1.0);
+        inperceptron[p].weight(t) = randomweight;
+        }//end fill init links
+        // Fill uninitialized links
+        for( int t=initlinkum; t<maxlinknum; t++ )
+        {
+            inperceptron[p].target=-1;
+            inperceptron[p].weight=0;
+        }// end fill non-init links
+    }// end input layer 
+}
+
+// **************************** 
+// Utility functions
+// ****************************
 
