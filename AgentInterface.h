@@ -110,7 +110,7 @@ class AgentInterface{
                 perc.source(1)=i;// one perceptron per sense organ
                 perc.target.FillContents(0);// targets with index =< 0 are skipped
                 perc.channel.FillContents(1);// All links default to channel 1
-                perc.weight.FillContents(0);// To be filled with values on (-1,1)
+                perc.weight.FillContents(0);// To be filled with values on (0,1)
                 
                 // Push struct onto inperceptron vector
                 inperceptron.emplace_back(perc);
@@ -131,7 +131,7 @@ class AgentInterface{
                 perc.source.FillContents(0);// Link to controller later
                 perc.target(1)= i;// output to assigned actuator
                 perc.channel.FillContents(1);// Read from channel 1
-                perc.weight.FillContents(0);// To be filled with values on (-1,1)
+                perc.weight.FillContents(0);// To be filled with values on (0,1)
                 
                 // Push struct onto inperceptron vector
                 outperceptron.emplace_back(perc);

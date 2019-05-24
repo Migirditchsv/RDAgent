@@ -51,28 +51,29 @@ void AgentInterface::ResetInterface()
         // Fill uninitialized links
         for( int t=initlinknum; t<maxlinknum; t++ )
         {
-            inperceptron[p].target=-1;
-            inperceptron[p].weight=0;
+            inperceptron[p].target(t)=-1;
+            inperceptron[p].weight(t)=0;
         }// end fill non-init links
     }// end input layer 
+
     // output layer
     for(int p=0; p<outperceptronnum; p++ )
     {
         // Fill initilized links
-        for( int s=0; t<initlinknum; t++ )
+        for( int s=0; s<initlinknum; s++ )
         {
         // random source
         int randomsource = UniformRandomInteger(1, controllersize);
         outperceptron[p].source(s).randomsource;
         // random weight for source 
         double randomweight = UniformRandom(0.0,1.0);
-        inperceptron[p].weight(t) = randomweight;
+        inperceptron[p].weight(s) = randomweight;
         }//end fill init links
         // Fill uninitialized links
-        for( int t=initlinkum; t<maxlinknum; t++ )
+        for( int s=initlinknum; s<maxlinknum; s++ )
         {
-            inperceptron[p].target=-1;
-            inperceptron[p].weight=0;
+            inperceptron[p].target(s)=-1;
+            inperceptron[p].weight(s)=0;
         }// end fill non-init links
     }// end input layer 
 }
