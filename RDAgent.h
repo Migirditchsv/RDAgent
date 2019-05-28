@@ -40,14 +40,8 @@ class RDAgent {
 			NumRays = NumRays_;
 			Rays.SetBounds(1, NumRays);
 
-            // Define links
-            // DEBUG: NEED TO DO THE POINTER SHIT FOR 3D MATRICIES.
-            inperceptron.SetBounds(1,NumRays,1,maxlinks,2);//(species,weight)
-            inperceptron.FillContents(-1);
-            outperceptron.SetBounds(1,NumRays,1,maxlinks,2);
-            outperceptron.FillContents(-1);
-            SetInputPerceptronLinks();
-            SetOutputPerceptronLinks();
+            // link agent sensors (rays) to the controller
+         
             // Initialize position
 			Reset(ix,iy);
 		};
@@ -59,8 +53,9 @@ class RDAgent {
 		double PositionX() {return cx;};
 		void SetPositionX(double newx);
 		double PositionY() {return cy;};
-
-		// Agent State Control
+        double SensorState(int rayindx);
+        //^Returns the length ratios of the ray components about the point(1)
+        //of intersection.
 		void Reset(double ix, double iy, int randomize = 0);
         void Reset(RandomState &rs, double ix, double iy, int randomize);
 		void Step(double StepSize, VisualObject &object);
@@ -68,17 +63,6 @@ class RDAgent {
         // Controller Interface
 		RDControl Controller();
         
-        //OLD PERCEPTRON STUFF TO BE REPLACED
-        void SetInputLinks();
-        void SetOutputLinks();
-        void ReadInput();
-        void ReadOutput();
-        // index > 0 -> input link, index <0 -> output link
-        void AddLink(int rayindx, int linkindx); 
-        // index > 0 -> input link, index <0 -> output link
-        void DeleteLink(); 
-        void SetSpecies(int x)
-
         // Data Output
         void SlowPrintState();
         void PrintConfiguration();

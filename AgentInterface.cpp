@@ -26,6 +26,7 @@
 // Headers
 #include "VectorMatrix.h"
 #include "AgentInterface.h"
+#include "RDAgent.h"// call to sensors (rays)
 #include "random.h"
 
 // **************************** 
@@ -76,6 +77,21 @@ void AgentInterface::ResetInterface()
             inperceptron[p].weight(s)=0;
         }// end fill non-init links
     }// end input layer 
+}
+
+// inject relevant weighted sensor value to target controller elements
+void FireInputPerceptrons()
+{
+    for(int p=0; p<inperceptronnum; p++)
+    {
+        //read and set state
+        int sensorindx = inperceptron[p].source[0];
+        int channel = inperceptron[p].channel;
+        double newstate = environment[sensorindx];
+        inperceptron[p].state = newstate;
+        
+
+    }
 }
 
 // **************************** 

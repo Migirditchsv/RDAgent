@@ -38,8 +38,17 @@ void ResetRay(Ray &ray, double theta, double cx, double cy) {
 
 
 // *******
-// Control
+// Accessors
 // *******
+
+// Return the ratio of ray segments formed by an intersection.
+// Return 0 if no intersection.
+double SensorState(int rayindx)
+{
+    object.RayIntersection(Rays[rayindx]);
+    double sensorvalue = (MaxRayLength - Rays[rayindx].length)/MaxRayLength;
+    return sensorvalue
+}
 
 // Change x-position
 
@@ -75,7 +84,6 @@ void RDAgent::ResetRays() {
   }
 }
 
-
 // Step the agent
 
 void RDAgent::Step(double StepSize, VisualObject &object)
@@ -109,25 +117,5 @@ void RDAgent::Step(double StepSize, VisualObject &object)
       cx = EnvWidth/2;
     }
 }
-
-void RunInputPerceptrons()
-{
-    // Vars
-    int targetnum = inperceptron.CollumnSize;
-    
-    // Loop Over each ray
-    for(int rayindx = 1; rayindx<=NumRays; rayindx++)
-    {
-        //Loop over each target cell
-        for( int targetindx = 1; targetindx<targetnum; targetindex++ )
-        {
-            // Skip targets with negative indicies
-            if(InputPerceptronTargets(rayindx,targetindx)<0)
-            {
-                goto nexttarget;
-            }
-
-        nexttarget:; 
-        }
 
 }

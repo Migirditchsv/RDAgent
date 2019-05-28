@@ -50,7 +50,7 @@ struct perceptron
     // ^ Potentially weighted source(s) a perceptron integrates
     TVector<int> target;
     //^ indicies of a TVector that weighted states are projected onto
-    TVector<int> channel;
+    int channel;
     // ^ The channel that is read from or two on a given controller channel
     TVector<double> weight;
     // ^ The weights that will be applied to integrated or projected values
@@ -69,33 +69,25 @@ class AgentInterface{
 // ****************************
 
         // Constructor
-        AgentInterface(TVector<double> * eptr,
-                            TMatrix<double> * cptr,
-                            TVector<double> * aptr,
+        AgentInterface(TVector<double> * environment,
+                            TMatrix<double> * controller,
+                            TVector<double> * actuator,
                             int innum,
                             int outnum,
                             int maxnum, 
                             int initnum){
             
             // Safe copy arguments
-            environmentptr = eptr;
-            controllerptr = cptr;
-            actuatorptr = aptr;
             inperceptronnum = innum;
             outperceptronnum = outnum;
             maxlinknum = maxnum;
             initlinknum = initnum;
             
-            // Pull in objects for warm up
-            environment = &environmentptr;
-            controller  = &controllerptr;
-            actuator    = &actuatorptr;
-
             // Compute sizes for initialization
-            environmentsize = environment.Size();
-            controllersize  = controller.RowSize();
-            controllerdimension = controller.ColumnSize();
-            actuatorsize = actuator.Size();
+            environmentsize = environment->Size();
+            controllersize  = controller->RowSize();
+            controllerdimension = controller->ColumnSize();
+            actuatorsize = actuator->Size();
 
             // Initialize Input Perceptrons
             for(int i=0; i<innum; i++)
@@ -104,12 +96,11 @@ class AgentInterface{
                 perceptron perc;
                 perc.source.SetBounds(1,1);// single source inputs
                 perc.target.SetBounds(1,maxlinknum);
-                perc.channel.SetBounds(1,maxlinknum);
                 perc.weight.SetBounds(1,maxlinknum);
                 //^ fill struct with default (skip/neutral) values
                 perc.source(1)=i;// one perceptron per sense organ
                 perc.target.FillContents(0);// targets with index =< 0 are skipped
-                perc.channel.FillContents(1);// All links default to channel 1
+                perc.channel = 1;// All perceptrons default to channel 1
                 perc.weight.FillContents(0);// To be filled with values on (0,1)
                 
                 // Push struct onto inperceptron vector
@@ -125,12 +116,11 @@ class AgentInterface{
                 //^ possibly many controller inputs
                 perc.target.SetBounds(1,1);
                 //^ Controller inputs aggregated to one actuator
-                perc.channel.SetBounds(1,maxlinknum);
                 perc.weight.SetBounds(1,maxlinknum);
                 // fill struct with default (skip/neutral) values
                 perc.source.FillContents(0);// Link to controller later
                 perc.target(1)= i;// output to assigned actuator
-                perc.channel.FillContents(1);// Read from channel 1
+                perc.channel = 1;// Read from channel 1
                 perc.weight.FillContents(0);// To be filled with values on (0,1)
                 
                 // Push struct onto inperceptron vector
@@ -194,13 +184,13 @@ class AgentInterface{
     vector<perceptron> outperceptron;
 
     // Pointers for linking
-    TVector<double> * environmentptr;
-    TMatrix<double> * controllerptr;    
-    TVector<double> * actuatorptr;
+    TVector<double> * environment;
+    TMatrix<double> * controller;    
+    TVector<double> * actuator;
 
-    // Local copy of external states
-    TVector<double>  environment;// on [0,1]
-    TMatrix<double>  controller;// on [0,1], to be weighted by [-1,1]
-    TVector<double>  actuator;// on [0,1]
+    //// Local copy of external states
+    //TVector<double>  environment;// on [0,1]
+    //TMatrix<double>  controller;// on [0,1], to be weighted by [-1,1]
+    //TVector<double>  actuator;// on [0,1]
   
     };// end agentinterface class
