@@ -89,8 +89,6 @@ void FireInputPerceptrons()
         int channel = inperceptron[p].channel;
         double newstate = environment[sensorindx];
         inperceptron[p].state = newstate;
-        
-
     }
 }
 

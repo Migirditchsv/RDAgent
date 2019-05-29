@@ -22,6 +22,12 @@
 using namespace std;
 
 // **************************** 
+// Declarations
+// ****************************
+void Printer(int linenum);
+void Writer();
+
+// **************************** 
 // Control  Vars
 // ****************************
 
@@ -37,38 +43,50 @@ const int RDCELLNUM = 148;
 // Random
 const long RANDOMSEED = 1;
 
-int main()
-{
-    // Local Vars
-    int x = 0;
+//**************************** 
+// Warm Up
+//****************************
 
-    // Init Randomness Engine
-    SetRandomSeed(RANDOMSEED);
 
-    // Init Agent
-    RDAgent agent();
+// Init Randomness Engine
+random::SetRandomSeed(RANDOMSEED);
 
-    // TSearch Configuration
+// Init Agent
+RDAgent Agent;
+Printer(0);
+
 
 //**************************** 
 // MAIN LOOP
 //****************************
+
+int main()
+{
+    // Local Vars
+
+
+
+    // TSearch Configuration
+
+
    // Dynamics
-    for(int step=1; step<=steplimit; step++)
-    {
-        x=0;
 
-    }
-    
-
-    
     return(0);
 }
 
 //  Prints out some status info
 void Printer(int linenum)
 {
-int y = 0;
+cout<<"|||PRINT STATUS|||"<<endl;
+cout<<"Position Number:"<<linenum<<endl;
+
+cout<<"---Controller State---"<<endl;
+cout<<"Controller Size:"<<Agent.Controller.size;<<endl;
+cout<<"Controller State:"<<Agent.Controller.state;<<endl;
+
+cout<<"---Agent State---"<<endl;
+cout<<"Agent X Position:"<<Agent.PositionX();<<endl;
+cout<<"Agent Y Position:"<<Agent.PositionY();<<endl;
 }
 
 // Writes out the data
