@@ -26,6 +26,7 @@ using namespace std;
 // ****************************
 void Printer(int linenum);
 void Writer();
+// pointer to agent object
 
 // **************************** 
 // Control  Vars
@@ -47,15 +48,6 @@ const long RANDOMSEED = 1;
 // Warm Up
 //****************************
 
-
-// Init Randomness Engine
-random::SetRandomSeed(RANDOMSEED);
-
-// Init Agent
-RDAgent Agent;
-Printer(0);
-
-
 //**************************** 
 // MAIN LOOP
 //****************************
@@ -64,7 +56,12 @@ int main()
 {
     // Local Vars
 
+    // Init Randomness Engine
+    SetRandomSeed(RANDOMSEED);
 
+    // Init Agent
+    RDAgent Agent;
+    Printer(0);
 
     // TSearch Configuration
 
@@ -81,12 +78,16 @@ cout<<"|||PRINT STATUS|||"<<endl;
 cout<<"Position Number:"<<linenum<<endl;
 
 cout<<"---Controller State---"<<endl;
-cout<<"Controller Size:"<<Agent.Controller.size;<<endl;
-cout<<"Controller State:"<<Agent.Controller.state;<<endl;
+int size = Agent.Controller.size; 
+TMatrix<double> state == Agent.Controller.state;
+cout<<"Controller Size:" <<<<endl;
+cout<<"Controller State:"<<<<endl;
 
 cout<<"---Agent State---"<<endl;
-cout<<"Agent X Position:"<<Agent.PositionX();<<endl;
-cout<<"Agent Y Position:"<<Agent.PositionY();<<endl;
+double posx = Agent.PositionX();
+double posy = Agent.PositionY();
+cout<<"Agent X Position:"<<posx<<endl;
+cout<<"Agent Y Position:"<<posy<<endl;
 }
 
 // Writes out the data
