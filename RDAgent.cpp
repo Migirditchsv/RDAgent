@@ -14,7 +14,7 @@
 
 // Headers
 #include "RDAgent.h"
-#include "RDControl.h"
+//#include "RDControl.h"
 
 using namespace std;
 
@@ -41,6 +41,31 @@ void ResetRay(Ray &ray, double theta, double cx, double cy) {
 // Accessors
 // *******
 
+//  Prints out some status info
+void Printer(int linenum)
+{
+cout<<"|||PRINT STATUS|||"<<endl;
+cout<<"Position Number:"<<linenum<<endl;
+
+cout<<"---Controller State---"<<endl;
+int size = Controller.size; 
+TMatrix<double> state = Controller.state;
+cout<<"Controller Size:" <<size<<endl;
+cout<<"Controller State:"<<state<<endl;
+
+cout<<"---Agent State---"<<endl;
+double posx = PositionX();
+double posy = PositionY();
+cout<<"Agent X Position:"<<posx<<endl;
+cout<<"Agent Y Position:"<<posy<<endl;
+}
+
+// Writes out the data
+void Writer()
+{
+
+}
+
 // Return the ratio of ray segments formed by an intersection.
 // Return 0 if no intersection.
 double SensorState(int rayindx)
@@ -64,7 +89,7 @@ void RDAgent::Reset(double ix, double iy, int randomize)
     // Vars
     cx = ix; cy = iy; vx = 0.0;
     // Write state
-    if (randomize) Controller.RandomReactorState();
+    if (randomize) Controller.RandomReactorState;
     else Controller.HomogenousReactorState();
     ResetRays();
 }

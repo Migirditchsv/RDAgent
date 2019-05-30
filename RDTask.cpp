@@ -71,27 +71,4 @@ int main()
     return(0);
 }
 
-//  Prints out some status info
-void Printer(int linenum)
-{
-cout<<"|||PRINT STATUS|||"<<endl;
-cout<<"Position Number:"<<linenum<<endl;
 
-cout<<"---Controller State---"<<endl;
-int size = Agent.Controller.size; 
-TMatrix<double> state == Agent.Controller.state;
-cout<<"Controller Size:" <<<<endl;
-cout<<"Controller State:"<<<<endl;
-
-cout<<"---Agent State---"<<endl;
-double posx = Agent.PositionX();
-double posy = Agent.PositionY();
-cout<<"Agent X Position:"<<posx<<endl;
-cout<<"Agent Y Position:"<<posy<<endl;
-}
-
-// Writes out the data
-void Writer()
-{
-
-}

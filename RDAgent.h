@@ -9,6 +9,7 @@
 // ************************************************************
 
 #include "RDControl.h"
+#include "AgentInterface.h"
 #include "VisualObject.h"
 #include "random.h"
 #include "VectorMatrix.h"
@@ -16,18 +17,26 @@
 #pragma once
 
 // Global constants
-
 const double Pi = 3.1415926535897;
-// diameter of agent
+
+//***************************
+// Agent Settings
+//***************************
+// Agent Body
 const double BodySize = 30.0; 
 const double EnvWidth = 400.0;
 const double MaxRayLength = 220.0;
-const double InputGain = 10.0;
+const double InputGain = 10.0; //Maybe remove
 const double VisualAngle = Pi/6;
 const double VelGain = 5;
-// Max # of links to RDCells a whisker may have. Each starts with half as many random links
-const double maxlinks = 8;
-
+const int 	 NumRays = 7;
+const int    ActuatorNum = 2;
+// Controller
+const int controllersize = 138;
+const int controllermodel = 0;// 0:Grey-Scott
+// Linker
+const double maxlinks = 8;// Max # of links controller a perceptron may have
+const double initlinks = 4;// number of links to controller a perceptron starts with
 
 
 // The RDAgent class declaration
@@ -35,14 +44,17 @@ const double maxlinks = 8;
 class RDAgent {
 	public:
 		// The constructor 
-		RDAgent(double ix = 0.0, double iy = 0.0, int NumRays_ = 7) {
-            // Define Rays
-			NumRays = NumRays_;
+		RDAgent(double ix = 0.0, double iy = 0.0) {
+			//init rays
 			Rays.SetBounds(1, NumRays);
 
-            // link agent sensors (rays) to the controller
-         
-            // Initialize position
+			//init controller
+			RDControl Controller(int controllersize, int controllermodel);
+
+			//init interface
+			AgentInterface Interface();
+
+            // set position
 			Reset(ix,iy);
 		};
 
@@ -50,6 +62,8 @@ class RDAgent {
 		~RDAgent() {}
 
 		// Accessors
+		void Printer(int linenum); // print state to terminal
+		void Writer();// write state to file
 		double PositionX() {return cx;};
 		void SetPositionX(double newx);
 		double PositionY() {return cy;};
@@ -60,8 +74,12 @@ class RDAgent {
         void Reset(RandomState &rs, double ix, double iy, int randomize);
 		void Step(double StepSize, VisualObject &object);
 
-        // Controller Interface
-		RDControl Controller();
+        // Initialize Controller
+		RDControl Controller;//(int controllersize, int controllermodel);
+		AgentInterface Interface;
+		
+		// Initialize Interface
+		AgentInterface Interface;
         
         // Data Output
         void SlowPrintState();

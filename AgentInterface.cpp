@@ -2,7 +2,7 @@
 // PerceptronInterface: Uses perceptrons to link:
 // (ENVIRONMENNT)->[IN-PERCEPTRONS]->(Controller)->[Out-Perceptrons]->(Actuators)
 // 
-// Where Environment and Actuator are TVector objects and Controller is a
+// Where sensor and Actuator are TVector objects and Controller is a
 // TMatrix object. The Controler TMatrix is interpreted as (element,channel) as
 // this package is designed to read single channel signals into and out of a
 // controller object whose individual elements combine information from 
@@ -87,7 +87,7 @@ void FireInputPerceptrons()
         //read and set state
         int sensorindx = inperceptron[p].source[0];
         int channel = inperceptron[p].channel;
-        double newstate = environment[sensorindx];
+        double newstate = sensor[sensorindx];
         inperceptron[p].state = newstate;
     }
 }

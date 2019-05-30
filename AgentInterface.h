@@ -2,7 +2,7 @@
 // PerceptronInterface: Uses perceptrons to link:
 // (ENVIRONMENNT)->[IN-PERCEPTRONS]->(Controller)->[Out-Perceptrons]->(Actuators)
 // 
-// Where Environment and Actuator are TVector objects and Controller is a
+// Where sensor and Actuator are TVector objects and Controller is a
 // TMatrix object. The Controler TMatrix is interpreted as (element,channel) as
 // this package is designed to read single channel signals into and out of a
 // controller object whose individual elements combine information from 
@@ -24,7 +24,7 @@
 //#include <cmath>
 
 // Headers
-#include "VectorMatrix.h"// environment, controller and actuator states
+#include "VectorMatrix.h"// sensor, controller and actuator states
 //#include "random.h"
 
 #pragma once
@@ -69,7 +69,7 @@ class AgentInterface{
 // ****************************
 
         // Constructor
-        AgentInterface(TVector<double> * environment,
+        AgentInterface(TVector<double> * sensor,
                             TMatrix<double> * controller,
                             TVector<double> * actuator,
                             int innum,
@@ -84,7 +84,7 @@ class AgentInterface{
             initlinknum = initnum;
             
             // Compute sizes for initialization
-            environmentsize = environment->Size();
+            sensorsize = sensor->Size();
             controllersize  = controller->RowSize();
             controllerdimension = controller->ColumnSize();
             actuatorsize = actuator->Size();
@@ -161,7 +161,7 @@ class AgentInterface{
     void SetRandomInputWeights();
     void SetRandomOutputWeights();
 
-    void RefreshEnvironmentState();
+    void RefreshsensorState();
     void PushToController();
 
 
@@ -174,7 +174,7 @@ class AgentInterface{
     int outperceptronnum;// Number of output layer perceptrons
     int maxlinknum;// Number of links to or from controller each perc starts with
     int initlinknum;// Number of links to start with
-    int environmentsize;// Number of variables defining the sensable environment
+    int sensorsize;// Number of variables defining the sensable sensor
     int controllersize;// Number of objects composing the controller
     int controllerdimension; // number of channels in the controller
     int actuatorsize;// Number of actuators under agent control
@@ -184,12 +184,12 @@ class AgentInterface{
     vector<perceptron> outperceptron;
 
     // Pointers for linking
-    TVector<double> * environment;
+    TVector<double> * sensor;
     TMatrix<double> * controller;    
     TVector<double> * actuator;
 
     //// Local copy of external states
-    //TVector<double>  environment;// on [0,1]
+    //TVector<double>  sensor;// on [0,1]
     //TMatrix<double>  controller;// on [0,1], to be weighted by [-1,1]
     //TVector<double>  actuator;// on [0,1]
   
