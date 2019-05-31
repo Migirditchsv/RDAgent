@@ -72,7 +72,7 @@ class RDAgent {
         //of intersection.
 		void Reset(double ix, double iy, int randomize = 0);
         void Reset(RandomState &rs, double ix, double iy, int randomize);
-		void Step(double StepSize, VisualObject &object);
+		void Step(double controldt, double controllimit, double agentlimit, VisualObject &object);
 
         // Initialize Controller
 		RDControl Controller;//(int controllersize, int controllermodel);

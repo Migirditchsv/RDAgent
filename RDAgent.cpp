@@ -49,7 +49,7 @@ cout<<"Position Number:"<<linenum<<endl;
 
 cout<<"---Controller State---"<<endl;
 int controllersize = Controller.size; 
-TMatrix<double> controllerstate = Controller.state;
+TMatrix<double> controllerstate = Controller.cellstate;
 cout<<"Controller Size:" <<controllersize<<endl;
 cout<<"Controller State:"<<controllerstate<<endl;
 
@@ -60,20 +60,20 @@ cout<<"Agent X Position:"<<posx<<endl;
 cout<<"Agent Y Position:"<<posy<<endl;
 }
 
-// Writes out the data
+// Writes out the data in binary dump
 void RDAgent::Writer()
 {
 
 }
 
-// Return the ratio of ray segments formed by an intersection.
-// Return 0 if no intersection.
-double SensorState(int rayindx)
-{
-    object.RayIntersection(Rays[rayindx]);
-    double sensorvalue = (MaxRayLength - Rays[rayindx].length)/MaxRayLength;
-    return sensorvalue;
-}
+//// Return the ratio of ray segments formed by an intersection.
+//// Return 0 if no intersection.
+//double SensorState(int rayindx)
+//{
+//    object.RayIntersection(Rays[rayindx]);
+//    double sensorvalue = (MaxRayLength - Rays[rayindx].length)/MaxRayLength;
+//    return sensorvalue;
+//}
 
 // Change x-position
 
@@ -111,23 +111,49 @@ void RDAgent::ResetRays() {
 
 // Step the agent
 
-void RDAgent::Step(double StepSize, VisualObject &object)
+void RDAgent::Step(double controldt,// time delta on controller
+                   double ctlimit,// limit on controller steps per agent step
+                   double agentdt,// time delta on agent motion
+                   VisualObject &object)// the object being looked for
 { 
     // Update visual sensors and check inputs
     ResetRays();
-    for (int i=1; i<=NumRays; i++)
+    for (int p=0; p<Interface.inperceptronnum; p++)
     {
-        object.RayIntersection(Rays[i]);
-        double external_input = InputGain*(MaxRayLength - Rays[i].length)/MaxRayLength;
-        //Replace following line with injector function having a sensor-cell linker.
-        //Controller.SetNeuronExternalInput(i, external_input);
+      //vars
+      int rayindx, targetindx, channelindx;
+      double externalinput;
+      vector<perceptron> localperceptron = Interface.inperceptron;
+      localperceptron[0].state = 666.6;
+      int sizeish = localperceptron[0].source.Size(); //OK this is how you've got to index
+      // link perc to sensor
+      rayindx = Interface.inperceptron;//(p).source(1);//which ray feeds this perceptron
+      // detect pointed-to object
+      object.RayIntersection(Rays[rayindx]);
+      externalinput = (MaxRayLength - Rays[rayindx].length)/MaxRayLength;
+      // inject detected signal
+      for(int target=1; target<=Interface.maxlinknum; target++)
+      {
+        targetindx = Interface.inperceptron(p).target(t);
+        //check if placeholder
+        if(targetindx<=0){goto skip;}
+
+        channelindx = Interface.inperceptron(p).channel(t);
+        Controller.InjectCell(externalinput,channelindx,targetindx);
+
+        skip:;// from placeholder index skip condition
+      }
     } 
 
     // Read Sensors into Controller
 
     // Step Controller
-    Controller.EulerStep(StepSize);
-
+    double ct = 0.0;
+    while( ct<=ctlimit)
+    {
+    Controller.EulerStep(controldt);
+    ct+=controldt;
+    }
     // Read Out from controller
         // sum perceptron weights and find net actuator forces
         // return vx
@@ -140,7 +166,5 @@ void RDAgent::Step(double StepSize, VisualObject &object)
       cx = -EnvWidth/2;
     } else if (cx > EnvWidth/2) {
       cx = EnvWidth/2;
-    }
-}
-
+  }
 }

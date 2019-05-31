@@ -45,6 +45,7 @@ using namespace std;
 
 struct perceptron
 {
+    public:
     double state; // perceptron state = sum of weighted input(s)
     TVector<int> source;
     // ^ Potentially weighted source(s) a perceptron integrates
@@ -150,23 +151,8 @@ class AgentInterface{
     void FireInputPerceptrons();// Perturbs the controller based on sensors
     void FireOutputPerceptrons();// Sets the state of the actuators from controller
 
-            
-    private:
     // **************************** 
-    // Private Utility Functions
-    // ****************************
-
-    void SetRandomInputLinks();
-    void SetRandomOutputLinks();
-    void SetRandomInputWeights();
-    void SetRandomOutputWeights();
-
-    void RefreshsensorState();
-    void PushToController();
-
-
-    // **************************** 
-    // Private Global Vars
+    // Global Vars
     // ****************************
     
     // Array size control 
@@ -187,6 +173,22 @@ class AgentInterface{
     TVector<double> * sensor;
     TMatrix<double> * controller;    
     TVector<double> * actuator;
+
+
+            
+    private:
+    // **************************** 
+    // Private Utility Functions
+    // ****************************
+
+    void SetRandomInputLinks();
+    void SetRandomOutputLinks();
+    void SetRandomInputWeights();
+    void SetRandomOutputWeights();
+
+    void RefreshsensorState();
+    void PushToController();
+
 
     //// Local copy of external states
     //TVector<double>  sensor;// on [0,1]

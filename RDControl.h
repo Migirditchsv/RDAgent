@@ -33,17 +33,15 @@ class RDControl {
         {
             SetReactorSize( size );
 
-            SetReactorSize( size );
-
             // Model 0: Grey-Scott
             if ( 0 == 0)
             {
                 //Debug
                 cout<<"Gray-Scott Model Initialzing"<<endl;
                 cellsize = 1.0 / size;
-                chemnum = 1;
+                chemnum = 2;
                 paramnum = 4;
-                model = 0;
+                //model = 0;
 
                 cellstate.SetBounds(1,size,1,chemnum);
 
