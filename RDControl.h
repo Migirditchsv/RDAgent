@@ -29,7 +29,34 @@
 class RDControl {
     public:
         // Constructor
-        RDControl( int size, int model );
+        RDControl( int size, int model )
+        {
+            SetReactorSize( size );
+
+            SetReactorSize( size );
+
+            // Model 0: Grey-Scott
+            if ( 0 == 0)
+            {
+                //Debug
+                cout<<"Gray-Scott Model Initialzing"<<endl;
+                cellsize = 1.0 / size;
+                chemnum = 1;
+                paramnum = 4;
+                model = 0;
+
+                cellstate.SetBounds(1,size,1,chemnum);
+
+                rdparameter.SetBounds(1,paramnum);
+                rdparameter(1)=0.055; //k Dale&Husbands 2010
+                rdparameter(2)=0.02; //F Dale&Husbands 2010
+                rdparameter(3)=2.0*pow(10.0,-5.0); //du Dale&Husbands 2010
+                rdparameter(4)=pow(10.0,-5.0); //dv Dale&Husbands 2010
+            }
+
+        diffvec.SetBounds(1,chemnum);
+        diffvec.FillContents(0);
+       }
         // Destructor
         ~RDControl();
 

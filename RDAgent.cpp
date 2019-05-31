@@ -42,16 +42,16 @@ void ResetRay(Ray &ray, double theta, double cx, double cy) {
 // *******
 
 //  Prints out some status info
-void Printer(int linenum)
+void RDAgent::Printer(int linenum)
 {
 cout<<"|||PRINT STATUS|||"<<endl;
 cout<<"Position Number:"<<linenum<<endl;
 
 cout<<"---Controller State---"<<endl;
-int size = Controller.size; 
-TMatrix<double> state = Controller.state;
-cout<<"Controller Size:" <<size<<endl;
-cout<<"Controller State:"<<state<<endl;
+int controllersize = Controller.size; 
+TMatrix<double> controllerstate = Controller.state;
+cout<<"Controller Size:" <<controllersize<<endl;
+cout<<"Controller State:"<<controllerstate<<endl;
 
 cout<<"---Agent State---"<<endl;
 double posx = PositionX();
@@ -61,7 +61,7 @@ cout<<"Agent Y Position:"<<posy<<endl;
 }
 
 // Writes out the data
-void Writer()
+void RDAgent::Writer()
 {
 
 }
@@ -72,7 +72,7 @@ double SensorState(int rayindx)
 {
     object.RayIntersection(Rays[rayindx]);
     double sensorvalue = (MaxRayLength - Rays[rayindx].length)/MaxRayLength;
-    return sensorvalue
+    return sensorvalue;
 }
 
 // Change x-position

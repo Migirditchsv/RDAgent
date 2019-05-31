@@ -65,7 +65,7 @@ void AgentInterface::ResetInterface()
         {
         // random source
         int randomsource = UniformRandomInteger(1, controllersize);
-        outperceptron[p].source(s).randomsource;
+        outperceptron[p].source(s) = randomsource;
         // random weight for source 
         double randomweight = UniformRandom(0.0,1.0);
         inperceptron[p].weight(s) = randomweight;
@@ -80,14 +80,14 @@ void AgentInterface::ResetInterface()
 }
 
 // inject relevant weighted sensor value to target controller elements
-void FireInputPerceptrons()
+void AgentInterface::FireInputPerceptrons()
 {
     for(int p=0; p<inperceptronnum; p++)
     {
         //read and set state
-        int sensorindx = inperceptron[p].source[0];
+        int sensorindx = inperceptron[p].source(0);
         int channel = inperceptron[p].channel;
-        double newstate = sensor[sensorindx];
+        double newstate = sensor(sensorindx);
         inperceptron[p].state = newstate;
     }
 }
