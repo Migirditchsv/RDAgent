@@ -112,59 +112,78 @@ void RDAgent::ResetRays() {
 // Step the agent
 
 void RDAgent::Step(double controldt,// time delta on controller
-                   double ctlimit,// limit on controller steps per agent step
+                   double controllimit,// limit on controller steps per agent step
                    double agentdt,// time delta on agent motion
                    VisualObject &object)// the object being looked for
 { 
-    // Update visual sensors and check inputs
-    ResetRays();
-    for (int p=0; p<Interface.inperceptronnum; p++)
+  //vars
+  int rayindx, targetindx, channelindx, sourceindx;
+  double externalinput, controlleroutput, sign;
+  //init vars
+  externalinput = 0;
+  controlleroutput = 0;
+  sign = 0;
+  // Update visual sensors and check inputs
+  ResetRays();
+  for (int p=0; p<Interface.inperceptronnum; p++)
+  {
+   // Reset pereptron state
+   Interface.inperceptron[p].state=0.0;
+   // link perc to sensor
+    rayindx = Interface.inperceptron[p].source(1);//which ray feeds this perceptron
+    // detect pointed-to object
+    object.RayIntersection(Rays[rayindx]);
+    externalinput = (MaxRayLength - Rays[rayindx].length)/MaxRayLength;
+    // inject detected signal
+    for(int target=1; target<=Interface.maxlinknum; target++)
     {
-      //vars
-      int rayindx, targetindx, channelindx;
-      double externalinput;
-      vector<perceptron> localperceptron = Interface.inperceptron;
-      localperceptron[0].state = 666.6;
-      int sizeish = localperceptron[0].source.Size(); //OK this is how you've got to index
-      // link perc to sensor
-      rayindx = Interface.inperceptron;//(p).source(1);//which ray feeds this perceptron
-      // detect pointed-to object
-      object.RayIntersection(Rays[rayindx]);
-      externalinput = (MaxRayLength - Rays[rayindx].length)/MaxRayLength;
-      // inject detected signal
-      for(int target=1; target<=Interface.maxlinknum; target++)
-      {
-        targetindx = Interface.inperceptron(p).target(t);
-        //check if placeholder
-        if(targetindx<=0){goto skip;}
+      targetindx = Interface.inperceptron[p].target(target);
+      //check if placeholder
+      if(targetindx<=0){goto skipin;}
 
-        channelindx = Interface.inperceptron(p).channel(t);
-        Controller.InjectCell(externalinput,channelindx,targetindx);
+      channelindx = Interface.inperceptron[p].channel;
+      Controller.InjectCell(externalinput,channelindx,targetindx);
 
-        skip:;// from placeholder index skip condition
-      }
-    } 
-
-    // Read Sensors into Controller
-
-    // Step Controller
-    double ct = 0.0;
-    while( ct<=ctlimit)
-    {
-    Controller.EulerStep(controldt);
-    ct+=controldt;
+      skipin:;// from placeholder target index skip condition
     }
-    // Read Out from controller
-        // sum perceptron weights and find net actuator forces
-        // return vx
+  }// End input injection
 
-    // Update agent state
-    // replace with output reader having cell-actuator linker
-    //vx = VelGain*(Controller.outputs[13] - Controller.outputs[14]);
-    cx = cx + StepSize*vx;
-    if (cx < -EnvWidth/2) {
-      cx = -EnvWidth/2;
-    } else if (cx > EnvWidth/2) {
-      cx = EnvWidth/2;
+    // Run RD step
+  for(int controlstep = 1; controlstep<=controllimit; controlstep++)
+  {
+    Controller.EulerStep(controldt);
+  }
+  //read out to actuators
+  for(int p=0; p<=Interface.outperceptronnum; p++)
+  {
+    // Clear out perceptron state
+    Interface.outperceptron[p].state=0.0;
+    //accumulate sources
+    for(int source=1; source<=Interface.maxlinknum; source++)
+    {
+      // check for real indicies
+      sourceindx  = Interface.outperceptron[p].source(source);
+      if(sourceindx<=0){goto skipout;}
+      // accumulate
+      channelindx      = Interface.outperceptron[p].channel;
+      controlleroutput = Controller.cellstate(sourceindx,channelindx);
+      Interface.outperceptron[p].state+=controlleroutput;
+
+      skipout:;// from output source skip condition
+    }// end accumulate sources
+    //index into target ( left-right for now)
+    targetindx = Interface.outperceptron[p].target(1);
+    if(targetindx == 1){sign=1.0;}
+    else if (targetindx == 2){sign=-1.0;}
+    else{ cerr<<"RDAgent.cpp:step() outperceptron target out of bounds"<<endl;exit(0);}
+    vx+=sign*Interface.outperceptron[p].state;
+  }// end output perceptron   
+  // Update agent state
+  cx = cx + agentdt*vx;
+  if (cx < -EnvWidth/2) {
+    cx = -EnvWidth/2;
+  } else if (cx > EnvWidth/2) {
+    cx = EnvWidth/2;
   }
 }
+

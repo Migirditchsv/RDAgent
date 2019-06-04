@@ -55,9 +55,14 @@ class RDControl {
         diffvec.SetBounds(1,chemnum);
         diffvec.FillContents(0);
        }
-        // Destructor
-        ~RDControl();
 
+        // Destruct reactor
+        RDControl::~RDControl()
+        {
+            SetReactorSize( 0 );
+            rdparameter.SetBounds(0,0);
+            cellstate.SetBounds(0,0,0,0);
+        }
 
         // Data Objects
         int size; // number of RD cells 

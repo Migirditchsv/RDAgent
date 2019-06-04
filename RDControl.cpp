@@ -27,21 +27,7 @@ using namespace std;
 // Constructors and Destructors
 // ****************************
 
-// Construct reactor
 
-RDControl::RDControl( int size, int model )
-{
-    
-}
-
-// Destruct reactor
-
-RDControl::~RDControl()
-{
-    SetReactorSize( 0 );
-    rdparameter.SetBounds(0,0);
-    cellstate.SetBounds(0,0,0,0);
-}
 
 // **************************** 
 // Utilities
@@ -151,7 +137,7 @@ void RDControl::RandomReactorState()
     {
        for ( int chemindx=1; chemindx<=chemnum; chemindx++)
        {
-            holder = 0.5;//dis(gen);
+            holder = UniformRandom(0.0,1.0);
             cellstate(target, chemindx) = holder;
        }    
    }
@@ -260,29 +246,6 @@ void RDControl::EulerStep( double timestepsize )
         TMatrix<double> syncstate = cellstate; // for synchronous update
         double u,v; // pre-step values of u&v used in step calculation
         double du, dv; // change in u and v
-
-        //cout<<rdparameter<<cout;
-        
-//        //Check sycn state == cell state
-//        int flag = 1;
-//        int crows = cellstate.RowSize();
-//        int ccols = cellstate.ColumnSize();
-//        int srows = syncstate.RowSize();
-//        int scols = syncstate.ColumnSize();
-//        //cout<<"crows:"<<crows<<"Ccolls:"<<ccols<<"srows:"<<srows<<"scolls:"<<scols<<endl;
-// 
-//        for( int r = 0; r<=crows-1; r++ )
-//        {
-//            for( int c = 0; c<=ccols-1; c++ )
-//            {
-//                flag *= syncstate(c,r) == cellstate(c,r);
-//            }
-//            if(flag==0)
-//            {
-//                cout<<"ERROR: RDCONTROL::EULERSTEP->SYNCSTATE FAILED"<<endl;
-//                exit(0);
-//            }
-//        }
 
         for (int target=1; target<=size; target++)
         {
