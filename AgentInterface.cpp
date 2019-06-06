@@ -82,15 +82,23 @@ void AgentInterface::ResetInterface()
 // inject relevant weighted sensor value to target controller elements
 void AgentInterface::FireInputPerceptrons()
 {
+    //vars
+    int sourceindx, channelindx, targetindx;
+    double externalinput;
+    // Loop over in perceptrons
     for(int p=0; p<inperceptronnum; p++)
     {
-        //read and set state
-        int sensorindx = inperceptron[p].source(0);
-        int channel = inperceptron[p].channel;
-        double newstate = sensor(sensorindx);
+        // Reset perceptron state
+        inperceptron[p].state=0.0;
+        // Set index routes
+        sourceindx = inperceptron[p].source(1);
+        channelindx = inperceptron[p].channel;
+        // get external inputs
+
+
         inperceptron[p].state = newstate;
-    }
-}
+    }// end perceptron loop
+}// end FireInputPerceptrons
 
 // **************************** 
 // Utility functions

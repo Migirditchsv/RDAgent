@@ -35,9 +35,10 @@ const int    ActuatorNum = 2;
 const int controllersize = 138;
 const int controllermodel = 0;// 0:Grey-Scott
 // Linker
-const double maxlinks = 8;// Max # of links controller a perceptron may have
-const double initlinks = 4;// number of links to controller a perceptron starts with
-
+int maxlinks = 8;// Max # of links controller a perceptron may have
+int initlinks = 4;// number of links to controller a perceptron starts with
+// actuator
+int actuatorsize = 2;// number of actuators needed to update agent state
 
 // The RDAgent class declaration
 
@@ -51,8 +52,18 @@ class RDAgent {
 			//init controller
 			RDControl Controller(int controllersize, int controllermodel);
 
+			// init actuator
+			actuator.SetBounds(1,actuatorsize);
+
 			//init interface
-			AgentInterface Interface();
+			AgentInterface Interface( //&Rays,// point to sensor
+									//&Controller,//point to controller
+									//&actuator,//point to actuator
+									NumRays,// number of in percs
+									actuatorsize,// number of out percs
+									maxlinks,// link limit
+									initlinks// initial number of links
+			);
 
             // set position
 			Reset(ix,iy);
@@ -72,13 +83,16 @@ class RDAgent {
         //of intersection.
 		void Reset(double ix, double iy, int randomize = 0);
         void Reset(RandomState &rs, double ix, double iy, int randomize);
+		void ResetRays();
 		void Step(double controldt, double controllimit, double agentlimit, VisualObject &object);
 
-        // Initialize Controller
+        // declare Controller
 		RDControl Controller;//(int controllersize, int controllermodel);
-		AgentInterface Interface;
+
+		// declare Actuator
+		TVector<double> actuator;
 		
-		// Initialize Interface
+		// declare Interface
 		AgentInterface Interface;
         
         // Data Output
@@ -87,7 +101,7 @@ class RDAgent {
 
 
 	private:
-		void ResetRays();
+
 
 		int NumRays;
 		double cx, cy, vx;

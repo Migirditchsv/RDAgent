@@ -70,25 +70,19 @@ class AgentInterface{
 // ****************************
 
         // Constructor
-        AgentInterface(TVector<double> * sensor,
+        AgentInterface(     TVector<Ray>    * sensor,
                             TMatrix<double> * controller,
                             TVector<double> * actuator,
-                            int innum,
-                            int outnum,
-                            int maxnum, 
-                            int initnum){
-            
-            // Safe copy arguments
-            inperceptronnum = innum;
-            outperceptronnum = outnum;
-            maxlinknum = maxnum;
-            initlinknum = initnum;
-            
+                            int inperceptronnum,
+                            int outperceptronnum,
+                            int maxlinknum, 
+                            int initlinknum)
+        {
             // Compute sizes for initialization
-            sensorsize = sensor->Size();
+            sensorsize      = sensor->Size();
             controllersize  = controller->RowSize();
             controllerdimension = controller->ColumnSize();
-            actuatorsize = actuator->Size();
+            actuatorsize    = actuator->Size()
 
             // Initialize Input Perceptrons
             for(int i=0; i<innum; i++)
@@ -129,7 +123,7 @@ class AgentInterface{
             }
 
             // Set Initial Values 
-            SetRandomInputLinks();
+            SetRandomInputLinks(); // in prog
             SetRandomOutputLinks();
             SetRandomInputWeights();
             SetRandomOutputWeights();
@@ -170,7 +164,8 @@ class AgentInterface{
     vector<perceptron> outperceptron;
 
     // Pointers for linking
-    TVector<double> * sensor;
+    VisualObject    * visobject;// the visual object being looked for
+    TVector<Ray> * sensor;
     TMatrix<double> * controller;    
     TVector<double> * actuator;
 
