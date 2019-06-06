@@ -45,7 +45,8 @@ int actuatorsize = 2;// number of actuators needed to update agent state
 class RDAgent {
 	public:
 		// The constructor 
-		RDAgent(double ix = 0.0, double iy = 0.0) {
+		RDAgent(double ix = 0.0, double iy = 0.0) 
+		{
 			//init rays
 			Rays.SetBounds(1, NumRays);
 
@@ -56,9 +57,9 @@ class RDAgent {
 			actuator.SetBounds(1,actuatorsize);
 
 			//init interface
-			AgentInterface Interface( //&Rays,// point to sensor
-									//&Controller,//point to controller
-									//&actuator,//point to actuator
+			AgentInterface Interface(&Rays,// point to sensor
+									&Controller,//point to controller
+									&actuator,//point to actuator
 									NumRays,// number of in percs
 									actuatorsize,// number of out percs
 									maxlinks,// link limit

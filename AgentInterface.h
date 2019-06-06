@@ -70,22 +70,22 @@ class AgentInterface{
 // ****************************
 
         // Constructor
-        AgentInterface(     TVector<Ray>    * sensor,
-                            TMatrix<double> * controller,
-                            TVector<double> * actuator,
-                            int inperceptronnum,
-                            int outperceptronnum,
-                            int maxlinknum, 
-                            int initlinknum)
+        AgentInterface(     TVector<Ray>    * sensor = nullptr,
+                            RDControl * controller = nullptr,
+                            TVector<double> * actuator = nullptr,
+                            int inperceptronnum = 0,
+                            int outperceptronnum = 0,
+                            int maxlinknum = 0, 
+                            int initlinknum = 0)
         {
             // Compute sizes for initialization
             sensorsize      = sensor->Size();
-            controllersize  = controller->RowSize();
-            controllerdimension = controller->ColumnSize();
-            actuatorsize    = actuator->Size()
+            controllersize  = controller->CellState.RowSize();
+            controllerdimension = controller->CellState.ColumnSize();
+            actuatorsize    = actuator->Size();
 
             // Initialize Input Perceptrons
-            for(int i=0; i<innum; i++)
+            for(int i=0; i<inperceptronnum; i++)
             {
                 // initialize struct
                 perceptron perc;
@@ -103,7 +103,7 @@ class AgentInterface{
             }
 
             // Initialize Output Perceptrons
-            for(int i=0; i<outnum; i++)// vecs index from zero. god forgive me.
+            for(int i=0; i<outperceptronnum; i++)// vecs index from zero. god forgive me.
             {
                 // initialize struct
                 perceptron perc;
@@ -142,7 +142,7 @@ class AgentInterface{
     // ****************************
 
     void ResetInterface();// Resets links and weights to random values
-    void FireInputPerceptrons();// Perturbs the controller based on sensors
+    void FireInputPerceptrons(VisualObject &object);
     void FireOutputPerceptrons();// Sets the state of the actuators from controller
 
     // **************************** 
@@ -165,8 +165,8 @@ class AgentInterface{
 
     // Pointers for linking
     VisualObject    * visobject;// the visual object being looked for
-    TVector<Ray> * sensor;
-    TMatrix<double> * controller;    
+    TVector<Ray>    * sensor;
+    RDControl       * controller;    
     TVector<double> * actuator;
 
 

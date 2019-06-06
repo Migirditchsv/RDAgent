@@ -33,6 +33,10 @@
 // Accessors
 // ****************************
 
+// **************************** 
+// Utility functions
+// ****************************
+
 // Reset Interface: Resets links and weights to random values
 void AgentInterface::ResetInterface()
 {
@@ -80,7 +84,7 @@ void AgentInterface::ResetInterface()
 }
 
 // inject relevant weighted sensor value to target controller elements
-void AgentInterface::FireInputPerceptrons()
+void AgentInterface::FireInputPerceptrons(VisualObject &object)
 {
     //vars
     int sourceindx, channelindx, targetindx;
@@ -93,14 +97,56 @@ void AgentInterface::FireInputPerceptrons()
         // Set index routes
         sourceindx = inperceptron[p].source(1);
         channelindx = inperceptron[p].channel;
-        // get external inputs
-
-
-        inperceptron[p].state = newstate;
-    }// end perceptron loop
+        // measure sensor state
+        object.RayIntersection(sensor(sourceindx);
+        externalinput = (MaxRayLength - sensor(sourceindx).length)/MaxRayLength;
+        inperceptron[p].state = externalinput;
+        // inject into controller targets
+        for(int target=1; target<=maxlinknum; target++)
+        {
+           targetindx = inperceptron[p].target(target)); 
+           // check for placeholder indx
+           if(targetindx<=0){goto skip;}
+           // inject
+           controller->InjectCell(externalinput,channelindx,targetindx); 
+           skip:;
+        }//end target loop
+    }//end perceptron loop
 }// end FireInputPerceptrons
 
-// **************************** 
-// Utility functions
-// ****************************
+void AgentInterface::FireOutputPerceptrons()
+{
+    // vars
+    int sourceindx, channelindx, targetindx;
+    double weight, internalstate;
+    // loop over out percs
+    for(int p=0; p<=outperceptronnum; p++)
+    {// loop over percs
+        // Clear perceptronstate
+        outperceptron[p].state=0.0;
+        // get indicies
+        channelindx = outperceptron[p].channel;
+        targetindx  = outperceptron[p].target(1);
+
+        for(int source=1;source<=maxlinknum;source++)
+        {//loop over sources & accumulate
+            // Get sourceindx
+            sourceindx = outperceptron[p].source(source);
+            // check for placeholder index
+            if(sourceindx<=0){goto skipout;}
+
+            // get link weight
+            weight = outperceptron[p].weight(sourceindx);
+            //read from controller
+            internalstate = controller->CellStateChannel(sourceindx, channelindx);
+            outperceptron[p].state+= weight * internalstate;
+            //skipout from source loop
+            skipout:;
+        }// end source loop
+
+        // Write state to acutator
+        actuator(targetindx)=outperceptron[p].state;
+
+    }//end perc loop
+}// End FireOutPerceptrons
 

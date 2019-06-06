@@ -113,13 +113,14 @@ void RDAgent::Step(double controldt,// time delta on controller
   //link task object to controller
   Interface.visobject = &object;
   //Read sensors into controller
-  Interface.FireInputPerceptrons();
+  ResetRays();// do this first
+  Interface.FireInputPerceptrons(object);
   for(int controlstep = 1; controlstep<=controllimit; controlstep++)
   {
     Controller.EulerStep(controldt);
   }
   //Read controller to actuators
-  Interface.FireOutputPerceptrons()
+  Interface.FireOutputPerceptrons();
   cx = cx + agentdt*vx;
   if (cx < -EnvWidth/2) {
     cx = -EnvWidth/2;

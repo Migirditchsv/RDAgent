@@ -59,6 +59,11 @@ TVector<double> RDControl::CellState( int cellindx )
     return states;
 }
 
+double RDControl::CellStateChannel(int cellindx, int channelindx)
+{
+    return(cellstate(cellindx,channelindx));
+}
+
 //-----------------------------
 // SINGLE CELL CONTROL
 //-----------------------------

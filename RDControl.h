@@ -29,7 +29,7 @@
 class RDControl {
     public:
         // Constructor
-        RDControl( int size, int model )
+        RDControl( int size = 0, int model = 0 )
         {
             SetReactorSize( size );
 
@@ -79,6 +79,7 @@ class RDControl {
         // Accessors
         int ReactorSize(void);
         TVector<double> CellState( int cellindx );
+        double CellStateChannel( int cellndx, int channel);
   
         // Single Cell Control
         void NormalizeCellDensity( int cellindx );
