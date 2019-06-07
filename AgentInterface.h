@@ -70,9 +70,9 @@ class AgentInterface{
 // ****************************
 
         // Constructor
-        AgentInterface(     TVector<Ray>    * sensor = nullptr,
-                            RDControl * controller = nullptr,
-                            TVector<double> * actuator = nullptr,
+        AgentInterface(     TVector<Ray>    * sensor = 0,
+                            RDControl * controller = 0,
+                            TVector<double> * actuator = 0,
                             int inperceptronnum = 0,
                             int outperceptronnum = 0,
                             int maxlinknum = 0, 

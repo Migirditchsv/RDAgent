@@ -24,8 +24,8 @@ using namespace std;
 // **************************** 
 // Declarations
 // ****************************
-void Printer(int linenum);
-void Writer();
+//void Printer(int linenum);
+//void Writer();
 // pointer to agent object
 
 // **************************** 
@@ -44,6 +44,26 @@ const int RDCELLNUM = 148;
 // Random
 const long RANDOMSEED = 1;
 
+// **************************** 
+// Global Objects
+// ****************************
+
+// The agent
+RDAgent Agent;
+
+// The Genome;
+TVector<double> genome;//int values will be cast to int
+//Controller traits
+int rdparamnum = Agent.Controller.paramnum;
+//int controllersize = Agent.Controller.size;
+// Interface traits
+int inpercs = Agent.Interface.inperceptronnum;
+int outpercs = Agent.Interface.outperceptronnum;
+int maxlinks = Agent.Interface.maxlinknum;
+
+genomesize = 
+genomesize+= 
+
 //**************************** 
 // Warm Up
 //****************************
@@ -60,8 +80,8 @@ int main()
     SetRandomSeed(RANDOMSEED);
 
     // Init Agent
-    RDAgent Agent;
-    Printer(0);
+    RDAgent Agent(0,0);
+    //Printer(0);
 
     // TSearch Configuration
 
@@ -71,4 +91,22 @@ int main()
     return(0);
 }
 
+void Fittness()
+{
+    int x = 0;
+}
 
+void GenomeLinker()
+{// Configured for 1D ring with vertical symetry
+    //vars
+    int poscounter=1;//tracks position in search vector
+    int parameters;// number of paramteers
+// BEGIN PARAMETER LINK
+    // RD Parameters
+    parameters = Agent.Controller.paramnum;
+    while(poscounter<=parameters)
+    {
+    Agent.Controller.rdparameter(poscounter)=genome(poscounter);
+    poscounter++;
+    }
+}

@@ -98,13 +98,13 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
         sourceindx = inperceptron[p].source(1);
         channelindx = inperceptron[p].channel;
         // measure sensor state
-        object.RayIntersection(sensor(sourceindx);
+        object.RayIntersection(sensor(sourceindx));
         externalinput = (MaxRayLength - sensor(sourceindx).length)/MaxRayLength;
         inperceptron[p].state = externalinput;
         // inject into controller targets
         for(int target=1; target<=maxlinknum; target++)
         {
-           targetindx = inperceptron[p].target(target)); 
+           targetindx = inperceptron[p].target(target); 
            // check for placeholder indx
            if(targetindx<=0){goto skip;}
            // inject
