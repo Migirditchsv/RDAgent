@@ -52,8 +52,8 @@ class RDAgent {
 			Rays.SetBounds(1, NumRays);
 
 			//init controller
-			RDControl Controller(int controllersize, int controllermodel);
-			
+			RDControl Controller(controllersize, controllermodel);
+
 			// init actuator
 			actuator.SetBounds(1,actuatorsize);
 

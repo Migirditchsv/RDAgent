@@ -62,8 +62,8 @@ int inpercs = Agent.Interface.inperceptronnum;
 int outpercs = Agent.Interface.outperceptronnum;
 int maxlinks = Agent.Interface.maxlinknum;
 // add it all up
-genomesize = rdparamnum;
-genomesize+= 0;// tally up here. 
+int genomesize = rdparamnum;
+//int genomesize + 0;// tally up here. 
 
 //**************************** 
 // Warm Up
@@ -117,7 +117,7 @@ void GenomeLinker()
     {
         for(int target=1; target<=maxlinks; target++)
         {
-            // Target
+            // Target [discrete]
             dgene = genome(poscounter);
             igene = discretize(dgene, 1, controllersize);
             Agent.Interface.inperceptron[p].target(target) = igene;
@@ -125,11 +125,33 @@ void GenomeLinker()
             //weight
             Agent.Interface.inperceptron[p].weight(target) = genome(poscounter);
             poscounter++;
-            //channel
+            //channel [discrete]
             dgene = genome(poscounter);
             igene = discretize(dgene,1,channelnum);
             Agent.Interface.inperceptron[p].channel= igene;
             poscounter++;
+        }
+    }
+    
+    // out perceptrons
+    for(int p = 0; p<= Agent.Interface.outperceptronnum; p++)
+    {
+            //channel [discrete]
+            dgene = genome(poscounter);
+            igene = discretize(dgene,1,channelnum);
+            Agent.Interface.inperceptron[p].channel= igene;
+            poscounter++;
+        for(int source=1; source<=maxlinks; source++)
+        {
+            // Target [discrete]
+            dgene = genome(poscounter);
+            igene = discretize(dgene, 1, controllersize);
+            Agent.Interface.outperceptron[p].source(source) = igene;
+            poscounter++;
+            //weight
+            Agent.Interface.inperceptron[p].weight(source) = genome(poscounter);
+            poscounter++;
+
         }
     }
 }
