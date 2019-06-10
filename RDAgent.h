@@ -46,20 +46,21 @@ class RDAgent {
 	public:
 		// The constructor 
 		RDAgent(double ix = 0.0, double iy = 0.0) 
+		//: Interface(Interface), Control(Control)
 		{
 			//init rays
 			Rays.SetBounds(1, NumRays);
 
 			//init controller
 			RDControl Controller(int controllersize, int controllermodel);
-
+			
 			// init actuator
 			actuator.SetBounds(1,actuatorsize);
 
 			//init interface
-			AgentInterface Interface(&Rays,// point to sensor
-									&Controller,//point to controller
-									&actuator,//point to actuator
+			AgentInterface Interface(Rays,// point to sensor
+									Controller,//point to controller
+									actuator,//point to actuator
 									NumRays,// number of in percs
 									actuatorsize,// number of out percs
 									maxlinks,// link limit

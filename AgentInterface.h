@@ -25,6 +25,8 @@
 
 // Headers
 #include "VectorMatrix.h"// sensor, controller and actuator states
+#include "RDControl.h"
+#include "VisualObject.h"
 //#include "random.h"
 
 #pragma once
@@ -61,7 +63,9 @@ struct perceptron
 // **************************** 
 // RDControl Class Declaration
 // ****************************
-
+TVector<Ray> nullrayvec;
+TVector<double> nullvector;
+RDControl nullcontroller(0,0);
 class AgentInterface{
     public:
 
@@ -70,19 +74,20 @@ class AgentInterface{
 // ****************************
 
         // Constructor
-        AgentInterface(     TVector<Ray>    * sensor = 0,
-                            RDControl * controller = 0,
-                            TVector<double> * actuator = 0,
+        AgentInterface(     TVector<Ray> &rsensor,
+                            RDControl &rcontroller,
+                            TVector<double> &ractuator,
                             int inperceptronnum = 0,
                             int outperceptronnum = 0,
                             int maxlinknum = 0, 
                             int initlinknum = 0)
+        : sensor(rsensor),controller(rcontroller),actuator(ractuator)
         {
             // Compute sizes for initialization
-            sensorsize      = sensor->Size();
-            controllersize  = controller->CellState.RowSize();
-            controllerdimension = controller->CellState.ColumnSize();
-            actuatorsize    = actuator->Size();
+            sensorsize      = sensor.Size();
+            controllersize  = controller.CellState.RowSize();
+            controllerdimension = controller.CellState.ColumnSize();
+            actuatorsize    = actuator.Size();
 
             // Initialize Input Perceptrons
             for(int i=0; i<inperceptronnum; i++)
@@ -164,10 +169,10 @@ class AgentInterface{
     vector<perceptron> outperceptron;
 
     // Pointers for linking
-    VisualObject    * visobject;// the visual object being looked for
-    TVector<Ray>    * sensor;
-    RDControl       * controller;    
-    TVector<double> * actuator;
+    //VisualObject    &visobject;// the visual object being looked for
+    TVector<Ray>    &sensor;
+    RDControl       &controller;    
+    TVector<double> &actuator;
 
 
             

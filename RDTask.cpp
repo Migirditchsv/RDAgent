@@ -14,6 +14,7 @@
 // Std. Libs
 #include<iostream>//debuging, realtime status update
 #include<fstream>//write to file
+#include<cmath>// discritize()
 
 // Headers
 #include "TSearch.h"
@@ -60,9 +61,9 @@ int rdparamnum = Agent.Controller.paramnum;
 int inpercs = Agent.Interface.inperceptronnum;
 int outpercs = Agent.Interface.outperceptronnum;
 int maxlinks = Agent.Interface.maxlinknum;
-
-genomesize = 
-genomesize+= 
+// add it all up
+genomesize = rdparamnum;
+genomesize+= 0;// tally up here. 
 
 //**************************** 
 // Warm Up
@@ -100,13 +101,48 @@ void GenomeLinker()
 {// Configured for 1D ring with vertical symetry
     //vars
     int poscounter=1;//tracks position in search vector
-    int parameters;// number of paramteers
+    double dgene; // holder for genome values to be discritized
+    int    igene; // holder for integer converted genes
+    // Parameters
+    int parameters = Agent.Controller.paramnum;
+    int channelnum = Agent.Controller.chemnum;
 // BEGIN PARAMETER LINK
     // RD Parameters
-    parameters = Agent.Controller.paramnum;
     while(poscounter<=parameters)
     {
     Agent.Controller.rdparameter(poscounter)=genome(poscounter);
     poscounter++;
     }
+    for(int p = 0; p<= Agent.Interface.inperceptronnum; p++)
+    {
+        for(int target=1; target<=maxlinks; target++)
+        {
+            // Target
+            dgene = genome(poscounter);
+            igene = discretize(dgene, 1, controllersize);
+            Agent.Interface.inperceptron[p].target(target) = igene;
+            poscounter++;
+            //weight
+            Agent.Interface.inperceptron[p].weight(target) = genome(poscounter);
+            poscounter++;
+            //channel
+            dgene = genome(poscounter);
+            igene = discretize(dgene,1,channelnum);
+            Agent.Interface.inperceptron[p].channel= igene;
+            poscounter++;
+        }
+    }
+}
+
+//Takes a double on [-1,1] and 
+int discretize(double value, int min, int max)
+{   
+    //vars
+    int min, max, index;
+    double scale;
+
+    scale = 0.5 * (max - min);
+    index =  round( scale * (value + 1.0 ) );
+
+    return( index );
 }

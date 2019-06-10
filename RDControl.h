@@ -29,7 +29,7 @@
 class RDControl {
     public:
         // Constructor
-        RDControl( int size = 0, int model = 0 )
+        RDControl( int size, int model )
         {
             SetReactorSize( size );
 

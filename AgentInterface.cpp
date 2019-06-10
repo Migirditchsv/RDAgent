@@ -108,7 +108,7 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
            // check for placeholder indx
            if(targetindx<=0){goto skip;}
            // inject
-           controller->InjectCell(externalinput,channelindx,targetindx); 
+           controller.InjectCell(externalinput,channelindx,targetindx); 
            skip:;
         }//end target loop
     }//end perceptron loop
@@ -138,7 +138,7 @@ void AgentInterface::FireOutputPerceptrons()
             // get link weight
             weight = outperceptron[p].weight(sourceindx);
             //read from controller
-            internalstate = controller->CellStateChannel(sourceindx, channelindx);
+            internalstate = controller.CellStateChannel(sourceindx, channelindx);
             outperceptron[p].state+= weight * internalstate;
             //skipout from source loop
             skipout:;
