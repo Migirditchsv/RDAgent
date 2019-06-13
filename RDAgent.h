@@ -66,14 +66,16 @@ class RDAgent {
 			actuator.SetBounds(1,actuatorsize);
 
 			//init interface
-			Interface.RefferenceInterface(Rays,// point to sensor
-									Controller,//point to controller
-									actuator);//point to actuator
-			Interface.SetLinkNum(maxlinks,// link limit
-								initlinks);// initial number of links
+			Interface.RefferenceInterface(Rays,// ref to sensor
+										  Controller,//ref to controller
+										  actuator);//ref to actuator
+			Interface.SetLinkNum(maxlinks, initlinks);
 
             // set position
 			Reset(ix,iy);
+
+			// Update
+			Printer(-1);
 		};
 
 		// The destructor

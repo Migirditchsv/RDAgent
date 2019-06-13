@@ -190,10 +190,6 @@ void RDControl::RandomReactorState()
     // Vars
     double holder;
     
-    //Randomness
-    std::random_device rd;  //seed for the random number engine
-    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<> dis(0.0, 1.0);
     // Loop over all cells
     for (int target=1; target<=size; target++)
     {
@@ -320,10 +316,7 @@ void RDControl::EulerStep( double timestepsize )
             // Find cell concentration changes
             du = gammau*diffvec(1)-u*pow(v,2)+f*(1.0-u);
             dv = gammav*diffvec(2)+u*pow(v,2)-(f+k)*v;
-            
-            //debug
-            //cout<<"EULERSTEP| du:"<<du<<"dv:"<<dv<<endl;
-            
+                        
             // inject changes into cell
             syncstate(target, 1)+=du*timestepsize;
             syncstate(target, 2)+=dv*timestepsize;

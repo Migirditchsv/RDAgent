@@ -54,16 +54,7 @@ RDAgent Agent;
 
 // The Genome;
 TVector<double> genome;//int values will be cast to int
-//Controller traits
-int rdparamnum = Agent.Controller.GetParameterNumber();
-//int controllersize = Agent.Controller.size;
-// Interface traits
-int inpercs = Agent.Interface.inperceptronnum;
-int outpercs = Agent.Interface.outperceptronnum;
-int maxlinks = Agent.Interface.maxlinknum;
-// add it all up
-int genomesize = rdparamnum;
-//int genomesize + 0;// tally up here. 
+
 
 //**************************** 
 // Warm Up
@@ -80,6 +71,18 @@ int main()
     // Init Randomness Engine
     SetRandomSeed(RANDOMSEED);
 
+    // Init Genome
+    //Controller traits
+    int rdparamnum = Agent.Controller.GetParameterNumber();
+    // Interface traits
+    int inpercs = Agent.Interface.inperceptronnum;
+    int outpercs = Agent.Interface.outperceptronnum;
+    int maxlinks = Agent.Interface.maxlinknum;
+    // add it all up
+    int genomesize = rdparamnum + 2*maxlinks*( inpercs + outpercs); 
+    // set size
+    genome.SetBounds(1,genomesize);
+
     // Init Agent
     RDAgent Agent(0,0);
     Agent.Printer(0);
@@ -88,14 +91,16 @@ int main()
     // TSearch Configuration
 
 
+
    // Dynamics
 
     return(0);
 }
 
-void Fittness()
+double Fittness()
 {
-    int x = 0;
+    double fit = abs( Agent.PositionX() );// move away from center
+    return fit;
 }
 
 void GenomeLinker()
@@ -107,7 +112,8 @@ void GenomeLinker()
     // Parameters
     int parameters = Agent.Controller.GetParameterNumber();
     int channelnum = Agent.Controller.GetChemicalNumber();
-// BEGIN PARAMETER LINK
+
+//PARAMETER LINK
     // RD Parameters
     while(poscounter<=parameters)
     {
