@@ -55,7 +55,7 @@ RDAgent Agent;
 // The Genome;
 TVector<double> genome;//int values will be cast to int
 //Controller traits
-int rdparamnum = Agent.Controller.paramnum;
+int rdparamnum = Agent.Controller.GetParameterNumber();
 //int controllersize = Agent.Controller.size;
 // Interface traits
 int inpercs = Agent.Interface.inperceptronnum;
@@ -82,7 +82,8 @@ int main()
 
     // Init Agent
     RDAgent Agent(0,0);
-    //Printer(0);
+    Agent.Printer(0);
+
 
     // TSearch Configuration
 
@@ -104,13 +105,13 @@ void GenomeLinker()
     double dgene; // holder for genome values to be discritized
     int    igene; // holder for integer converted genes
     // Parameters
-    int parameters = Agent.Controller.paramnum;
-    int channelnum = Agent.Controller.chemnum;
+    int parameters = Agent.Controller.GetParameterNumber();
+    int channelnum = Agent.Controller.GetChemicalNumber();
 // BEGIN PARAMETER LINK
     // RD Parameters
     while(poscounter<=parameters)
     {
-    Agent.Controller.rdparameter(poscounter)=genome(poscounter);
+    Agent.Controller.SetParameter( poscounter , genome(poscounter) );
     poscounter++;
     }
     for(int p = 0; p<= Agent.Interface.inperceptronnum; p++)

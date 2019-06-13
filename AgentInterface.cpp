@@ -37,6 +37,67 @@
 // Utility functions
 // ****************************
 
+void AgentInterface::RefferenceInterface(TVector<Ray> &rsensor,
+                            RDControl &rcontroller,
+                            TVector<double> &ractuator/*,
+                            int inperceptronnum = 0,
+                            int outperceptronnum = 0,
+                            int maxlinknum = 0, 
+                            int initlinknum = 0*/)
+        {
+            // Compute sizes for initialization
+            sensorsize      = sensor.Size();
+            controllersize  = controller.GetReactorSize();
+            controllerdimension = controller.GetChemicalNumber();
+            actuatorsize    = actuator.Size();
+
+            // Initialize Input Perceptrons
+            for(int i=0; i<inperceptronnum; i++)
+            {
+                // initialize struct
+                perceptron perc;
+                perc.source.SetBounds(1,1);// single source inputs
+                perc.target.SetBounds(1,maxlinknum);
+                perc.weight.SetBounds(1,maxlinknum);
+                //^ fill struct with default (skip/neutral) values
+                perc.source(1)=i;// one perceptron per sense organ
+                perc.target.FillContents(0);// targets with index =< 0 are skipped
+                perc.channel = 1;// All perceptrons default to channel 1
+                perc.weight.FillContents(0);// To be filled with values on (0,1)
+                
+                // Push struct onto inperceptron vector
+                inperceptron.emplace_back(perc);
+            }
+
+            // Initialize Output Perceptrons
+            for(int i=0; i<outperceptronnum; i++)// vecs index from zero. god forgive me.
+            {
+                // initialize struct
+                perceptron perc;
+                perc.source.SetBounds(1,maxlinknum);
+                //^ possibly many controller inputs
+                perc.target.SetBounds(1,1);
+                //^ Controller inputs aggregated to one actuator
+                perc.weight.SetBounds(1,maxlinknum);
+                // fill struct with default (skip/neutral) values
+                perc.source.FillContents(0);// Link to controller later
+                perc.target(1)= i;// output to assigned actuator
+                perc.channel = 1;// Read from channel 1
+                perc.weight.FillContents(0);// To be filled with values on (0,1)
+                
+                // Push struct onto inperceptron vector
+                outperceptron.emplace_back(perc);
+            }
+
+            // Set Initial Values 
+            SetRandomInputLinks(); // in prog
+            SetRandomOutputLinks();
+            SetRandomInputWeights();
+            SetRandomOutputWeights();
+
+            };// end constructor
+ 
+
 // Reset Interface: Resets links and weights to random values
 void AgentInterface::ResetInterface()
 {

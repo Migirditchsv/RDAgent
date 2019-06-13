@@ -23,28 +23,56 @@
 
 using namespace std;
 
-// **************************** 
-// Constructors and Destructors
-// ****************************
-
-
-
-// **************************** 
-// Utilities
-// ****************************
-
 //-----------------------------
 // ACCESSORS
 //----------------------------
 
 //Get reactor size
-int RDControl::ReactorSize()
+int RDControl::GetReactorSize()
 {
-    return size;
+    return cellstate.RowSize;
+}
+
+void RDControl::SetReactorSize( int newsize )
+{
+    cellstate.SetRowSize(newsize);
+}
+
+TMatrix<double> RDControl::GetReactorState()
+{
+    return cellstate;
+}
+
+int RDControl::GetParameterNumber()
+{
+    return rdparameter.Size;
+}
+
+TVector<double> RDControl::GetRDParameters()
+{
+    return rdparameter;
+}
+
+void RDControl::SetParameter( int indx, double newparameter)
+{
+    // warn if implies change in param number
+    int oldsize = rdparameter.Size();
+    if(indx>oldsize)
+    {
+        cerr<<"WARNING RDCONTROL::SetParameter- index out of bounds"<<endl;
+        exit(0);
+    }
+    // exchange
+    rdparameter(indx) = newparameter;
+}
+
+int RDControl::GetChemicalNumber()
+{
+    return cellstate.ColumnSize();
 }
 
 //Get Tvector of the concentrations of species in a cell
-TVector<double> RDControl::CellState( int cellindx )
+TVector<double> RDControl::GetCellState( int cellindx )
 {
     // init returnable state vector
     TVector<double> states;
@@ -118,6 +146,35 @@ void RDControl::InjectCell(double amount, int cellindx, int chemindx)
 // Global Cell Control
 // ----------------------------
 
+// Sets the RD model
+// 0: Gray-Scott
+void RDControl::SetRDModel(int modelindx)
+{
+    // 0: Grey-Scott
+    if(modelindx==0)
+    {
+        chemnum = 2;
+        paramnum = 4;
+        //model = 0;
+
+        cellstate.SetBounds(1,size,1,chemnum);
+
+        diffvec.SetBounds(1,chemnum);
+        diffvec.FillContents(0);
+
+        rdparameter.SetBounds(1,paramnum);
+        rdparameter(1)=0.055; //k Dale&Husbands 2010
+        rdparameter(2)=0.02; //F Dale&Husbands 2010
+        rdparameter(3)=2.0*pow(10.0,-5.0); //du Dale&Husbands 2010
+        rdparameter(4)=pow(10.0,-5.0); //dv Dale&Husbands 2010
+    }
+    else
+    {
+        cerr<<"RDControll::SetRDModel: invalid model index"<<endl;
+        exit(0);
+    }
+}
+
 // Normalize entire controller
 void RDControl::NormalizeReactorState()
 {
@@ -170,6 +227,7 @@ void RDControl::HomogenousReactorState()
 // Resize a reactor
 void RDControl::SetReactorSize( int newsize )
 {
+    cellsize = 1.0 / size;
     size = newsize;
     cellstate.SetBounds(1,size,1,chemnum);
     cellstate.FillContents(0.0);

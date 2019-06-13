@@ -22,21 +22,27 @@ const double Pi = 3.1415926535897;
 //***************************
 // Agent Settings
 //***************************
-// Agent Body
+// Agent
 const double BodySize = 30.0; 
 const double EnvWidth = 400.0;
 const double MaxRayLength = 220.0;
-const double InputGain = 10.0; //Maybe remove
+const double InputGain = 1.0; //Maybe remove
 const double VisualAngle = Pi/6;
 const double VelGain = 5;
 const int 	 NumRays = 7;
 const int    ActuatorNum = 2;
+double       agentdt = 0.1;// agent time step size
 // Controller
 const int controllersize = 138;
 const int controllermodel = 0;// 0:Grey-Scott
+const int controllertopology = 0;// 0: 1D Near neigh. ring
+double controldt = 0.1;// controller step size
+int controllimit = 1;// controller steps per agent step
+
 // Linker
 int maxlinks = 8;// Max # of links controller a perceptron may have
 int initlinks = 4;// number of links to controller a perceptron starts with
+
 // actuator
 int actuatorsize = 2;// number of actuators needed to update agent state
 
@@ -52,20 +58,19 @@ class RDAgent {
 			Rays.SetBounds(1, NumRays);
 
 			//init controller
-			RDControl Controller(controllersize, controllermodel);
+			Controller.SetReactorSize(controllersize);
+			Controller.SetRDModel(controllermodel);
+			Controller.SetReactorTopology(controllertopology);
 
 			// init actuator
 			actuator.SetBounds(1,actuatorsize);
 
 			//init interface
-			AgentInterface Interface(Rays,// point to sensor
+			Interface.RefferenceInterface(Rays,// point to sensor
 									Controller,//point to controller
-									actuator,//point to actuator
-									NumRays,// number of in percs
-									actuatorsize,// number of out percs
-									maxlinks,// link limit
-									initlinks// initial number of links
-			);
+									actuator);//point to actuator
+			Interface.SetLinkNum(maxlinks,// link limit
+								initlinks);// initial number of links
 
             // set position
 			Reset(ix,iy);
@@ -77,6 +82,10 @@ class RDAgent {
 		// Accessors
 		void Printer(int linenum); // print state to terminal
 		void Writer();// write state to file
+		void SetTimeResolutions(double controldt_,// time delta on controller
+		                                  double controllimit_,// limit on controller steps per agent step
+		                                  double agentdt_// time delta on agent motion
+		);
 		double PositionX() {return cx;};
 		void SetPositionX(double newx);
 		double PositionY() {return cy;};
@@ -86,7 +95,7 @@ class RDAgent {
 		void Reset(double ix, double iy, int randomize = 0);
         void Reset(RandomState &rs, double ix, double iy, int randomize);
 		void ResetRays();
-		void Step(double controldt, double controllimit, double agentlimit, VisualObject &object);
+		void Step( VisualObject &object);
 
         // declare Controller
 		RDControl Controller;//(int controllersize, int controllermodel);
@@ -108,6 +117,9 @@ class RDAgent {
 		int NumRays;
 		double cx, cy, vx;
 		TVector<Ray> Rays;
+		double controldt;// step size on controller
+		double controllimit;// number of controller time steps per agent step
+		double agentdt;// step size on agent
         
         // Evolutionary Targets
         

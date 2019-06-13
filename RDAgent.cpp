@@ -14,6 +14,7 @@
 
 // Headers
 #include "RDAgent.h"
+#include "VectorMatrix.h"//handle vector stuff
 //#include "RDControl.h"
 
 using namespace std;
@@ -48,10 +49,10 @@ cout<<"|||PRINT STATUS|||"<<endl;
 cout<<"Position Number:"<<linenum<<endl;
 
 cout<<"---Controller State---"<<endl;
-int controllersize = Controller.size; 
-TMatrix<double> controllerstate = Controller.cellstate;
+int controllersize = Controller.GetReactorSize(); 
+//TMatrix<double> controllerstate = Controller.ReactorState();
 cout<<"Controller Size:" <<controllersize<<endl;
-cout<<"Controller State:"<<controllerstate<<endl;
+cout<<"Controller State:"<<Controller.GetReactorState<<endl;
 
 cout<<"---Agent State---"<<endl;
 double posx = PositionX();
@@ -74,6 +75,16 @@ void RDAgent::Writer()
 //    double sensorvalue = (MaxRayLength - Rays[rayindx].length)/MaxRayLength;
 //    return sensorvalue;
 //}
+
+void RDAgent::SetTimeResolutions(double controldt_,// time delta on controller
+                                  double controllimit_,// limit on controller steps per agent step
+                                  double agentdt_// time delta on agent motion
+)
+{
+  controldt=controldt_;
+  controllimit=controllimit_;
+  agentdt=agentdt_;
+}
 
 // Change x-position
 
@@ -105,13 +116,8 @@ void RDAgent::ResetRays() {
 
 // Step the agent
 
-void RDAgent::Step(double controldt,// time delta on controller
-                   double controllimit,// limit on controller steps per agent step
-                   double agentdt,// time delta on agent motion
-                   VisualObject &object)// the object being looked for
+void RDAgent::Step(VisualObject &object)// the object being looked for
 { 
-  //link task object to controller
-  Interface.visobject = &object;
   //Read sensors into controller
   ResetRays();// do this first
   Interface.FireInputPerceptrons(object);
