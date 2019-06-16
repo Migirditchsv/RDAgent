@@ -50,9 +50,9 @@ cout<<"Position Number:"<<linenum<<endl;
 
 cout<<"---Controller State---"<<endl;
 int controllersize = Controller.GetReactorSize(); 
-//TMatrix<double> controllerstate = Controller.ReactorState();
+TMatrix<double> controllerstate = Controller.GetReactorState();
 cout<<"Controller Size:" <<controllersize<<endl;
-cout<<"Controller State:"<<Controller.GetReactorState<<endl;
+cout<<"Controller State:"<<controllerstate<<endl;
 
 cout<<"---Agent State---"<<endl;
 double posx = PositionX();
@@ -100,7 +100,7 @@ void RDAgent::Reset(double ix, double iy, int randomize)
     // Vars
     cx = ix; cy = iy; vx = 0.0;
     // Write state
-    if (randomize) Controller.RandomReactorState;
+    if (randomize) Controller.RandomReactorState();
     else Controller.HomogenousReactorState();
     ResetRays();
 }

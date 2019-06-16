@@ -6,6 +6,8 @@
 
 #include <cmath>
 
+#pragma once // added by sam in attempted fix
+
 // A visual ray – line segment of form y = mx + b with start coordinates and length
 
 typedef struct {

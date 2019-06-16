@@ -33,7 +33,7 @@ class RDControl {
         {}
 
         // Destruct reactor
-        RDControl::~RDControl()
+        ~RDControl()
         {
             SetReactorSize( 0 );
             rdparameter.SetBounds(0,0);
@@ -44,10 +44,10 @@ class RDControl {
 
         // Accessors
         int GetReactorSize();
-        TMatrix<double> GetReactorState();
+        TMatrix<double>& GetReactorState();
         void SetReactorSize();
         int GetParameterNumber();
-        TVector<double> GetRDParameters();
+        TVector<double>& GetRDParameters();
         void SetParameter( int indx, double newparameter);
         int GetChemicalNumber();//set determined by model
 

@@ -78,8 +78,8 @@ class AgentInterface{
         //Destructor
         ~AgentInterface()
         {
-            inperceptron.clear();
-            outperceptron.clear();
+            inperceptron.SetSize(0);
+            outperceptron.SetSize(0);
         }
 
     // **************************** 
@@ -109,8 +109,10 @@ class AgentInterface{
     int actuatorsize;// Number of actuators under agent control
     
     // Perceptron arrays
-    vector<perceptron> inperceptron;
-    vector<perceptron> outperceptron;
+    //vector<perceptron> inperceptron;
+    TVector<perceptron> inperceptron;
+    //vector<perceptron> outperceptron;
+    TVector<perceptron> outperceptron;
 
     // Pointers for linking
     //VisualObject    &visobject;// the visual object being looked for

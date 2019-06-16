@@ -30,25 +30,28 @@ using namespace std;
 //Get reactor size
 int RDControl::GetReactorSize()
 {
-    return cellstate.RowSize;
+    return cellstate.RowSize();
 }
 
 void RDControl::SetReactorSize( int newsize )
 {
-    cellstate.SetRowSize(newsize);
+    cellsize = 1.0 / size;
+    size = newsize;
+    cellstate.SetBounds(1,size,1,chemnum);
+    adjacency.SetBounds(1,size,1,size);
 }
 
-TMatrix<double> RDControl::GetReactorState()
+TMatrix<double>& RDControl::GetReactorState()
 {
     return cellstate;
 }
 
 int RDControl::GetParameterNumber()
 {
-    return rdparameter.Size;
+    return rdparameter.Size();
 }
 
-TVector<double> RDControl::GetRDParameters()
+TVector<double>& RDControl::GetRDParameters()
 {
     return rdparameter;
 }
@@ -219,17 +222,6 @@ void RDControl::HomogenousReactorState()
 //------------------------------
 // Global Topology Controls
 //------------------------------
-
-// Resize a reactor
-void RDControl::SetReactorSize( int newsize )
-{
-    cellsize = 1.0 / size;
-    size = newsize;
-    cellstate.SetBounds(1,size,1,chemnum);
-    cellstate.FillContents(0.0);
-    adjacency.SetBounds(1,size,1,size);
-    adjacency.FillContents(0.0);
-}
 
 // Set reactor topology
 // 0: 1D Euclidean Nearest Neighbor Ring

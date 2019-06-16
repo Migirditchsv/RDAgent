@@ -19,6 +19,7 @@
 // Headers
 #include "TSearch.h"
 #include "RDAgent.h"
+#include "VectorMatrix.h"
 
 using namespace std;
 
@@ -55,6 +56,10 @@ RDAgent Agent;
 // The Genome;
 TVector<double> genome;//int values will be cast to int
 
+// Function Declarations
+double Fittness();
+void GenomeLinker();
+int discretize(double value, int minbound, int maxbound);
 
 //**************************** 
 // Warm Up
@@ -164,13 +169,13 @@ void GenomeLinker()
 }
 
 //Takes a double on [-1,1] and 
-int discretize(double value, int min, int max)
+int discretize(double value, int minbound, int maxbound)
 {   
     //vars
-    int min, max, index;
+    int index;
     double scale;
 
-    scale = 0.5 * (max - min);
+    scale = 0.5 * (maxbound - minbound);
     index =  round( scale * (value + 1.0 ) );
 
     return( index );
