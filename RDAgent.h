@@ -31,20 +31,20 @@ const double VisualAngle = Pi/6;
 const double VelGain = 5;
 const int 	 NumRays = 7;
 const int    ActuatorNum = 2;
-double       agentdt = 0.1;// agent time step size
+const double       agentdt = 0.1;// agent time step size
 // Controller
 const int controllersize = 138;
 const int controllermodel = 0;// 0:Grey-Scott
 const int controllertopology = 0;// 0: 1D Near neigh. ring
-double controldt = 0.1;// controller step size
-int controllimit = 1;// controller steps per agent step
+const double controldt = 0.1;// controller step size
+const int controllimit = 1;// controller steps per agent step
 
 // Linker
-int maxlinks = 8;// Max # of links controller a perceptron may have
-int initlinks = 4;// number of links to controller a perceptron starts with
+const int maxlinks = 8;// Max # of links controller a perceptron may have
+const int initlinks = 4;// number of links to controller a perceptron starts with
 
-// actuator
-int actuatorsize = 2;// number of actuators needed to update agent state
+// motor
+const int motorsize = 2;// number of motors needed to update agent state
 
 // The RDAgent class declaration
 
@@ -62,13 +62,13 @@ class RDAgent {
 			Controller.SetRDModel(controllermodel);
 			Controller.SetReactorTopology(controllertopology);
 
-			// init actuator
-			actuator.SetBounds(1,actuatorsize);
+			// init motor
+			motor.SetBounds(1,motorsize);
 
 			//init interface
 			Interface.RefferenceInterface(Rays,// ref to sensor
 										  Controller,//ref to controller
-										  actuator);//ref to actuator
+										  motor);//ref to motor
 			Interface.SetLinkNum(maxlinks, initlinks);
 
             // set position
@@ -103,7 +103,7 @@ class RDAgent {
 		RDControl Controller;//(int controllersize, int controllermodel);
 
 		// declare Actuator
-		TVector<double> actuator;
+		TVector<double> motor;
 		
 		// declare Interface
 		AgentInterface Interface;

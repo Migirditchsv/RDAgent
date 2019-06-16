@@ -26,7 +26,8 @@
 // Headers
 #include "VectorMatrix.h"
 #include "AgentInterface.h"
-#include "RDAgent.h"// call to sensors (rays)
+#include "RDAgent.h"// call to sensors (rays) should replace at some point
+// ^ Theoretically unneeded refference. 
 #include "random.h"
 
 // **************************** 
@@ -128,6 +129,41 @@ void AgentInterface::RefferenceInterface(TVector<Ray> &rsensor,
 
             };// end constructor
  
+ void AgentInterface::SetRandomInputLinks()
+ {
+     //vars
+     int linkindx;
+     double weight;
+
+     for(int p=1; p<=inperceptronnum; p++)
+     {
+         for(int l=1; l<=initlinknum; l++)
+         {
+            linkindx = UniformRandomInteger(1,controllersize);
+            inperceptron(p).target(l)=linkindx;
+            weight = UniformRandom(0,1);
+            inperceptron(p).weight(l)=weight;
+         }
+     }
+ }
+
+ void AgentInterface::SetRandomOutputLinks()
+ {
+     //vars
+     int linkindx;
+     double weight;
+
+     for(int p=1; p<=outperceptronnum; p++)
+     {
+         for(int l=1; l<=initlinknum; l++)
+         {
+            linkindx = UniformRandomInteger(1,controllersize);
+            outperceptron(p).source(l)=linkindx;
+            weight = UniformRandom(0,1);
+            outperceptron(p).weight(l)=weight;
+         }
+     }
+ }
 
 // Reset Interface: Resets links and weights to random values
 void AgentInterface::ResetInterface()

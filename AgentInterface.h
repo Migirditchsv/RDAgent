@@ -63,9 +63,9 @@ struct perceptron
 // **************************** 
 // RDControl Class Declaration
 // ****************************
-TVector<Ray> nullrayvec;
-TVector<double> nullvector;
-RDControl nullcontroller();
+//TVector<Ray> nullrayvec;
+//TVector<double> nullvector;
+//RDControl nullcontroller();
 class AgentInterface{
     public:
 

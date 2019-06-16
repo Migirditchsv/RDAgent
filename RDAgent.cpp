@@ -125,7 +125,7 @@ void RDAgent::Step(VisualObject &object)// the object being looked for
   {
     Controller.EulerStep(controldt);
   }
-  //Read controller to actuators
+  //Read controller to motors
   Interface.FireOutputPerceptrons();
   cx = cx + agentdt*vx;
   if (cx < -EnvWidth/2) {
@@ -173,7 +173,7 @@ void RDAgent::Step(VisualObject &object)// the object being looked for
 //  {
 //    Controller.EulerStep(controldt);
 //  }
-//  //read out to actuators
+//  //read out to motors
 //  for(int p=0; p<=Interface.outperceptronnum; p++)
 //  {
 //    // Clear out perceptron state
