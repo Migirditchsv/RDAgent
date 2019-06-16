@@ -74,7 +74,10 @@ class AgentInterface{
 // ****************************
 
         // Constructor
-        AgentInterface();       
+        AgentInterface()   
+        {
+            int x=0;            
+        }
         //Destructor
         ~AgentInterface()
         {
@@ -85,9 +88,9 @@ class AgentInterface{
     // **************************** 
     // Accessors
     // ****************************
-    void RefferenceInterface(TVector<Ray> &rsensor,
-                       RDControl &rcontroller,
-                       TVector<double> &ractuator);
+    void RefferenceInterface(TVector<Ray>& rsensor,
+                            RDControl& rcontroller,
+                            TVector<double>& ractuator);
     // Points the interface to the sensors, controller and acutator
     void SetLinkNum(int maxlinks, int initlinks);
     void ResetInterface();// Resets links and weights to random values
@@ -116,9 +119,9 @@ class AgentInterface{
 
     // Pointers for linking
     //VisualObject    &visobject;// the visual object being looked for
-    TVector<Ray>    &sensor;
-    RDControl       &controller;    
-    TVector<double> &actuator;
+    TVector<Ray>    sensor;
+    RDControl       controller;    
+    TVector<double> actuator;
 
 
             
@@ -129,8 +132,6 @@ class AgentInterface{
 
     void SetRandomInputLinks();
     void SetRandomOutputLinks();
-    void SetRandomInputWeights();
-    void SetRandomOutputWeights();
 
     void RefreshsensorState();
     void PushToController();

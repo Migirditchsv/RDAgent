@@ -1,5 +1,5 @@
 RDTask: RDAgent.o AgentInterface.o RDControl.o random.o
-	g++ -pthread -o RDTask RDTaskMain.cpp AgentInterface.o RDControl.o random.o
+	g++ -pthread -o RDTask RDTaskMain.cpp RDAgent.o AgentInterface.o RDControl.o random.o
 RDTaskMain.o: RDTaskMain.cpp TSearch.h RDAgent.h VectorMatrix.h random.h
 		g++ -c -O3 RDTaskMain.cpp
 RDAgent.o: RDAgent.cpp RDAgent.h AgentInterface.h VectorMatrix.h VisualObject.h random.h

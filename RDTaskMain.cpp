@@ -14,7 +14,7 @@
 // Std. Libs
 #include<iostream>//debuging, realtime status update
 #include<fstream>//write to file
-#include<cmath>// discritize()
+#include<cmath>// Discritize()
 
 // Headers
 #include "TSearch.h"
@@ -60,7 +60,7 @@ TVector<double> genome;//int values will be cast to int
 // Function Declarations
 double Fittness();
 void GenomeLinker();
-int discretize(double value, int minbound, int maxbound);
+int Discretize(double value, int minbound, int maxbound);
 
 //**************************** 
 // Warm Up
@@ -113,7 +113,7 @@ void GenomeLinker()
 {// Configured for 1D ring with vertical symetry
     //vars
     int poscounter=1;//tracks position in search vector
-    double dgene; // holder for genome values to be discritized
+    double dgene; // holder for genome values to be Discritized
     int    igene; // holder for integer converted genes
     // Parameters
     int parameters = Agent.Controller.GetParameterNumber();
@@ -132,7 +132,7 @@ void GenomeLinker()
         {
             // Target [discrete]
             dgene = genome(poscounter);
-            igene = discretize(dgene, 1, controllersize);
+            igene = Discretize(dgene, 1, controllersize);
             Agent.Interface.inperceptron[p].target(target) = igene;
             poscounter++;
             //weight
@@ -140,7 +140,7 @@ void GenomeLinker()
             poscounter++;
             //channel [discrete]
             dgene = genome(poscounter);
-            igene = discretize(dgene,1,channelnum);
+            igene = Discretize(dgene,1,channelnum);
             Agent.Interface.inperceptron[p].channel= igene;
             poscounter++;
         }
@@ -151,14 +151,14 @@ void GenomeLinker()
     {
             //channel [discrete]
             dgene = genome(poscounter);
-            igene = discretize(dgene,1,channelnum);
+            igene = Discretize(dgene,1,channelnum);
             Agent.Interface.inperceptron[p].channel= igene;
             poscounter++;
         for(int source=1; source<=maxlinks; source++)
         {
             // Target [discrete]
             dgene = genome(poscounter);
-            igene = discretize(dgene, 1, controllersize);
+            igene = Discretize(dgene, 1, controllersize);
             Agent.Interface.outperceptron[p].source(source) = igene;
             poscounter++;
             //weight
@@ -170,7 +170,7 @@ void GenomeLinker()
 }
 
 //Takes a double on [-1,1] and 
-int discretize(double value, int minbound, int maxbound)
+int Discretize(double value, int minbound, int maxbound)
 {   
     //vars
     int index;

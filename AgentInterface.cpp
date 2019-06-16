@@ -33,18 +33,19 @@
 // **************************** 
 // Accessors
 // ****************************
-
+void AgentInterface::SetLinkNum(int maxlinks, int initlinks)
+{
+    maxlinknum = maxlinks;
+    initlinknum = initlinks;
+}
 // **************************** 
 // Utility functions
 // ****************************
 
-void AgentInterface::RefferenceInterface(TVector<Ray> &rsensor,
-                            RDControl &rcontroller,
-                            TVector<double> &ractuator/*,
-                            int inperceptronnum = 0,
-                            int outperceptronnum = 0,
-                            int maxlinknum = 0, 
-                            int initlinknum = 0*/)
+void AgentInterface::RefferenceInterface(TVector<Ray>& rsensor,
+                            RDControl& rcontroller,
+                            TVector<double>& ractuator)
+
         {
             // Compute sizes for initialization
             sensorsize      = sensor.Size();
@@ -124,8 +125,7 @@ void AgentInterface::RefferenceInterface(TVector<Ray> &rsensor,
             // Set Initial Values 
             SetRandomInputLinks(); // in prog
             SetRandomOutputLinks();
-            SetRandomInputWeights();
-            SetRandomOutputWeights();
+
 
             };// end constructor
  

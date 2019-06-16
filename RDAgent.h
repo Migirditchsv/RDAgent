@@ -52,7 +52,6 @@ class RDAgent {
 	public:
 		// The constructor 
 		RDAgent(double ix = 0.0, double iy = 0.0) 
-		//: Interface(Interface), Control(Control)
 		{
 			//init rays
 			Rays.SetBounds(1, NumRays);
