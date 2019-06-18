@@ -47,11 +47,13 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& rsensor,
                             TVector<double>& ractuator)
 
         {
+            cout<<"RefferenceInterface Begin"<<endl;// debug
             // Compute sizes for initialization
             sensorsize      = sensor.Size();
             controllersize  = controller.GetReactorSize();
             controllerdimension = controller.GetChemicalNumber();
             actuatorsize    = actuator.Size();
+            cout<<"Object sizes read"<<endl;// debug
 
             // Initialize Input TVector
             inperceptron.SetBounds(1,inperceptronnum);
@@ -66,6 +68,7 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& rsensor,
                 inperceptron(p).weight.SetBounds(1,maxlinknum); // size weight list
                 inperceptron(p).weight.FillContents(1.0); //Index determines skip, nonzero default weights increase evolvability
             }
+            cout<<"inperc initd"<<endl;// debug
 
 
             // Initialize output TVector
@@ -81,50 +84,14 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& rsensor,
                 inperceptron(p).weight.SetBounds(1,maxlinknum); // size weight list
                 inperceptron(p).weight.FillContents(1.0); //Index determines skip, nonzero default weights increase evolvability
             }
+            cout<<"outperc initd"<<endl;// debug
+            cout<<"RefferenceInterface: COMPLETE"<<endl;//debug
 
-            // Old input initialize, replaced with type TVectors
-            //// Initialize Input Perceptrons
-            //for(int i=0; i<inperceptronnum; i++)
-            //{
-            //    // initialize struct
-            //    perceptron perc;
-            //    perc.source.SetBounds(1,1);// single source inputs
-            //    perc.target.SetBounds(1,maxlinknum);
-            //    perc.weight.SetBounds(1,maxlinknum);
-            //    //^ fill struct with default (skip/neutral) values
-            //    perc.source(1)=i;// one perceptron per sense organ
-            //    perc.target.FillContents(0);// targets with index =< 0 are skipped
-            //    perc.channel = 1;// All perceptrons default to channel 1
-            //    perc.weight.FillContents(0);// To be filled with values on (0,1)
-            //    
-            //    // Push struct onto inperceptron vector
-            //    inperceptron.emplace_back(perc);
-            //}
-
-           // Depreciated in favor of TVector object
-           // // Initialize Output Perceptrons
-           // for(int i=0; i<outperceptronnum; i++)// vecs index from zero. god forgive me.
-           // {
-           //     // initialize struct
-           //     perceptron perc;
-           //     perc.source.SetBounds(1,maxlinknum);
-           //     //^ possibly many controller inputs
-           //     perc.target.SetBounds(1,1);
-           //     //^ Controller inputs aggregated to one actuator
-           //     perc.weight.SetBounds(1,maxlinknum);
-           //     // fill struct with default (skip/neutral) values
-           //     perc.source.FillContents(0);// Link to controller later
-           //     perc.target(1)= i;// output to assigned actuator
-           //     perc.channel = 1;// Read from channel 1
-           //     perc.weight.FillContents(0);// To be filled with values on (0,1)
-           //     
-           //     // Push struct onto inperceptron vector
-           //     outperceptron.emplace_back(perc);
-           // }
-
-            // Set Initial Values 
-            SetRandomInputLinks(); // in prog
-            SetRandomOutputLinks();
+          //// Set Initial Values 
+          //SetRandomInputLinks(); 
+          //cout<<"Input links randomized"<<endl;// debug
+          //SetRandomOutputLinks();
+          //cout<<"Output links randomied"<<endl;// debug
 
 
             };// end constructor

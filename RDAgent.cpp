@@ -50,9 +50,9 @@ cout<<"Position Number:"<<linenum<<endl;
 
 cout<<"---Controller State---"<<endl;
 int controllersize = Controller.GetReactorSize(); 
-TMatrix<double> controllerstate = Controller.GetReactorState();
+//TMatrix<double> controllerstate = Controller.GetReactorState();
 cout<<"Controller Size:" <<controllersize<<endl;
-cout<<"Controller State:"<<controllerstate<<endl;
+//cout<<"Controller State:"<<controllerstate<<endl;
 
 cout<<"---Agent State---"<<endl;
 double posx = PositionX();

@@ -62,12 +62,15 @@ class RDAgent {
 			Controller.SetReactorTopology(controllertopology);
 
 			// init motor
+
 			motor.SetBounds(1,motorsize);
 
 			//init interface
+			Printer(-7);// debug
 			Interface.RefferenceInterface(Rays,// ref to sensor
 										  Controller,//ref to controller
 										  motor);//ref to motor
+			Printer(-8);// debug
 			Interface.SetLinkNum(maxlinks, initlinks);
 
             // set position

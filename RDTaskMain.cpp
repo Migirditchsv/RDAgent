@@ -73,9 +73,17 @@ int Discretize(double value, int minbound, int maxbound);
 int main()
 {
     // Local Vars
-
+    //
     // Init Randomness Engine
+    // random RandomState//
     SetRandomSeed(RANDOMSEED);
+    cout<<"Random Seed Set"<<endl;// debug
+
+    // Init Agent
+    //RDAgent Agent(0,0);
+    Agent.SetPositionX(0.0);
+    cout<<"Agent Constructed"<<endl;// debug
+    Agent.Printer(0);
 
     // Init Genome
     //Controller traits
@@ -88,10 +96,8 @@ int main()
     int genomesize = rdparamnum + 2*maxlinks*( inpercs + outpercs); 
     // set size
     genome.SetBounds(1,genomesize);
+    cout<<"Genome defined with size:"<<genomesize<<endl;
 
-    // Init Agent
-    RDAgent Agent(0,0);
-    Agent.Printer(0);
 
 
     // TSearch Configuration
