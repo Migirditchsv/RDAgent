@@ -31,17 +31,9 @@ const double VisualAngle = Pi/6;
 const double VelGain = 5;
 const int 	 NumRays = 7;
 const int    ActuatorNum = 2;
-const double       agentdt = 0.1;// agent time step size
-// Controller
-const int controllersize = 138;
-const int controllermodel = 0;// 0:Grey-Scott
-const int controllertopology = 0;// 0: 1D Near neigh. ring
-const double controldt = 0.1;// controller step size
-const int controllimit = 1;// controller steps per agent step
-
-// Linker
-const int maxlinks = 8;// Max # of links controller a perceptron may have
-const int initlinks = 4;// number of links to controller a perceptron starts with
+const double agentdt = 0.1;// agent time step size
+const double defaultxpos = 0.0; // x position at initialization
+const double defaultypos = 0.0; // y position initilization
 
 // motor
 const int motorsize = 2;// number of motors needed to update agent state
@@ -51,37 +43,34 @@ const int motorsize = 2;// number of motors needed to update agent state
 class RDAgent {
 	public:
 		// The constructor 
-		RDAgent(double ix = 0.0, double iy = 0.0) 
+		RDAgent() 
 		{
 			//init rays
 			Rays.SetBounds(1, NumRays);
 
 			//init controller
-			Controller.SetReactorSize(controllersize);
-			Controller.SetRDModel(controllermodel);
-			Controller.SetReactorTopology(controllertopology);
+			//Controller.SetReactorSize(controllersize);
+			//Controller.SetRDModel(controllermodel);
+			//Controller.SetReactorTopology(controllertopology);
 
 			// init motor
-
 			motor.SetBounds(1,motorsize);
 
-			//init interface
-			Printer(-7);// debug
-			Interface.RefferenceInterface(Rays,// ref to sensor
-										  Controller,//ref to controller
-										  motor);//ref to motor
-			Printer(-8);// debug
-			Interface.SetLinkNum(maxlinks, initlinks);
+		//	//init interface
+		//	Interface.RefferenceInterface(Rays,// ref to sensor
+		//								  Controller,//ref to controller
+		//								  motor);//ref to motor
+		//	Interface.SetLinkNum(maxlinks, initlinks);
 
             // set position
-			Reset(ix,iy);
+			Reset(defaultxpos,defaultypos);
 
 			// Update
 			Printer(-1);
 		};
 
 		// The destructor
-		~RDAgent() {}
+		~RDAgent() {}// probably should be made more less bad.
 
 		// Accessors
 		void Printer(int linenum); // print state to terminal
@@ -98,6 +87,7 @@ class RDAgent {
         //of intersection.
 		void Reset(double ix, double iy, int randomize = 0);
         void Reset(RandomState &rs, double ix, double iy, int randomize);
+		TVector<Ray>& RefferenceRays();// returns a refference to Rays
 		void ResetRays();
 		void Step( VisualObject &object);
 
@@ -106,6 +96,9 @@ class RDAgent {
 
 		// declare Actuator
 		TVector<double> motor;
+
+		// declare Rays
+		TVector<Ray> Rays;
 		
 		// declare Interface
 		AgentInterface Interface;
@@ -120,7 +113,7 @@ class RDAgent {
 
 		int NumRays;
 		double cx, cy, vx;
-		TVector<Ray> Rays;
+
 		double controldt;// step size on controller
 		double controllimit;// number of controller time steps per agent step
 		double agentdt;// step size on agent

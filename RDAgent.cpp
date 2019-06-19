@@ -45,20 +45,23 @@ void ResetRay(Ray &ray, double theta, double cx, double cy) {
 //  Prints out some status info
 void RDAgent::Printer(int linenum)
 {
-cout<<"|||PRINT STATUS|||"<<endl;
-cout<<"Position Number:"<<linenum<<endl;
+cout<<"|||PRINT STATUS|||\n"<<flush;
+cout<<"Position Number:"<<linenum<<"\n"<<flush;
 
-cout<<"---Controller State---"<<endl;
+cout<<"---Controller State---"<<"\n"<<flush;
 int controllersize = Controller.GetReactorSize(); 
+cout<<"Controller Size:" <<controllersize<<"\n"<<flush;
+int controllerchannels = Controller.GetChemicalNumber();
+cout<<"Controller Channels:"<<controllerchannels<<"\n"<<flush;
 //TMatrix<double> controllerstate = Controller.GetReactorState();
-cout<<"Controller Size:" <<controllersize<<endl;
 //cout<<"Controller State:"<<controllerstate<<endl;
 
-cout<<"---Agent State---"<<endl;
+cout<<"---Agent State---\n"<<flush;
 double posx = PositionX();
 double posy = PositionY();
-cout<<"Agent X Position:"<<posx<<endl;
-cout<<"Agent Y Position:"<<posy<<endl;
+cout<<"Agent X Position:"<<posx<<"\n"<<flush;
+cout<<"Agent Y Position:"<<posy<<"\n"<<flush;
+cout<<"\n\n"<<flush;
 }
 
 // Writes out the data in binary dump
@@ -105,6 +108,10 @@ void RDAgent::Reset(double ix, double iy, int randomize)
     ResetRays();
 }
 
+TVector<Ray>& RDAgent::RefferenceRays()
+{
+  return Rays;
+}
 
 void RDAgent::ResetRays() {
   double theta = -VisualAngle/2;  

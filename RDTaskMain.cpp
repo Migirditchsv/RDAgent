@@ -47,6 +47,18 @@ const int RDCELLNUM = 148;
 // Random
 const long RANDOMSEED = 1;
 
+// Controller
+const int controllersize = 138;
+const int controllermodel = 0;// 0:Grey-Scott
+const int controllertopology = 0;// 0: 1D Near neigh. ring
+const double controldt = 0.1;// controller step size
+const int controllimit = 1;// controller steps per agent step
+
+// Linker
+const int maxlinks = 8;// Max # of links controller a perceptron may have
+const int initlinks = 4;// number of links to controller a perceptron starts with
+
+
 // **************************** 
 // Global Objects
 // ****************************
@@ -72,17 +84,26 @@ int Discretize(double value, int minbound, int maxbound);
 
 int main()
 {
+    // TEST
+    TMatrix<int> testm;
+    testm.SetBounds(1,3,1,5);
+    cout<<"TEST\nROW:"<<testm.RowSize()<<"\nCOL:"<<testm.ColumnSize()<<"\n"<<flush;
     // Local Vars
-    //
+
     // Init Randomness Engine
-    // random RandomState//
     SetRandomSeed(RANDOMSEED);
-    cout<<"Random Seed Set"<<endl;// debug
+    cout<<"Random Seed Initializaiton: COMPLETE"<<endl;// debug
 
     // Init Agent
-    //RDAgent Agent(0,0);
     Agent.SetPositionX(0.0);
-    cout<<"Agent Constructed"<<endl;// debug
+    // Agent.Controller stuff
+    Agent.Controller.SetReactorSize(controllersize);
+    Agent.Controller.SetRDModel(controllermodel);
+    Agent.Controller.SetReactorTopology(controllertopology);
+    // Agent.Interface stuff
+    Agent.Interface.RefferenceInterface(Agent.Rays, Agent.Controller, Agent.motor);
+    Agent.Interface.SetLinkNum(maxlinks, initlinks);
+    cout<<"Agent Initialization: COMPLETE"<<endl;// debug
     Agent.Printer(0);
 
     // Init Genome
@@ -97,8 +118,6 @@ int main()
     // set size
     genome.SetBounds(1,genomesize);
     cout<<"Genome defined with size:"<<genomesize<<endl;
-
-
 
     // TSearch Configuration
 

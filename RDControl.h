@@ -35,7 +35,7 @@ class RDControl {
         // Destruct reactor
         ~RDControl()
         {
-            SetReactorSize( 0 );
+           // SetReactorSize( 0 );
             rdparameter.SetBounds(0,0);
             cellstate.SetBounds(0,0,0,0);
         }
@@ -45,7 +45,7 @@ class RDControl {
         // Accessors
         int GetReactorSize();
         TMatrix<double>& GetReactorState();
-        void SetReactorSize();
+        void SetReactorSize(int newsize);
         int GetParameterNumber();
         TVector<double>& GetRDParameters();
         void SetParameter( int indx, double newparameter);
@@ -66,7 +66,6 @@ class RDControl {
         void HomogenousReactorState();
 
         // Global Topology Control
-        void SetReactorSize( int newsize  );
         void SetReactorTopology( int topologyindex );
 
         // Dynamics
