@@ -45,23 +45,45 @@ void ResetRay(Ray &ray, double theta, double cx, double cy) {
 //  Prints out some status info
 void RDAgent::Printer(int linenum)
 {
-cout<<"|||PRINT STATUS|||\n"<<flush;
-cout<<"Position Number:"<<linenum<<"\n"<<flush;
-
-cout<<"---Controller State---"<<"\n"<<flush;
-int controllersize = Controller.GetReactorSize(); 
-cout<<"Controller Size:" <<controllersize<<"\n"<<flush;
-int controllerchannels = Controller.GetChemicalNumber();
-cout<<"Controller Channels:"<<controllerchannels<<"\n"<<flush;
-//TMatrix<double> controllerstate = Controller.GetReactorState();
-//cout<<"Controller State:"<<controllerstate<<endl;
-
-cout<<"---Agent State---\n"<<flush;
-double posx = PositionX();
-double posy = PositionY();
-cout<<"Agent X Position:"<<posx<<"\n"<<flush;
-cout<<"Agent Y Position:"<<posy<<"\n"<<flush;
-cout<<"\n\n"<<flush;
+  cout<<"\n|||PRINT STATUS|||\n"<<flush;
+  cout<<"Position Number: "<<linenum<<"\n\n"<<flush;
+  
+  cout<<"---Controller State---"<<"\n"<<flush;
+  int controllersize = Controller.GetReactorSize(); 
+  cout<<"Controller Size: " <<controllersize<<"\n"<<flush;
+  int controllerchannels = Controller.GetChemicalNumber();
+  cout<<"Controller Channels: "<<controllerchannels<<"\n\n"<<flush;
+  //TMatrix<double> controllerstate = Controller.GetReactorState();
+  //cout<<"Controller State:"<<controllerstate<<endl;
+  
+  cout<<"---Agent State---\n"<<flush;
+  double posx = PositionX();
+  double posy = PositionY();
+  cout<<"Agent X Position:"<<posx<<"\n"<<flush;
+  cout<<"Agent Y Position:"<<posy<<"\n\n"<<flush;
+  
+  cout<<"---Interface---"<<"\n"<<flush;
+  cout<<"In Perceptrons: "<<Interface.inperceptron.Size()<<"\n"<<flush;
+  cout<<"Out Perceptrons: "<<Interface.outperceptron.Size()<<"\n"<<flush;
+  cout<<"Max Links: "<<Interface.maxlinknum<<"\n"<<flush;
+  cout<<"Initial Links: "<<Interface.initlinknum<<"\n"<<flush;
+  cout<<"\n-Input Perceptron Info-\n"<<flush;
+  for(int p = 1; p<=Interface.inperceptronnum; p++)
+  {
+    cout<<"Inperceptron("<<p<<")"<<endl;
+    cout<<"State: "<<Interface.inperceptron(p).state<<
+    " Source: "<<Interface.inperceptron(p).source<<
+    " Target: "<<Interface.inperceptron(p).target<<"\n"<<flush;
+  }
+  cout<<"\n-Output Perceptron Info-\n"<<flush;
+  for(int p = 1; p<=Interface.outperceptronnum; p++)
+  {
+    cout<<"outperceptron("<<p<<")"<<endl;
+    cout<<"State: "<< Interface.outperceptron(p).state<<
+    " Source: "<<Interface.outperceptron(p).source<<
+    " Target: "<<Interface.outperceptron(p).target<<"\n"<<flush;
+  }
+  cout<<"-------------------------\n\n"<<endl;
 }
 
 // Writes out the data in binary dump

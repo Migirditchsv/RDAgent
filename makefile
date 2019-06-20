@@ -13,4 +13,4 @@ RDControl.o: RDControl.cpp RDControl.h VectorMatrix.h random.h
 random.o: random.cpp random.h VectorMatrix.h
 		g++ -c -Og -g -O3 -flto random.cpp
 clean:
-		rm *.o RDAgen
+		rm *.o RDTask

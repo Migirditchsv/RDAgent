@@ -37,26 +37,27 @@ void AgentInterface::SetLinkNum(int maxlinks, int initlinks)
 {
     maxlinknum = maxlinks;
     initlinknum = initlinks;
+    cout<<"AgentInterface:: SetLinkNum COMPLETE"<<endl;
 }
 // **************************** 
 // Utility functions
 // ****************************
 
-void AgentInterface::RefferenceInterface(TVector<Ray>& rsensor,
-                            RDControl& rcontroller,
-                            TVector<double>& ractuator)
-
+void AgentInterface::RefferenceInterface(TVector<Ray>& sensor,
+                            RDControl& controller,
+                            TVector<double>& actuator)
         {
-            cout<<"RefferenceInterface Begin"<<endl;// debug
+            cout<<"RefferenceInterface: Initializing"<<endl;// debug
             // Compute sizes for initialization
-            sensorsize      = sensor.Size();
+            inperceptronnum      = sensor.Size();
+            cout<<"RefferenceInterface: sensor.Size ="<<inperceptronnum<<endl;
             controllersize  = controller.GetReactorSize();
             controllerdimension = controller.GetChemicalNumber();
-            actuatorsize    = actuator.Size();
-            cout<<"Object sizes read"<<endl;// debug
+            outperceptronnum    = actuator.Size();
 
             // Initialize Input TVector
             inperceptron.SetBounds(1,inperceptronnum);
+            cout<<"Interface::inperceptron.Size= "<<inperceptron.Size()<<endl;
             for(int p=1; p<=inperceptronnum; p++)
             {
                 inperceptron(p).channel = 1; // Default to channel 1
@@ -68,8 +69,6 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& rsensor,
                 inperceptron(p).weight.SetBounds(1,maxlinknum); // size weight list
                 inperceptron(p).weight.FillContents(1.0); //Index determines skip, nonzero default weights increase evolvability
             }
-            cout<<"inperc initd"<<endl;// debug
-
 
             // Initialize output TVector
             outperceptron.SetBounds(1,outperceptronnum);
@@ -77,6 +76,9 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& rsensor,
             {
                 inperceptron(p).channel = 1; // Default to channel 1
                 inperceptron(p).source.SetBounds(1,maxlinknum);
+                cout<<"DEBUG-AI.cpp::RefferenceInterface"<<
+                "maxlinknum: "<<maxlinknum<<
+                "source size: "<<inperceptron(p).source.Size()<<endl;
                 inperceptron(p).source.FillContents(0);// Default off all read out links
                 inperceptron(p).state   = 0.0; // start clean
                 inperceptron(p).target.SetBounds(1,1); //size target list
@@ -84,7 +86,6 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& rsensor,
                 inperceptron(p).weight.SetBounds(1,maxlinknum); // size weight list
                 inperceptron(p).weight.FillContents(1.0); //Index determines skip, nonzero default weights increase evolvability
             }
-            cout<<"outperc initd"<<endl;// debug
             cout<<"RefferenceInterface: COMPLETE"<<endl;//debug
 
           //// Set Initial Values 
@@ -102,6 +103,8 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& rsensor,
      int linkindx;
      double weight;
 
+    
+
      for(int p=1; p<=inperceptronnum; p++)
      {
          for(int l=1; l<=initlinknum; l++)
@@ -112,6 +115,7 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& rsensor,
             inperceptron(p).weight(l)=weight;
          }
      }
+    cout<<"AgentInterface::SetRandomInputLinks COMPLETE"<<endl;
  }
 
  void AgentInterface::SetRandomOutputLinks()
@@ -130,6 +134,7 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& rsensor,
             outperceptron(p).weight(l)=weight;
          }
      }
+    cout<<"AgentInterface::SetRandomOutputLinks COMPLETE"<<endl;
  }
 
 // Reset Interface: Resets links and weights to random values

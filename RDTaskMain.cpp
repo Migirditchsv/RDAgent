@@ -87,14 +87,18 @@ int main()
     // TEST
     TMatrix<int> testm;
     testm.SetBounds(1,3,1,5);
+    testm.FillContents(0);
+    testm(1,5) = 9;
     cout<<"TEST\nROW:"<<testm.RowSize()<<"\nCOL:"<<testm.ColumnSize()<<"\n"<<flush;
+    cout<<testm<<"\n"<<flush;
     // Local Vars
 
     // Init Randomness Engine
     SetRandomSeed(RANDOMSEED);
-    cout<<"Random Seed Initializaiton: COMPLETE"<<endl;// debug
+    cout<<"Random Seed Initializaiton: COMPLETE\n"<<flush;// debug
 
     // Init Agent
+    Agent;
     Agent.SetPositionX(0.0);
     // Agent.Controller stuff
     Agent.Controller.SetReactorSize(controllersize);
@@ -103,7 +107,10 @@ int main()
     // Agent.Interface stuff
     Agent.Interface.RefferenceInterface(Agent.Rays, Agent.Controller, Agent.motor);
     Agent.Interface.SetLinkNum(maxlinks, initlinks);
-    cout<<"Agent Initialization: COMPLETE"<<endl;// debug
+    Agent.Printer(1);
+    Agent.Interface.SetRandomInputLinks();
+    Agent.Interface.SetRandomOutputLinks();
+    cout<<"Agent Initialization: COMPLETE\n"<<flush;// debug
     Agent.Printer(0);
 
     // Init Genome
@@ -117,7 +124,8 @@ int main()
     int genomesize = rdparamnum + 2*maxlinks*( inpercs + outpercs); 
     // set size
     genome.SetBounds(1,genomesize);
-    cout<<"Genome defined with size:"<<genomesize<<endl;
+    cout<<"Genome defined with size:"<<genomesize<<"\n"<<flush;
+    cout<<"genomesize +="<<"inpercs:"<<inpercs<<" outpercs:"<<outpercs<<" maxlinks:"<<maxlinks<<"\n"<<flush;
 
     // TSearch Configuration
 

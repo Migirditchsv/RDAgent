@@ -38,8 +38,8 @@ void RDControl::SetReactorSize( int newsize )
     cellsize = 1.0 / size;
     size = newsize;
     cellstate.SetBounds(1,chemnum,1,size);
-    cout<<"RDControl::SetReactorSize:"<<GetReactorSize()<<flush;// debug
     adjacency.SetBounds(1,size,1,size);
+    cout<<"RDControl::Reactor Size Set :"<<GetReactorSize()<<"\n"<<flush;// debug
 }
 
 TMatrix<double>& RDControl::GetReactorState()
@@ -177,6 +177,7 @@ void RDControl::SetRDModel(int modelindx)
         cerr<<"RDControll::SetRDModel: invalid model index"<<endl;
         exit(0);
     }
+    cout<<"RDControl:: RD Model Set: "<<modelindx<<endl;
 }
 
 // Normalize entire controller
@@ -278,6 +279,7 @@ void RDControl::SetReactorTopology(int topologyindx)
             }
         }
     }
+    cout<<"RDControl:: Reactor Topology Set: "<<topologyindx<<endl;
 }
 
 //-----------------------------

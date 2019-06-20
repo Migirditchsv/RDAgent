@@ -45,8 +45,10 @@ class RDAgent {
 		// The constructor 
 		RDAgent() 
 		{
+			cout<<"Num Rays: "<<NumRays<<endl;
 			//init rays
 			Rays.SetBounds(1, NumRays);
+			cout<<"RDAgent::Constructor: Ray Size Set: "<<Rays.Size()<<endl;
 
 			//init controller
 			//Controller.SetReactorSize(controllersize);
@@ -55,6 +57,7 @@ class RDAgent {
 
 			// init motor
 			motor.SetBounds(1,motorsize);
+			cout<<"RDAgent::Constructor: Motor Size Set: "<<motor.Size()<<endl;
 
 		//	//init interface
 		//	Interface.RefferenceInterface(Rays,// ref to sensor
@@ -111,7 +114,6 @@ class RDAgent {
 	private:
 
 
-		int NumRays;
 		double cx, cy, vx;
 
 		double controldt;// step size on controller

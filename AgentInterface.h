@@ -123,6 +123,11 @@ class AgentInterface{
     RDControl       controller;    
     TVector<double> actuator;
 
+    void SetRandomInputLinks();
+    void SetRandomOutputLinks();
+
+    void RefreshsensorState();
+    void PushToController();
 
             
     private:
@@ -130,11 +135,6 @@ class AgentInterface{
     // Private Utility Functions
     // ****************************
 
-    void SetRandomInputLinks();
-    void SetRandomOutputLinks();
-
-    void RefreshsensorState();
-    void PushToController();
 
 
     //// Local copy of external states
