@@ -37,6 +37,21 @@ void AgentInterface::SetLinkNum(int maxlinks, int initlinks)
 {
     maxlinknum = maxlinks;
     initlinknum = initlinks;
+    // Forcinly resize in and out perceptron target/source and weight arrays
+    // in perc resize
+    for(int p=1; p<= inperceptronnum; p++)
+    {
+        inperceptron(p).target.SetBounds(1,maxlinknum);
+        inperceptron(p).weight.SetBounds(1,maxlinknum);
+    }
+
+    // out perc resize
+    for(int p=1; p<= outperceptronnum; p++)
+    {
+        outperceptron(p).source.SetBounds(1,maxlinknum);
+        outperceptron(p).weight.SetBounds(1,maxlinknum);
+    }
+ 
     cout<<"AgentInterface:: SetLinkNum COMPLETE"<<endl;
 }
 // **************************** 
@@ -57,7 +72,6 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor,
 
             // Initialize Input TVector
             inperceptron.SetBounds(1,inperceptronnum);
-            cout<<"Interface::inperceptron.Size= "<<inperceptron.Size()<<endl;
             for(int p=1; p<=inperceptronnum; p++)
             {
                 inperceptron(p).channel = 1; // Default to channel 1
@@ -66,7 +80,10 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor,
                 inperceptron(p).state   = 0.0; // start clean
                 inperceptron(p).target.SetBounds(1,maxlinknum); //size target list
                 inperceptron(p).target.FillContents(0); // targets <=0 are skipped
+                cout<<"AI::RefferenceInterface: maxlinknum: "<<
+                maxlinknum<<endl;
                 inperceptron(p).weight.SetBounds(1,maxlinknum); // size weight list
+                cout<<"AI::RefferenceInterface: weight"<<inperceptron(p).weight<<endl;
                 inperceptron(p).weight.FillContents(1.0); //Index determines skip, nonzero default weights increase evolvability
             }
 
@@ -100,21 +117,29 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor,
  void AgentInterface::SetRandomInputLinks()
  {
      //vars
-     int linkindx;
-     double weight;
+    int linkindx;
+    double weight;
+    cout<<"Interface::SetRandomInputLinks: maxlinknum: "<<maxlinknum<<endl;
 
-    
+    for(int p=1; p<=inperceptronnum; p++)
+    {
+        cout<<"Interface::SetRandomInputLinks: inperceptron("<<p<<").target: "<<
+        inperceptron(p).target<<endl;
 
-     for(int p=1; p<=inperceptronnum; p++)
-     {
-         for(int l=1; l<=initlinknum; l++)
-         {
-            linkindx = UniformRandomInteger(1,controllersize);
-            inperceptron(p).target(l)=linkindx;
-            weight = UniformRandom(0,1);
-            inperceptron(p).weight(l)=weight;
-         }
-     }
+        for(int l=1; l<=initlinknum; l++)
+        {
+           cout<<"Probe1"<<endl; 
+           linkindx = UniformRandomInteger(1,controllersize);
+           cout<<"Probe2"<<endl; 
+           inperceptron(p).target(l)=linkindx;
+           cout<<"Probe3"<<endl; 
+           weight = UniformRandom(0,1);
+           cout<<"Probe4| inperc("<<p<<").weight: "<<
+           inperceptron(p).weight<<endl; 
+           inperceptron(p).weight(l)=weight;
+           cout<<"Probe5"<<endl; 
+        }
+    }
     cout<<"AgentInterface::SetRandomInputLinks COMPLETE"<<endl;
  }
 

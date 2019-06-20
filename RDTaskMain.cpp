@@ -107,8 +107,9 @@ int main()
     // Agent.Interface stuff
     Agent.Interface.RefferenceInterface(Agent.Rays, Agent.Controller, Agent.motor);
     Agent.Interface.SetLinkNum(maxlinks, initlinks);
-    Agent.Printer(1);
+    cout<<"RDTaskmain.cpp: maxlinks: "<<Agent.Interface.maxlinknum<<endl;
     Agent.Interface.SetRandomInputLinks();
+    cout<<"TaskMain::outperceptron.Size= "<<Agent.Interface.outperceptron.Size()<<endl;
     Agent.Interface.SetRandomOutputLinks();
     cout<<"Agent Initialization: COMPLETE\n"<<flush;// debug
     Agent.Printer(0);
