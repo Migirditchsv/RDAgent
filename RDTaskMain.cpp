@@ -146,9 +146,11 @@ void InitGenome()
     int outpercs = Agent.Interface.outperceptronnum;
     int maxlinks = Agent.Interface.maxlinknum;
     // add it all up
-    m = 3*maxlinks*ceil( inpercs / 2 );// 3-> target,weight,channel
-    j = 3 * maxlinks * ceil( outpercs / 2 );
-    genomesize = rdparamnum + m + j;
+    cout<<"INPerCS"<<inpercs<<"ip/2="<< inpercs/2<<
+    "ceil(ip/2)="<<ceil(inpercs/2)<<endl;
+    m = ceil( inpercs / 2.0 );
+    j = ceil( outpercs / 2.0 );
+    genomesize = rdparamnum + 3 * maxlinks * ( m + j );
     // set size
     genome.SetBounds(1,genomesize);
     cout<<"Genome defined with size:"<<genomesize<<"\n"<<flush;
@@ -165,7 +167,7 @@ void BilateralGenomeLinker()
     int parameters = Agent.Controller.GetParameterNumber();
     int channelnum = Agent.Controller.GetChemicalNumber();
     int localcontrolsize = Agent.Controller.GetReactorSize();
-
+    cout<<"CRASH TEST 0"<<endl;
 //PARAMETER LINK
     // RD Parameters
     while(poscounter<=parameters)
@@ -175,20 +177,27 @@ void BilateralGenomeLinker()
     }
     // Inperceptrons
     for(int p = 1; p<= m ; p++)
-    {int antip = 2*m+1-p;// Indexes backwards into the array
+    {int antip = 2*m-p;// Indexes backwards into the array
+    cout<<"Crash p: "<<p<<" m: "<<m<<" antip: "<<antip<<endl;
         for(int target=1; target<=maxlinks; target++)
         {
+            cout<<"CRASH TEST IN P:"<<p<<" T: "<<target<<"pos: "<<poscounter<<endl;
             // Target [discrete]
             dgene = genome(poscounter);
+            cout<<"Crash dgene: "<<dgene<<endl;
             igene = Discretize(dgene, 1, controllersize);
+            cout<<"Crash igene: "<<igene<<endl;
             Agent.Interface.inperceptron(p).target(target) = igene;
             int mirrortarget = localcontrolsize - igene + 1;
+            cout<<"Crash mirrortarget"<<mirrortarget<<endl;
             Agent.Interface.inperceptron(antip).target(target) = mirrortarget;
             poscounter++;
+            cout<<"Weight pos:"<<poscounter<<endl;
             //weight
             Agent.Interface.inperceptron(p).weight(target) = genome(poscounter);
             Agent.Interface.inperceptron(antip).weight(target) = genome(poscounter);
             poscounter++;
+            cout<<"channel pos:"<<poscounter<<endl;
             //channel [discrete]
             dgene = genome(poscounter);
             igene = Discretize(dgene,1,channelnum);
@@ -197,10 +206,10 @@ void BilateralGenomeLinker()
             poscounter++;
         }
     }
-    cout<<"CRASH TEST"<<endl;
+    cout<<"CRASH TEST post in"<<endl;
     
     // out perceptrons
-    for(int p = 1; p<= j; p++)
+    for(int p = 1; p<= 0; p++)
     {
             //channel [discrete]
             dgene = genome(poscounter);
