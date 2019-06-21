@@ -71,8 +71,13 @@ TVector<double> genome;//int values will be cast to int
 
 // Function Declarations
 double Fittness();
-void GenomeLinker();
+void InitGenome();
+void BilateralGenomeLinker();
 int Discretize(double value, int minbound, int maxbound);
+
+// Global Var Declarations
+int m,j;// in and out perceptron (respectively) index for bilateral symetry
+int genomesize;// length of genome
 
 //**************************** 
 // Warm Up
@@ -115,21 +120,10 @@ int main()
     Agent.Printer(0);
 
     // Init Genome
-    //Controller traits
-    int rdparamnum = Agent.Controller.GetParameterNumber();
-    // Interface traits
-    int inpercs = Agent.Interface.inperceptronnum;
-    int outpercs = Agent.Interface.outperceptronnum;
-    int maxlinks = Agent.Interface.maxlinknum;
-    // add it all up
-    int genomesize = rdparamnum + 2*maxlinks*( inpercs + outpercs); 
-    // set size
-    genome.SetBounds(1,genomesize);
-    cout<<"Genome defined with size:"<<genomesize<<"\n"<<flush;
-    cout<<"genomesize +="<<"inpercs:"<<inpercs<<" outpercs:"<<outpercs<<" maxlinks:"<<maxlinks<<"\n"<<flush;
+    InitGenome();
 
     // TSearch Configuration
-
+    BilateralGenomeLinker();
 
 
    // Dynamics
@@ -143,7 +137,25 @@ double Fittness()
     return fit;
 }
 
-void GenomeLinker()
+void InitGenome()
+{
+  //Controller traits
+    int rdparamnum = Agent.Controller.GetParameterNumber();
+    // Interface traits
+    int inpercs = Agent.Interface.inperceptronnum;
+    int outpercs = Agent.Interface.outperceptronnum;
+    int maxlinks = Agent.Interface.maxlinknum;
+    // add it all up
+    m = 3*maxlinks*ceil( inpercs / 2 );// 3-> target,weight,channel
+    j = 3 * maxlinks * ceil( outpercs / 2 );
+    genomesize = rdparamnum + m + j;
+    // set size
+    genome.SetBounds(1,genomesize);
+    cout<<"Genome defined with size:"<<genomesize<<"\n"<<flush;
+}
+
+
+void BilateralGenomeLinker()
 {// Configured for 1D ring with vertical symetry
     //vars
     int poscounter=1;//tracks position in search vector
@@ -152,6 +164,7 @@ void GenomeLinker()
     // Parameters
     int parameters = Agent.Controller.GetParameterNumber();
     int channelnum = Agent.Controller.GetChemicalNumber();
+    int localcontrolsize = Agent.Controller.GetReactorSize();
 
 //PARAMETER LINK
     // RD Parameters
@@ -160,28 +173,34 @@ void GenomeLinker()
     Agent.Controller.SetParameter( poscounter , genome(poscounter) );
     poscounter++;
     }
-    for(int p = 0; p<= Agent.Interface.inperceptronnum; p++)
-    {
+    // Inperceptrons
+    for(int p = 1; p<= m ; p++)
+    {int antip = 2*m+1-p;// Indexes backwards into the array
         for(int target=1; target<=maxlinks; target++)
         {
             // Target [discrete]
             dgene = genome(poscounter);
             igene = Discretize(dgene, 1, controllersize);
-            Agent.Interface.inperceptron[p].target(target) = igene;
+            Agent.Interface.inperceptron(p).target(target) = igene;
+            int mirrortarget = localcontrolsize - igene + 1;
+            Agent.Interface.inperceptron(antip).target(target) = mirrortarget;
             poscounter++;
             //weight
-            Agent.Interface.inperceptron[p].weight(target) = genome(poscounter);
+            Agent.Interface.inperceptron(p).weight(target) = genome(poscounter);
+            Agent.Interface.inperceptron(antip).weight(target) = genome(poscounter);
             poscounter++;
             //channel [discrete]
             dgene = genome(poscounter);
             igene = Discretize(dgene,1,channelnum);
-            Agent.Interface.inperceptron[p].channel= igene;
+            Agent.Interface.inperceptron(p).channel= igene;
+            Agent.Interface.inperceptron(p).channel= igene;
             poscounter++;
         }
     }
+    cout<<"CRASH TEST"<<endl;
     
     // out perceptrons
-    for(int p = 0; p<= Agent.Interface.outperceptronnum; p++)
+    for(int p = 1; p<= j; p++)
     {
             //channel [discrete]
             dgene = genome(poscounter);
@@ -201,6 +220,7 @@ void GenomeLinker()
 
         }
     }
+    cout<<"BilateralGenomeLinker: COMPLETE:"<<endl;
 }
 
 //Takes a double on [-1,1] and 

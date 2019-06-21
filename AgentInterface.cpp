@@ -128,17 +128,10 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor,
 
         for(int l=1; l<=initlinknum; l++)
         {
-           cout<<"Probe1"<<endl; 
            linkindx = UniformRandomInteger(1,controllersize);
-           cout<<"Probe2"<<endl; 
            inperceptron(p).target(l)=linkindx;
-           cout<<"Probe3"<<endl; 
            weight = UniformRandom(0,1);
-           cout<<"Probe4| inperc("<<p<<").weight: "<<
-           inperceptron(p).weight<<endl; 
-           inperceptron(p).weight(l)=weight;
-           cout<<"Probe5"<<endl; 
-        }
+       }
     }
     cout<<"AgentInterface::SetRandomInputLinks COMPLETE"<<endl;
  }
