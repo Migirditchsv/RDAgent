@@ -70,9 +70,10 @@ RDAgent Agent;
 TVector<double> genome;//int values will be cast to int
 
 // Function Declarations
-double Fittness();
+double Fittness(TVector<double> &gene, RandomState &rs);
 void InitGenome();
-void BilateralGenomeLinker();
+void TrackParticle(VisualObject particle);
+void BilateralGenomeLinker(TVector<double> gene);
 int Discretize(double value, int minbound, int maxbound);
 
 // Global Var Declarations
@@ -119,25 +120,63 @@ int main()
     cout<<"Agent Initialization: COMPLETE\n"<<flush;// debug
     Agent.Printer(0);
 
-    // Init Genome
-    InitGenome();
+    //  Compute Genome Size
+    InitGenome();// gene of 0's: genome for testing
+    cout<<"RDTaskMain.cpp: Genome size set: "<<genomesize<<endl;
 
-    // TSearch Configuration
-    BilateralGenomeLinker();
+    // Init and configure TSearch 
+    TSearch s(genomesize);
+    s.SetRandomSeed(RANDOMSEED);
+    s.SetEvaluationFunction(Fittness);
+    s.SetSelectionMode(RANK_BASED);
+    s.SetReproductionMode(GENETIC_ALGORITHM);
+    s.SetPopulationSize(25);
+    s.SetMaxGenerations(50);
+    s.SetMutationVariance(0.1);
+    s.SetMaxExpectedOffspring(1.1);
+    s.SetElitistFraction(0.1);
+    s.SetSearchConstraint(1);
+    cout<<"Search Configuration: Complete"<<endl;
 
-
-   // Dynamics
+    // run search!
+    s.ExecuteSearch();
+    
+    // Report on best individual
+    cout<<"\n\n\n ----SEARCH COMPLETE----\n\n"<<endl;
+    cout<<s.BestIndividual()<<endl;
 
     return(0);
 }
 
-double Fittness()
+double Fittness(TVector<double> &gene, RandomState &rs)
 {
+    // Init visual object  particle
+    VisualObject particle;
+    // Insert gene into agent
+    BilateralGenomeLinker(gene);
+    // Main agent loop
+    for( int t = 0; t<AGENTSTEPLIMIT; t++)
+    {
+        //place particle
+        TrackParticle(particle);
+        Agent.Step(particle);
+    }
+
+    // Compute score
     double fit = abs( Agent.PositionX() );// move away from center
-    return fit;
+    return fit;// does this have to be normalized?
 }
 
-void InitGenome()
+void TrackParticle( VisualObject particle )
+{
+    double py = Agent.GetBodySize() + 0.2 * Agent.GetRayLength() ;
+    double px = Agent.PositionX() - 0.5 * Agent.GetBodySize() ;
+    particle.SetPositionY( py );
+    particle.SetPositionX( px );
+}
+
+
+void InitGenome()// an actual TVector gene does not need to be created. TSearch handles that. Change later
 {
   //Controller traits
     int rdparamnum = Agent.Controller.GetParameterNumber();
@@ -157,7 +196,7 @@ void InitGenome()
 }
 
 
-void BilateralGenomeLinker()
+void BilateralGenomeLinker(TVector<double> gene)
 {// Configured for 1D ring with vertical symetry
     //vars
     int poscounter=1;//tracks position in search vector
@@ -167,37 +206,38 @@ void BilateralGenomeLinker()
     int parameters = Agent.Controller.GetParameterNumber();
     int channelnum = Agent.Controller.GetChemicalNumber();
     int localcontrolsize = Agent.Controller.GetReactorSize();
-    cout<<"CRASH TEST 0"<<endl;
+    //cout<<"BilateralGenomeLinker: localcontrolsize: "<<localcontrolsize<<endl;
+    //cout<<"BilateralGenomeLinker: Parameters Read"<<endl;
 //PARAMETER LINK
     // RD Parameters
     while(poscounter<=parameters)
     {
-    Agent.Controller.SetParameter( poscounter , genome(poscounter) );
+    Agent.Controller.SetParameter( poscounter , gene(poscounter) );
     poscounter++;
     }
     // Inperceptrons
     for(int p = 1; p<= m ; p++)
     {int antip = 2*m-p;// Indexes backwards into the array
-    cout<<"Crash p: "<<p<<" m: "<<m<<" antip: "<<antip<<endl;
+    //cout<<"BilateralGenomeLinker: Input perceptron p: "<<p<<" m: "<<m<<" antip: "<<antip<<endl;
         for(int target=1; target<=maxlinks; target++)
         {
-            cout<<"CRASH TEST IN P:"<<p<<" T: "<<target<<"pos: "<<poscounter<<endl;
+            //cout<<"BilateralGenomeLinker: target loop P:"<<p<<" T: "<<target<<"pos: "<<poscounter<<endl;
             // Target [discrete]
-            dgene = genome(poscounter);
-            cout<<"Crash dgene: "<<dgene<<endl;
+            dgene = gene(poscounter);
+            //cout<<"BilateralGenomeLinker: target dgene: "<<dgene<<endl;
             igene = Discretize(dgene, 1, controllersize);
-            cout<<"Crash igene: "<<igene<<endl;
+            //cout<<"BilateralGenomeLinker: target igene: "<<igene<<endl;
             Agent.Interface.inperceptron(p).target(target) = igene;
             int mirrortarget = localcontrolsize - igene + 1;
-            cout<<"Crash mirrortarget"<<mirrortarget<<endl;
+            //cout<<"BilateralGenomeLinker: mirrortarget: "<<mirrortarget<<endl;
             Agent.Interface.inperceptron(antip).target(target) = mirrortarget;
             poscounter++;
-            cout<<"Weight pos:"<<poscounter<<endl;
+            //cout<<"BilateralGenomeLinker: Weight pos:"<<poscounter<<endl;
             //weight
-            Agent.Interface.inperceptron(p).weight(target) = genome(poscounter);
-            Agent.Interface.inperceptron(antip).weight(target) = genome(poscounter);
+            Agent.Interface.inperceptron(p).weight(target) = gene(poscounter);
+            Agent.Interface.inperceptron(antip).weight(target) = gene(poscounter);
             poscounter++;
-            cout<<"channel pos:"<<poscounter<<endl;
+            //cout<<"channel pos:"<<poscounter<<endl;
             //channel [discrete]
             dgene = genome(poscounter);
             igene = Discretize(dgene,1,channelnum);
@@ -206,7 +246,7 @@ void BilateralGenomeLinker()
             poscounter++;
         }
     }
-    cout<<"CRASH TEST post in"<<endl;
+    //cout<<"BilateralGenomeLinker: TEST post in"<<endl;
     
     // out perceptrons
     for(int p = 1; p<= 0; p++)
@@ -229,7 +269,7 @@ void BilateralGenomeLinker()
 
         }
     }
-    cout<<"BilateralGenomeLinker: COMPLETE:"<<endl;
+    //cout<<"BilateralGenomeLinker: COMPLETE:"<<endl;
 }
 
 //Takes a double on [-1,1] and 

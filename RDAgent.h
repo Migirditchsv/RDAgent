@@ -85,6 +85,8 @@ class RDAgent {
 		double PositionX() {return cx;};
 		void SetPositionX(double newx);
 		double PositionY() {return cy;};
+		double GetBodySize(){return BodySize;};
+		double GetRayLength(){return MaxRayLength;};
         double SensorState(int rayindx);
         //^Returns the length ratios of the ray components about the point(1)
         //of intersection.
