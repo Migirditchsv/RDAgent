@@ -36,8 +36,8 @@ class RDControl {
         ~RDControl()
         {
            // SetReactorSize( 0 );
-            rdparameter.SetBounds(0,0);
-            cellstate.SetBounds(0,0,0,0);
+            //rdparameter.SetBounds(0,0);
+            //cellstate.SetBounds(0,0,0,0);
         }
 
 

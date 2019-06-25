@@ -150,6 +150,7 @@ int main()
 
 double Fittness(TVector<double> &gene, RandomState &rs)
 {
+    cout<<"RDTaskMain::Fittness: Evaluating Agent"<<endl;
     // Init visual object  particle
     VisualObject particle;
     // Insert gene into agent
@@ -158,12 +159,15 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     for( int t = 0; t<AGENTSTEPLIMIT; t++)
     {
         //place particle
+        cout<<"RDTaskMain::Fittness: Calling Track Particle"<<endl;
         TrackParticle(particle);
+        cout<<"RDTaskMain::Fittness: Calling Agent.step()"<<endl;
         Agent.Step(particle);
     }
 
     // Compute score
     double fit = abs( Agent.PositionX() );// move away from center
+    cout<<"RDTaskMain::Fittness: Evaluation COMPLETE"<<endl;
     return fit;// does this have to be normalized?
 }
 
@@ -185,8 +189,6 @@ void InitGenome()// an actual TVector gene does not need to be created. TSearch 
     int outpercs = Agent.Interface.outperceptronnum;
     int maxlinks = Agent.Interface.maxlinknum;
     // add it all up
-    cout<<"INPerCS"<<inpercs<<"ip/2="<< inpercs/2<<
-    "ceil(ip/2)="<<ceil(inpercs/2)<<endl;
     m = ceil( inpercs / 2.0 );
     j = ceil( outpercs / 2.0 );
     genomesize = rdparamnum + 3 * maxlinks * ( m + j );
