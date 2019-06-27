@@ -33,10 +33,10 @@
 // **************************** 
 // Accessors
 // ****************************
-void AgentInterface::SetLinkNum(int maxlinks, int initlinks)
+void AgentInterface::SetLinkNum(int ml, int il)
 {
-    maxlinknum = maxlinks;
-    initlinknum = initlinks;
+    maxlinknum = ml;
+    initlinknum = il;
     // Forcinly resize in and out perceptron target/source and weight arrays
     // in perc resize
     for(int p=1; p<= inperceptronnum; p++)
@@ -58,17 +58,24 @@ void AgentInterface::SetLinkNum(int maxlinks, int initlinks)
 // Utility functions
 // ****************************
 
-void AgentInterface::RefferenceInterface(TVector<Ray>& sensor,
-                            RDControl& controller,
-                            TVector<double>& actuator)
+void AgentInterface::RefferenceInterface(TVector<Ray>& sensor_,
+                            RDControl& controller_,
+                            TVector<double>& actuator_)
         {
+            sensor = sensor_;
+            controller = controller_;
+            actuator = actuator_;
+
             cout<<"RefferenceInterface: Initializing"<<endl;// debug
             // Compute sizes for initialization
             inperceptronnum      = sensor.Size();
             cout<<"RefferenceInterface: sensor.Size ="<<inperceptronnum<<endl;
             controllersize  = controller.GetReactorSize();
+            cout<<"RefferenceInterface: controller.Size ="<<controllersize<<endl;
             controllerdimension = controller.GetChemicalNumber();
+            cout<<"RefferenceInterface: chemicals.Size ="<<controllerdimension<<endl;
             outperceptronnum    = actuator.Size();
+            cout<<"RefferenceInterface: actuator.Size ="<<outperceptronnum<<endl;
 
             // Initialize Input TVector
             inperceptron.SetBounds(1,inperceptronnum);
@@ -77,6 +84,7 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor,
                 inperceptron(p).channel = 1; // Default to channel 1
                 inperceptron(p).source.SetBounds(1,1);//only one source
                 inperceptron(p).source.FillContents(p); // one perceptron per sense organ
+                cout<<"AI::RefferenceInterface: Inperc(p=:"<<p<<") source= "<<inperceptron(p).source<<endl;
                 inperceptron(p).state   = 0.0; // start clean
                 inperceptron(p).target.SetBounds(1,maxlinknum); //size target list
                 inperceptron(p).target.FillContents(0); // targets <=0 are skipped
@@ -91,17 +99,17 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor,
             outperceptron.SetBounds(1,outperceptronnum);
             for(int p=1; p<=outperceptronnum; p++)
             {
-                inperceptron(p).channel = 1; // Default to channel 1
-                inperceptron(p).source.SetBounds(1,maxlinknum);
+                outperceptron(p).channel = 1; // Default to channel 1
+                outperceptron(p).source.SetBounds(1,maxlinknum);
                 cout<<"DEBUG-AI.cpp::RefferenceInterface"<<
                 "maxlinknum: "<<maxlinknum<<
                 "source size: "<<inperceptron(p).source.Size()<<endl;
-                inperceptron(p).source.FillContents(0);// Default off all read out links
-                inperceptron(p).state   = 0.0; // start clean
-                inperceptron(p).target.SetBounds(1,1); //size target list
-                inperceptron(p).target.FillContents(p); // targets <=0 are skipped
-                inperceptron(p).weight.SetBounds(1,maxlinknum); // size weight list
-                inperceptron(p).weight.FillContents(1.0); //Index determines skip, nonzero default weights increase evolvability
+                outperceptron(p).source.FillContents(0);// Default off all read out links
+                outperceptron(p).state   = 0.0; // start clean
+                outperceptron(p).target.SetBounds(1,1); //size target list
+                outperceptron(p).target.FillContents(p); // targets <=0 are skipped
+                outperceptron(p).weight.SetBounds(1,maxlinknum); // size weight list
+                outperceptron(p).weight.FillContents(1.0); //Index determines skip, nonzero default weights increase evolvability
             }
             cout<<"RefferenceInterface: COMPLETE"<<endl;//debug
 
@@ -123,9 +131,6 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor,
 
     for(int p=1; p<=inperceptronnum; p++)
     {
-        cout<<"Interface::SetRandomInputLinks: inperceptron("<<p<<").target: "<<
-        inperceptron(p).target<<endl;
-
         for(int l=1; l<=initlinknum; l++)
         {
            linkindx = UniformRandomInteger(1,controllersize);
@@ -211,20 +216,15 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
     for(int p=1; p<inperceptronnum; p++)
     {
         // Reset perceptron state
-        cout<<"AgentInterface::FireInputPerceptron Flag 0"<<endl;
         inperceptron(p).state=0.0;
         // Set index routes
-        cout<<"AgentInterface::FireInputPerceptron Flag 1"<<endl;
-        cout<<"AgentInterface::FireInputPerceptron inperc("<<
-        p<<").source="<<
-        inperceptron(p).source.Size()<<endl;
         sourceindx = inperceptron(p).source(1);
-        cout<<"AgentInterface::FireInputPerceptron Flag 2"<<endl;
         channelindx = inperceptron(p).channel;
         // measure sensor state
-        cout<<"AgentInterface::FireInputPerceptron Flag 3"<<endl;
+        cout<<"AgentInterface::FireInputPerceptron Flag 3: sensor.Size()="<<sensor.Size()<<endl;
         object.RayIntersection(sensor(sourceindx));
-        externalinput = (MaxRayLength - sensor(sourceindx).length)/MaxRayLength;
+        cout<<"AgentInterface::FireInputPerceptron Flag 3.1"<<endl;
+        externalinput = (MaxRayLength - sensor(sourceindx).length/MaxRayLength);
         cout<<"AgentInterface::FireInputPerceptron Flag 4"<<endl;
         inperceptron(p).state = externalinput;
         // inject into controller targets

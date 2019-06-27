@@ -76,6 +76,7 @@ class AgentInterface{
         // Constructor
         AgentInterface()   
         {
+
             int x=0;            
         }
         //Destructor
@@ -104,8 +105,8 @@ class AgentInterface{
     // Array size control 
     int inperceptronnum;// Number of input layer perceptrons
     int outperceptronnum;// Number of output layer perceptrons
-    int maxlinknum;// Number of links to or from controller each perc starts with
-    int initlinknum;// Number of links to start with
+    int maxlinknum = 8;// Number of links to or from controller each perc starts with
+    int initlinknum = 4;// Number of links to start with
     int sensorsize;// Number of variables defining the sensable sensor
     int controllersize;// Number of objects composing the controller
     int controllerdimension; // number of channels in the controller
@@ -119,9 +120,14 @@ class AgentInterface{
 
     // Pointers for linking
     //VisualObject    &visobject;// the visual object being looked for
-    TVector<Ray>    sensor;
-    RDControl       controller;    
-    TVector<double> actuator;
+
+    TVector<Ray> nullsensor;
+    RDControl nullcontrol;
+    TVector<double> nullactuator;
+
+    TVector<Ray>&    sensor = nullsensor;
+    RDControl&       controller = nullcontrol;    
+    TVector<double>& actuator = nullactuator;
 
     void SetRandomInputLinks();
     void SetRandomOutputLinks();

@@ -90,13 +90,6 @@ int genomesize;// length of genome
 
 int main()
 {
-    // TEST
-    TMatrix<int> testm;
-    testm.SetBounds(1,3,1,5);
-    testm.FillContents(0);
-    testm(1,5) = 9;
-    cout<<"TEST\nROW:"<<testm.RowSize()<<"\nCOL:"<<testm.ColumnSize()<<"\n"<<flush;
-    cout<<testm<<"\n"<<flush;
     // Local Vars
 
     // Init Randomness Engine
@@ -112,12 +105,15 @@ int main()
     Agent.Controller.SetReactorTopology(controllertopology);
     // Agent.Interface stuff
     Agent.Interface.RefferenceInterface(Agent.Rays, Agent.Controller, Agent.motor);
+    cout<<"DOUBLE CHECK INPERC(1).State="<<Agent.Interface.inperceptron(1).source<<endl;
+    cout<<"DOUBLE CHECK INPERC(4).State="<<Agent.Interface.inperceptron(4).source<<endl;
+    cout<<"DOUBLE CHECK agent.interface.sensor.size: "<< Agent.Interface.sensor.Size()<<endl;
+    Agent.Printer(-1);
     Agent.Interface.SetLinkNum(maxlinks, initlinks);
-    cout<<"RDTaskmain.cpp: maxlinks: "<<Agent.Interface.maxlinknum<<endl;
+    Agent.Printer(-2);
     Agent.Interface.SetRandomInputLinks();
-    cout<<"TaskMain::outperceptron.Size= "<<Agent.Interface.outperceptron.Size()<<endl;
+    Agent.Printer(-3);
     Agent.Interface.SetRandomOutputLinks();
-    cout<<"Agent Initialization: COMPLETE\n"<<flush;// debug
     Agent.Printer(0);
 
     //  Compute Genome Size
@@ -155,6 +151,8 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     VisualObject particle;
     // Insert gene into agent
     BilateralGenomeLinker(gene);
+    // prepare random initial state
+    Agent.Controller.RandomReactorState();
     // Main agent loop
     for( int t = 0; t<AGENTSTEPLIMIT; t++)
     {
