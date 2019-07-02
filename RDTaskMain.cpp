@@ -90,6 +90,15 @@ int genomesize;// length of genome
 
 int main()
 {
+    // TEST BED--------
+    TMatrix<double> tester;
+    tester.SetBounds(1,10,1,2);
+    tester.FillContents(0);
+    cout<<"TESTBED: tester = \n"<<tester<<endl;
+    cout<<"tester(5,2)=9 setting..."<<endl;
+    tester(5,2)=9;
+    cout<<tester<<endl;
+
     // Local Vars
 
     // Init Randomness Engine
@@ -149,10 +158,13 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     cout<<"RDTaskMain::Fittness: Evaluating Agent"<<endl;
     // Init visual object  particle
     VisualObject particle;
+    cout<<"RDTaskMain::Fittness: VisualObject Declared"<<endl;
     // Insert gene into agent
     BilateralGenomeLinker(gene);
+    cout<<"RDTaskMain::Fittness: Genome Linking COMPLETE"<<endl;
     // prepare random initial state
     Agent.Controller.RandomReactorState();
+    cout<<"RDTaskMain::Fittness: Randomize Reactor State COMPLETE"<<endl;
     // Main agent loop
     for( int t = 0; t<AGENTSTEPLIMIT; t++)
     {
@@ -162,6 +174,7 @@ double Fittness(TVector<double> &gene, RandomState &rs)
         cout<<"RDTaskMain::Fittness: Calling Agent.step()"<<endl;
         Agent.Step(particle);
     }
+    cout<<"RDTaskMain::Fittness: MAIN LOOP COMPLETE"<<endl;
 
     // Compute score
     double fit = abs( Agent.PositionX() );// move away from center

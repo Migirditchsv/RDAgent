@@ -37,7 +37,7 @@ void RDControl::SetReactorSize( int newsize )
 {
     cellsize = 1.0 / size;
     size = newsize;
-    cellstate.SetBounds(1,chemnum,1,size);
+    cellstate.SetBounds(1,size,1,chemnum);
     adjacency.SetBounds(1,size,1,size);
     cout<<"RDControl::Reactor Size Set :"<<GetReactorSize()<<"\n"<<flush;// debug
 }
@@ -72,7 +72,7 @@ void RDControl::SetParameter( int indx, double newparameter)
 
 int RDControl::GetChemicalNumber()
 {
-    return cellstate.ColumnSize();
+    return cellstate.RowSize();
 }
 
 //Get Tvector of the concentrations of species in a cell
@@ -161,7 +161,7 @@ void RDControl::SetRDModel(int modelindx)
         paramnum = 4;
         //model = 0;
 
-        cellstate.SetBounds(1,chemnum,1,size);
+        cellstate.SetBounds(1,size,1,chemnum);
 
         diffvec.SetBounds(1,chemnum);
         diffvec.FillContents(0);
@@ -196,6 +196,11 @@ void RDControl::RandomReactorState()
     double holder;
     
     // Loop over all cells
+    cout<<"RDControl::RandomReactorState: proscribed reactor size: "<<size
+    <<"\n  proscribed reactor dimension: "<<chemnum
+    <<"\n  Actual reactor size: "<<cellstate.RowSize()
+    <<"\n  Actual reactor dimension: "<< cellstate.ColumnSize()<<endl;
+
     for (int target=1; target<=size; target++)
     {
        for ( int chemindx=1; chemindx<=chemnum; chemindx++)
@@ -204,8 +209,11 @@ void RDControl::RandomReactorState()
             cellstate(target, chemindx) = holder;
        }    
    }
+   cout<<"RDControl::RandomReactorState: double loop COMPLETE"<<endl;
     // Normalize to mass density 1
     NormalizeReactorState();
+   cout<<"RDControl::RandomReactorState: Nomalization COMPLETE"<<endl;
+    
 }
 
 // Set every cell to be 100% the chemical at index 0
