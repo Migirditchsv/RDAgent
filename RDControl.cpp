@@ -196,10 +196,10 @@ void RDControl::RandomReactorState()
     double holder;
     
     // Loop over all cells
-    cout<<"RDControl::RandomReactorState: proscribed reactor size: "<<size
-    <<"\n  proscribed reactor dimension: "<<chemnum
-    <<"\n  Actual reactor size: "<<cellstate.RowSize()
-    <<"\n  Actual reactor dimension: "<< cellstate.ColumnSize()<<endl;
+    //cout<<"RDControl::RandomReactorState: proscribed reactor size: "<<size
+    //<<"\n  proscribed reactor dimension: "<<chemnum
+    //<<"\n  Actual reactor size: "<<cellstate.RowSize()
+    //<<"\n  Actual reactor dimension: "<< cellstate.ColumnSize()<<endl;
 
     for (int target=1; target<=size; target++)
     {
@@ -209,10 +209,10 @@ void RDControl::RandomReactorState()
             cellstate(target, chemindx) = holder;
        }    
    }
-   cout<<"RDControl::RandomReactorState: double loop COMPLETE"<<endl;
+   //cout<<"RDControl::RandomReactorState: double loop COMPLETE"<<endl;
     // Normalize to mass density 1
     NormalizeReactorState();
-   cout<<"RDControl::RandomReactorState: Nomalization COMPLETE"<<endl;
+   //cout<<"RDControl::RandomReactorState: Nomalization COMPLETE"<<endl;
     
 }
 

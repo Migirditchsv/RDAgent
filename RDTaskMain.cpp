@@ -135,9 +135,9 @@ int main()
     s.SetEvaluationFunction(Fittness);
     s.SetSelectionMode(RANK_BASED);
     s.SetReproductionMode(GENETIC_ALGORITHM);
-    s.SetPopulationSize(25);
+    s.SetPopulationSize(500);
     s.SetMaxGenerations(50);
-    s.SetMutationVariance(0.1);
+    s.SetMutationVariance(0.8);
     s.SetMaxExpectedOffspring(1.1);
     s.SetElitistFraction(0.1);
     s.SetSearchConstraint(1);
@@ -155,30 +155,30 @@ int main()
 
 double Fittness(TVector<double> &gene, RandomState &rs)
 {
-    cout<<"RDTaskMain::Fittness: Evaluating Agent"<<endl;
+    //cout<<"RDTaskMain::Fittness: Evaluating Agent"<<endl;
     // Init visual object  particle
     VisualObject particle;
-    cout<<"RDTaskMain::Fittness: VisualObject Declared"<<endl;
+    //cout<<"RDTaskMain::Fittness: VisualObject Declared"<<endl;
     // Insert gene into agent
     BilateralGenomeLinker(gene);
-    cout<<"RDTaskMain::Fittness: Genome Linking COMPLETE"<<endl;
+    //cout<<"RDTaskMain::Fittness: Genome Linking COMPLETE"<<endl;
     // prepare random initial state
     Agent.Controller.RandomReactorState();
-    cout<<"RDTaskMain::Fittness: Randomize Reactor State COMPLETE"<<endl;
+    //cout<<"RDTaskMain::Fittness: Randomize Reactor State COMPLETE"<<endl;
     // Main agent loop
     for( int t = 0; t<AGENTSTEPLIMIT; t++)
     {
         //place particle
-        cout<<"RDTaskMain::Fittness: Calling Track Particle"<<endl;
+        //cout<<"RDTaskMain::Fittness: Calling Track Particle"<<endl;
         TrackParticle(particle);
-        cout<<"RDTaskMain::Fittness: Calling Agent.step()"<<endl;
+        //cout<<"RDTaskMain::Fittness: Calling Agent.step()"<<endl;
         Agent.Step(particle);
     }
-    cout<<"RDTaskMain::Fittness: MAIN LOOP COMPLETE"<<endl;
+    //cout<<"RDTaskMain::Fittness: MAIN LOOP COMPLETE"<<endl;
 
     // Compute score
     double fit = abs( Agent.PositionX() );// move away from center
-    cout<<"RDTaskMain::Fittness: Evaluation COMPLETE"<<endl;
+    //cout<<"RDTaskMain::Fittness: Evaluation COMPLETE"<<endl;
     return fit;// does this have to be normalized?
 }
 

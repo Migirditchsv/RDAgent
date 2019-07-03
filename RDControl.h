@@ -83,6 +83,4 @@ class RDControl {
         TVector<double> diffvec; // a vector for passing the chem diff rates
         TMatrix<double> adjacency; // Weighted Cell adjacency mtrx
         TMatrix<double> cellstate; // reactorsize by chemicalspeciesnumber mtrx
-
-
 };

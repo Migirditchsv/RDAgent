@@ -221,22 +221,17 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
         sourceindx = inperceptron(p).source(1);
         channelindx = inperceptron(p).channel;
         // measure sensor state
-        cout<<"AgentInterface::FireInputPerceptron Flag 3: sensor.Size()="<<sensor.Size()<<endl;
         object.RayIntersection(sensor(sourceindx));
-        cout<<"AgentInterface::FireInputPerceptron Flag 3.1"<<endl;
-        externalinput = (MaxRayLength - sensor(sourceindx).length/MaxRayLength);
-        cout<<"AgentInterface::FireInputPerceptron Flag 4"<<endl;
+        externalinput = (MaxRayLength - sensor(sourceindx).length/MaxRayLength);      
         inperceptron(p).state = externalinput;
         // inject into controller targets
         for(int target=1; target<=maxlinknum; target++)
         {
-           cout<<"AgentInterface::FireInputPerceptron Flag 5"<<endl;
            targetindx = inperceptron(p).target(target); 
            // check for placeholder indx
            if(targetindx<=0){goto skip;}
            // inject
-           cout<<"AgentInterface::FireInputPerceptron Flag 6"<<endl;
-           controller.InjectCell(externalinput,channelindx,targetindx); 
+           controller.InjectCell(externalinput,targetindx,channelindx); 
            skip:;
         }//end target loop
     }//end perceptron loop
