@@ -117,7 +117,7 @@ int main()
     // Init Randomness Engine
     SetRandomSeed(RANDOMSEED);
     #ifdef DEBUG0
-    cout<<"Random Seed Initializaiton: COMPLETE\n"<<flush;// debug
+    cout<<"Random Seed Initializaiton: COMPLETE\n"<<flush;
     #endif
 
     // Init Agent

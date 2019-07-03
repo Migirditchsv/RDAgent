@@ -157,7 +157,11 @@ void RDAgent::Step(VisualObject &object)// the object being looked for
   Interface.FireInputPerceptrons(object);
   while(controltime<=controllimit)
   {
-    //cout<<"RDAgent::Step(): Making Euler Step| controller step: "<<controlstep<<endl;
+    #ifdef DEBUG1
+    cout<<"RDAgent::Step(): Making Euler Step| controller step: "<<controltime
+    <<":"<<controllimit<<endl;
+    #endif
+
     Controller.EulerStep(controldt);
     controltime+=controldt;
   }
