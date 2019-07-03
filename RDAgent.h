@@ -118,8 +118,8 @@ class RDAgent {
 
 		double cx, cy, vx;
 
-		double controldt;// step size on controller
-		double controllimit;// number of controller time steps per agent step
+		double controldt = 0.1;// step size on controller
+		double controllimit = 1;// number of controller time steps per agent step
 		double agentdt;// step size on agent
         
         // Evolutionary Targets

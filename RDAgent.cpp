@@ -147,15 +147,19 @@ void RDAgent::ResetRays() {
 
 void RDAgent::Step(VisualObject &object)// the object being looked for
 { 
+  // Local Vars
+  double controltime = 0.0;
+
   //Read sensors into controller
   //cout<<"RDAgent::Step(): Resetting Rays"<<endl;
   ResetRays();// do this first
   //cout<<"RDAgent::Step(): Firing Input Perceptrons"<<endl;
   Interface.FireInputPerceptrons(object);
-  for(int controlstep = 1; controlstep<=controllimit; controlstep++)
+  while(controltime<=controllimit)
   {
     //cout<<"RDAgent::Step(): Making Euler Step| controller step: "<<controlstep<<endl;
     Controller.EulerStep(controldt);
+    controltime+=controldt;
   }
   //Read controller to motors
   //cout<<"RDAgent::Step(): Firing Output Perceptrons"<<endl;
