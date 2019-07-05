@@ -34,7 +34,7 @@ using namespace std;
 // DEBUG2: add status from AgentInterface functions
 // Debug3: add status from RDControl functions
 
-#define DEBUG3
+#define DEBUG0
 
 #if defined DEBUG3
 #define DEBUG2
@@ -124,11 +124,15 @@ int main()
     Agent;
     Agent.SetPositionX(0.0);
     // Agent.Controller stuff
+    cout<<"RDTaskMain- Init Phase: controllersize= "<<controllersize<<endl;
     Agent.Controller.SetReactorSize(controllersize);
+    Agent.Printer(-11);
     Agent.Controller.SetRDModel(controllermodel);
+    Agent.Printer(-22);
     Agent.Controller.SetReactorTopology(controllertopology);
     // Agent.Interface stuff
     Agent.Interface.RefferenceInterface(Agent.Rays, Agent.Controller, Agent.motor);
+    Agent.Printer(-33);
     Agent.Interface.SetLinkNum(maxlinks, initlinks);
     Agent.Interface.SetRandomInputLinks();
     Agent.Interface.SetRandomOutputLinks();
@@ -254,7 +258,7 @@ void BilateralGenomeLinker(TVector<double> gene)
     int parameters = Agent.Controller.GetParameterNumber();
     int channelnum = Agent.Controller.GetChemicalNumber();
     int localcontrolsize = Agent.Controller.GetReactorSize();
-    #ifdef DEBUG0
+    #ifdef DEBUG3
     cout<<"BilateralGenomeLinker: Parameters Read"<<endl;
     #endif
 
@@ -269,7 +273,7 @@ void BilateralGenomeLinker(TVector<double> gene)
     for(int p = 1; p<= m ; p++)
     {
         int antip = 2*m-p;// Indexes backwards into the array
-        #ifdef DEBUG0
+        #ifdef DEBUG3
         cout<<"BilateralGenomeLinker: Input perceptron p: "<<p<<" m: "<<m<<" antip: "<<antip<<endl;
         #endif
         
@@ -277,24 +281,24 @@ void BilateralGenomeLinker(TVector<double> gene)
         {
             // Target [discrete]
             dgene = gene(poscounter);
-            #ifdef DEBUG0
+            #ifdef DEBUG3
             cout<<"BilateralGenomeLinker: target dgene: "<<dgene<<endl;
             #endif
             
             igene = Discretize(dgene, 1, controllersize);
-            #ifdef DEBUG0
+            #ifdef DEBUG3
             cout<<"BilateralGenomeLinker: target igene: "<<igene<<endl;
             #endif
             
             Agent.Interface.inperceptron(p).target(target) = igene;
             int mirrortarget = localcontrolsize - igene + 1;
-            #ifdef DEBUG0
+            #ifdef DEBUG3
             cout<<"BilateralGenomeLinker: mirrortarget: "<<mirrortarget<<endl;
             #endif
 
             Agent.Interface.inperceptron(antip).target(target) = mirrortarget;
             poscounter++;
-            #ifdef DEBUG0
+            #ifdef DEBUG3
             cout<<"BilateralGenomeLinker: Weight pos:"<<poscounter<<endl;
             #endif
             //weight
@@ -309,9 +313,6 @@ void BilateralGenomeLinker(TVector<double> gene)
             poscounter++;
         }
     }
-    #ifdef DEBUG0
-    cout<<"BilateralGenomeLinker: TEST post in"<<endl;
-    #endif
     
     // out perceptrons
     for(int p = 1; p<= 0; p++)

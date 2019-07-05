@@ -120,16 +120,4 @@ class RDAgent {
 		double controllimit = 1;// number of controller time steps per agent step
 		double agentdt;// step size on agent
         
-        // Evolutionary Targets
-        
-        TMatrix<double> InputTargets;//NumRaysXMaxLinks: Controller element targeted
-        TMatrix<double> InputSpecies;//NumRaysXMaxLinks: chemical species to inject
-        TMatrix<double> InputWeight;//NumRaysXMaxLinks: Input[0,1]scalefactor [-1,1]
-        TMatrix<double> outputTargets;
-        TMatrix<double> outputSpecies;//NumRaysXMaxLinks: chemical species to read
-        TMatrix<double> outputWeight;//NumRaysXMaxLinks:output[0,1]scalefactor[-1,1]
-        // Note: Outputs are rounded to fit into the interval [0,maxdouble]
-        // after summation.
-
-
 };

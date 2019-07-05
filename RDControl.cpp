@@ -35,9 +35,12 @@ int RDControl::GetReactorSize()
 
 void RDControl::SetReactorSize( int newsize )
 {
-    cellsize = 1.0 / size;
+    cout<<"RDControl::SetReactorSize: new size = "<< newsize<<endl;
     size = newsize;
+    cout<<"RDControl::SetReactorSize: size = "<< size<<endl;
+    cellsize = 1.0 / size;
     cellstate.SetBounds(1,size,1,chemnum);
+    cout<<"RDControl::SetReactorSize: measuredsize = "<< cellstate.RowSize()<<endl;
     adjacency.SetBounds(1,size,1,size);
     cout<<"RDControl::Reactor Size Set :"<<GetReactorSize()<<"\n"<<flush;// debug
 }
@@ -72,7 +75,7 @@ void RDControl::SetParameter( int indx, double newparameter)
 
 int RDControl::GetChemicalNumber()
 {
-    return cellstate.RowSize();
+    return cellstate.ColumnSize();
 }
 
 //Get Tvector of the concentrations of species in a cell
@@ -142,7 +145,11 @@ void RDControl::SetCellState(TVector<double> newstate, int cellindx)
 // Inject an amount of a chemical into a single cell
 void RDControl::InjectCell(double amount, int cellindx, int chemindx)
 {
+    cout<<"RDControl::InjectCell: injecting"<<
+    "cellstate.RowSize="<<cellstate.RowSize()<<
+    "cellstate.ColumnSize"<<cellstate.ColumnSize()<<endl;
     cellstate(cellindx,chemindx)+=amount;
+    cout<<"RDControl::InjectCell: normalizing"<<endl;
     NormalizeCellDensity(cellindx);
 }
 
@@ -162,7 +169,7 @@ void RDControl::SetRDModel(int modelindx)
         //model = 0;
 
         cellstate.SetBounds(1,size,1,chemnum);
-
+        cout<<"RDControl::SetRDModel: size set: "<<size<<endl;
         diffvec.SetBounds(1,chemnum);
         diffvec.FillContents(0);
 
@@ -366,31 +373,3 @@ void RDControl::Diffusion(int target)
        diffvec(chemindx) *= cellsize;
    }
 }
-
-//// Diffusion Time Step: Extra Crude And super not optimized Euler method
-//void RDControl::TimeStepEuler()
-//{
-//    double weight;
-//    
-//    for (int r = 0; r<=size-1; r++)
-//    {
-//        for (int c = 0; c<=size-1; c++)
-//        {
-//            if (adjacency[r][c]!=0.0)
-//            {
-//                weight = adjacency[r][c];
-//
-//            }
-//        }
-//    }
-//}
-
-// Topology setting function
-//void TopologyLibrary(int topoindx)
-//{
-//    // TOPOLOGY INDEX:
-//    // 0: disconnected
-//    // 1: fully connected
-//    // 2: 1D ring nearest neighbor
-//
-//}

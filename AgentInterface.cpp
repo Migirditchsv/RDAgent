@@ -231,7 +231,10 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
            // check for placeholder indx
            if(targetindx<=0){goto skip;}
            // inject
+           cout<<"AgentInterface::FireInputPerceptrons: pretrip"<<endl;
            controller.InjectCell(externalinput,targetindx,channelindx); 
+           cout<<"AgentInterface::FireInputPerceptrons: posttrip"<<endl;
+
            skip:;
         }//end target loop
     }//end perceptron loop

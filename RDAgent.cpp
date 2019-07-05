@@ -151,22 +151,25 @@ void RDAgent::Step(VisualObject &object)// the object being looked for
   double controltime = 0.0;
 
   //Read sensors into controller
-  //cout<<"RDAgent::Step(): Resetting Rays"<<endl;
+   cout<<"RDAgent::Step(): Resetting Rays"<<endl;
+   
   ResetRays();// do this first
-  //cout<<"RDAgent::Step(): Firing Input Perceptrons"<<endl;
+  
+   cout<<"RDAgent::Step(): Firing Input Perceptrons"<<endl;
+   
   Interface.FireInputPerceptrons(object);
+
   while(controltime<=controllimit)
   {
-    #ifdef DEBUG1
-    cout<<"RDAgent::Step(): Making Euler Step| controller step: "<<controltime
+       cout<<"RDAgent::Step(): Making Euler Step| controller step: "<<controltime
     <<":"<<controllimit<<endl;
-    #endif
+     
 
     Controller.EulerStep(controldt);
     controltime+=controldt;
   }
   //Read controller to motors
-  //cout<<"RDAgent::Step(): Firing Output Perceptrons"<<endl;
+  cout<<"RDAgent::Step(): Firing Output Perceptrons"<<endl;
   Interface.FireOutputPerceptrons();
   cx = cx + agentdt*vx;
   if (cx < -EnvWidth/2) {
