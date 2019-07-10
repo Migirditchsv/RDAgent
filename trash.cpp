@@ -1,7 +1,8 @@
-// sandbox
+// What is up with TMatricies randomly transposing?
+// TMatrix << overload isn't causing it...
+// 
 
 #include <iostream>
-#include <vector>
 
 #include "VectorMatrix.h"
 
@@ -9,62 +10,64 @@ int main()
 {
     using namespace std;
 
-    TVector<int> vec;
+    int ColumnSize=5;
+    int colsize=3;
+
+    // Init
     TMatrix<int> mtx;
+    
+    cout<<"All matricies have a marker at mtx(1,2)=1"<<endl;
 
+    cout<<"init'd matrix should have no size"
 
-    cout<<"Initialized vector should have size zero\nvector.Size()= "<<vec.Size()
-    <<"Print vector:"<<vec<<endl;
-    cout<<"Initialized matrix should have dimensions 0x0\n
+    <<"\nmtx.ColumnSize()= "<<mtx.ColumnSize()
+    <<"\nmtx.Colsize()= "<<mtx.RowSize()
+    <<"\nPrinting mtx:\n"<<mtx<<endl;
+    
+    // Show that x.ColumnSize() and x.RowSize() return interchanged values
+    cout<<"Setting mtx to be a "<<ColumnSize<<" x "<<colsize<<" matrix via the command:\nmtx.SetBounds( 1 , ColumnSize="
+    <<ColumnSize<<" , 1 ,  colsize="<<colsize<<" )"<<endl;
+    mtx.SetBounds(1,ColumnSize,1,colsize);
 
-    testvec1.SetBounds(1,3);
-    testmtrx1.SetBounds(1,3,1,5);
+    int rowtruth = mtx.ColumnSize()==ColumnSize;
+    int coltruth = mtx.RowSize()==colsize;
+    mtx.FillContents(0);
+    mtx(1,2)=1;
+    cout<<"Sanity check: mtx.ColumnSize()==ColumnSize = "<<rowtruth<<endl;
+    cout<<"Sanity check: mtx.RowSize()==RowSize = "<<coltruth<<endl;
+    
+    cout<<"\nmtx.ColumnSize()= "<<mtx.ColumnSize()
+    <<"\nmtx.Colsize()= "<<mtx.RowSize()
+    <<"\nPrinting mtx:\n"<<mtx<<endl;
+ 
+    // Show that it's not just (col,row) notation, but that the x.Row/ColSize() functions are out of sync
+    // with the x.SetBounds() funciton
+    cout<<"\n\nSetting mtx to be a "<<ColumnSize<<" x "<<colsize<<" matrix via the command:\nmtx.SetBounds( 1 , colsize="
+    <<colsize<<" , 1 ,  ColumnSize="<<ColumnSize<<" )"<<endl;
+    mtx.SetBounds(1,colsize,1,ColumnSize);
+    mtx.FillContents(0);
+    mtx(1,2)=1;
 
-    cout<<"flag2 testvec1.size: "<<testvec1.Size()<<endl;
-    cout<<testvec1<<endl;
-    cout<<"flag2 testmtrx1.RowSize :"<<testmtrx1.RowSize()<<" testmtrx.ColumnSize: "<<testmtrx1.ColumnSize()<<endl;
-    cout<<testmtrx1<<endl;
-
-    testvec1.SetBounds(1,9);
-    testmtrx1.SetBounds(1,4,1,9);
-
-    cout<<"flag3 testvec1.size: "<<testvec1.Size()<<endl;
-    cout<<testvec1<<endl;
-    cout<<"flag3 testmtrx1.RowSize: "<<testmtrx1.RowSize()<<" testmtrx.ColumnSize: "<<testmtrx1.ColumnSize()<<endl;
-    cout<<testmtrx1<<endl;
-
-    testvec1.SetBounds(1,1);
-    testmtrx1.SetBounds(1,9,1,4);
-    testmtrx1.FillContents(0);
-
-    cout<<"flag4 testvec1.size: "<<testvec1.Size()<<endl;
-    cout<<testvec1<<endl;
-    cout<<"flag4 testmtrx1.RowSize: "<<testmtrx1.RowSize()<<" testmtrx.ColumnSize: "<<testmtrx1.ColumnSize()<<endl;
-    cout<<testmtrx1<<endl;
-
-
-    testvec1.SetBounds(1,1);
-    testmtrx1.SetBounds(1,2,1,2);
-
-    cout<<"flag5 testvec1.size: "<<testvec1.Size()<<endl;
-    cout<<testvec1<<endl;
-    cout<<"flag5 testmtrx1.RowSize :"<<testmtrx1.RowSize()<<" testmtrx.ColumnSize: "<<testmtrx1.ColumnSize()<<endl;
-    cout<<testmtrx1<<endl;
-
-    int sizecheck1 = 78;
-    int sizecheck2 = 43;
-    testmtrx1.SetRowSize(sizecheck1);
-    testmtrx1.SetColumnSize(sizecheck2);
-    int truth1 = testmtrx1.RowSize() == sizecheck1 && testmtrx1.ColumnSize() == sizecheck2;
-    cout<<" Truth check size increasing: "<< truth1 << endl;
-    sizecheck1 = 2;
-    sizecheck2 = 3;
-    testmtrx1.SetRowSize(sizecheck1);
-    testmtrx1.SetColumnSize(sizecheck2);
-    truth1 = testmtrx1.RowSize() == sizecheck1 && testmtrx1.ColumnSize() == sizecheck2;
-    cout<<" Truth check size decreasing: "<< truth1 << endl;
-    truth1 = testmtrx1.RowSize() == testmtrx1.RowSize();
-    cout<<" GROUND TRUTH CHECK: "<< truth1 << endl;
-
+    rowtruth = mtx.ColumnSize()==ColumnSize;
+    coltruth = mtx.RowSize()==colsize;
+    cout<<"Sanity check: mtx.ColumnSize()==ColumnSize = "<<rowtruth<<endl;
+    cout<<"Sanity check: mtx.RowSize()==RowSize = "<<coltruth<<endl;
+    
+    cout<<"\nmtx.ColumnSize()= "<<mtx.ColumnSize()
+    <<"\nmtx.Colsize()= "<<mtx.RowSize()
+    <<"\nPrinting mtx:\n"<<mtx<<endl;
+ 
+    // Iterate
+    mtx.SetBounds(1,50,1,2);
+    int tracer = 1;
+    for(int r=1; r<=50; r++)
+    {
+        for(int c=1; c<=2; c++)
+        {
+            mtx(r,c)=tracer;
+            tracer++;
+        }
+    }
+    cout<<"Iterated matrix:\n"<<mtx<<endl;
 }
 

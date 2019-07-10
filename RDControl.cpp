@@ -30,7 +30,7 @@ using namespace std;
 //Get reactor size
 int RDControl::GetReactorSize()
 {
-    return cellstate.RowSize();
+    return cellstate.ColumnSize();
 }
 
 void RDControl::SetReactorSize( int newsize )
@@ -39,8 +39,8 @@ void RDControl::SetReactorSize( int newsize )
     size = newsize;
     cout<<"RDControl::SetReactorSize: size = "<< size<<endl;
     cellsize = 1.0 / size;
-    cellstate.SetBounds(1,size,1,chemnum);
-    cout<<"RDControl::SetReactorSize: measuredsize = "<< cellstate.RowSize()<<endl;
+    cellstate.SetBounds(1,size,1,chemnum);// SETBOUNDS on mtx uses (colmin, colmax,rowmin,rowmax) convention
+    cout<<"RDControl::SetReactorSize: measuredsize = "<< cellstate.ColumnSize()<<endl;
     adjacency.SetBounds(1,size,1,size);
     cout<<"RDControl::Reactor Size Set :"<<GetReactorSize()<<"\n"<<flush;// debug
 }
@@ -75,7 +75,7 @@ void RDControl::SetParameter( int indx, double newparameter)
 
 int RDControl::GetChemicalNumber()
 {
-    return cellstate.ColumnSize();
+    return cellstate.RowSize();
 }
 
 //Get Tvector of the concentrations of species in a cell
@@ -145,12 +145,11 @@ void RDControl::SetCellState(TVector<double> newstate, int cellindx)
 // Inject an amount of a chemical into a single cell
 void RDControl::InjectCell(double amount, int cellindx, int chemindx)
 {
-    cout<<"RDControl::InjectCell: injecting"<<
-    "cellstate.RowSize="<<cellstate.RowSize()<<
-    "cellstate.ColumnSize"<<cellstate.ColumnSize()<<endl;
     cellstate(cellindx,chemindx)+=amount;
-    cout<<"RDControl::InjectCell: normalizing"<<endl;
     NormalizeCellDensity(cellindx);
+    #ifdef DEBUGRDCONTROL
+    cout>>"RDControl::InjectCell COMPLETE"<<endl;
+    #endif
 }
 
 //-----------------------------
@@ -205,8 +204,8 @@ void RDControl::RandomReactorState()
     // Loop over all cells
     //cout<<"RDControl::RandomReactorState: proscribed reactor size: "<<size
     //<<"\n  proscribed reactor dimension: "<<chemnum
-    //<<"\n  Actual reactor size: "<<cellstate.RowSize()
-    //<<"\n  Actual reactor dimension: "<< cellstate.ColumnSize()<<endl;
+    //<<"\n  Actual reactor size: "<<cellstate.ColumnSize()
+    //<<"\n  Actual reactor dimension: "<< cellstate.RowSize()<<endl;
 
     for (int target=1; target<=size; target++)
     {

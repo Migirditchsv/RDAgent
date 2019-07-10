@@ -231,9 +231,7 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
            // check for placeholder indx
            if(targetindx<=0){goto skip;}
            // inject
-           cout<<"AgentInterface::FireInputPerceptrons: pretrip"<<endl;
            controller.InjectCell(externalinput,targetindx,channelindx); 
-           cout<<"AgentInterface::FireInputPerceptrons: posttrip"<<endl;
 
            skip:;
         }//end target loop
@@ -262,7 +260,7 @@ void AgentInterface::FireOutputPerceptrons()
             if(sourceindx<=0){goto skipout;}
 
             // get link weight
-            weight = outperceptron(p).weight(sourceindx);
+            weight = outperceptron(p).weight(source);
             //read from controller
             internalstate = controller.CellStateChannel(sourceindx, channelindx);
             outperceptron(p).state+= weight * internalstate;
@@ -271,6 +269,7 @@ void AgentInterface::FireOutputPerceptrons()
         }// end source loop
 
         // Write state to acutator
+        cout<<"actuator.Size(): "<<actuator.Size()<<"targetindx: "<<targetindx<<endl;
         actuator(targetindx)=outperceptron(p).state;
 
     }//end perc loop
