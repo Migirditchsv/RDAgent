@@ -129,6 +129,8 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor_,
     double weight;
     cout<<"Interface::SetRandomInputLinks: maxlinknum: "<<maxlinknum<<endl;
 
+    // Refresh controllersize
+    controllersize = controller.GetReactorSize();
     for(int p=1; p<=inperceptronnum; p++)
     {
         for(int l=1; l<=initlinknum; l++)
@@ -163,6 +165,9 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor_,
 // Reset Interface: Resets links and weights to random values
 void AgentInterface::ResetInterface()
 {
+    // refresh controller size
+    controllersize = controller.GetReactorSize();
+    
     // input layer
     for(int p=1; p<inperceptronnum; p++ )
     {
@@ -233,7 +238,8 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
            if(targetindx<=0){goto skip;}
            // inject
            cout<<"AgentInterface::FireInputPerceptrons targetindx: "<<targetindx
-           <<" channelindx: "<<channelindx<<endl;
+           <<" channelindx: "<<channelindx
+           <<"Controller.GetReactorSize(): "<<controller.GetReactorSize()<<endl;
            controller.InjectCell(externalinput,targetindx,channelindx); 
            cout<<"AgentInterface::FireInputPerceptrons post"<<endl;
 

@@ -28,25 +28,8 @@ using namespace std;
 // Precompile instructions
 // ****************************
 
-// define debug level. comment out initial define to turn off debug
-// DEBUG0: print status in main loop
-// DEBUG1: add status from RDAgent functions
-// DEBUG2: add status from AgentInterface functions
-// Debug3: add status from RDControl functions
-
-#define DEBUG0
-
-#if defined DEBUG3
-#define DEBUG2
-#endif
-
-#if defined DEBUG2
-#define DEBUG1
-#endif
-
-#if defined DEBUG1
-#define DEBUG0
-#endif
+// define debug level. Comment to toggle on off
+#define DEGBUGRDTASKMAIN
 
 // **************************** 
 // Declarations
@@ -263,7 +246,7 @@ void BilateralGenomeLinker(TVector<double> gene)
     int parameters = Agent.Controller.GetParameterNumber();
     int channelnum = Agent.Controller.GetChemicalNumber();
     int localcontrolsize = Agent.Controller.GetReactorSize();
-    #ifdef DEBUG3
+    #ifdef DEBUGRDTASKMAIN
     cout<<"BilateralGenomeLinker: Parameters Read"<<endl;
     #endif
 
@@ -278,7 +261,7 @@ void BilateralGenomeLinker(TVector<double> gene)
     for(int p = 1; p<= m ; p++)
     {
         int antip = 2*m-p;// Indexes backwards into the array
-        #ifdef DEBUG3
+        #ifdef DEBUGRDTASKMAIN
         cout<<"BilateralGenomeLinker: Input perceptron p: "<<p<<" m: "<<m<<" antip: "<<antip<<endl;
         #endif
         
@@ -286,24 +269,24 @@ void BilateralGenomeLinker(TVector<double> gene)
         {
             // Target [discrete]
             dgene = gene(poscounter);
-            #ifdef DEBUG3
+            #ifdef DEBUGRDTASKMAIN
             cout<<"BilateralGenomeLinker: target dgene: "<<dgene<<endl;
             #endif
-            
-            igene = Discretize(dgene, 1, controllersize);
-            #ifdef DEBUG3
+            igene = Discretize(dgene, 1, localcontrolsize);
+
+            #ifdef DEBUGRDTASKMAIN
             cout<<"BilateralGenomeLinker: target igene: "<<igene<<endl;
             #endif
             
             Agent.Interface.inperceptron(p).target(target) = igene;
             int mirrortarget = localcontrolsize - igene + 1;
-            #ifdef DEBUG3
+            #ifdef DEBUGRDTASKMAIN
             cout<<"BilateralGenomeLinker: mirrortarget: "<<mirrortarget<<endl;
             #endif
 
             Agent.Interface.inperceptron(antip).target(target) = mirrortarget;
             poscounter++;
-            #ifdef DEBUG3
+            #ifdef DEBUGRDTASKMAIN
             cout<<"BilateralGenomeLinker: Weight pos:"<<poscounter<<endl;
             #endif
             //weight
@@ -348,10 +331,34 @@ int Discretize(double value, int minbound, int maxbound)
 {   
     //vars
     int index;
-    double scale;
+    int truth = 1;
+    double scale = maxbound - minbound;
 
-    scale = 0.5 * (maxbound - minbound);
-    index =  round( scale * (value + 1.0 ) );
 
+
+    // if value is out of [-1,1] exit
+    truth*= value>=-1;
+    truth*= value<=1;
+    if( truth==0 )
+    {
+        cerr<<"RDTaskMain::Discritize value= "<<value<<" out of bounds[-1,1]. ABORTING."<<endl;
+        exit(EXIT_FAILURE);
+    }
+
+    index = value + 1;// now [0,2]
+    index *= 0.5;//now [0,1]
+    index *= scale;// now[min,max]
+
+    // if value is out of [minbound,maxbound] exit
+    truth*= index>=minbound;
+    truth*=index<=maxbound;
+    if( truth==0 )
+    {
+        cerr<<"RDTaskMain::Discritize index= "<<index<<" out of bounds["
+        <<minbound<<","<<maxbound<<"].\n    Badly converted "<< value<<" to "<<index
+        <<" ABORTING."<<endl;
+        exit(EXIT_FAILURE);
+    }
+    
     return( index );
 }
