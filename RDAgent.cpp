@@ -8,6 +8,10 @@
 //  05/19| SVM: Converted from VisualAgent to RDAgent
 // ************************************************************
 
+// Debuging tools. comment/uncomment to enable/disable
+#define DEBUGRDAGENT
+
+
 // Std. Libs
 #include <iostream>//debuging
 //#include <cmath>
@@ -151,26 +155,27 @@ void RDAgent::Step(VisualObject &object)// the object being looked for
   double controltime = 0.0;
 
   //Read sensors into controller
-   cout<<"RDAgent::Step(): Resetting Rays"<<endl;
-   
   ResetRays();// do this first
   
-   cout<<"RDAgent::Step(): Firing Input Perceptrons"<<endl;
-   
+  #ifdef DEBUGRDAGENT
+  cout<<"RDAgent::Step(): Firing Input Perceptrons"<<endl;
+  #endif 
   Interface.FireInputPerceptrons(object);
 
+  #ifdef DEBUGRDAGENT
+  cout<<"RDAgent::Step(): Stepping Reactor"<<endl;
+  #endif 
   while(controltime<=controllimit)
   {
-       cout<<"RDAgent::Step(): Making Euler Step| controller step: "<<controltime
-    <<":"<<controllimit<<endl;
-     
-
     Controller.EulerStep(controldt);
     controltime+=controldt;
   }
   //Read controller to motors
+  #ifdef DEBUGRDAGENT
   cout<<"RDAgent::Step(): Firing Output Perceptrons"<<endl;
+  #endif
   Interface.FireOutputPerceptrons();
+
   cx = cx + agentdt*vx;
   if (cx < -EnvWidth/2) {
     cx = -EnvWidth/2;

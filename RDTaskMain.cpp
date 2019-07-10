@@ -65,7 +65,7 @@ int Discretize(double value, int minbound, int maxbound);
 
 // Timing
 const int EVOSTEPLIMIT = 10;// evo generations to run
-const int AGENTSTEPLIMIT = 300;//agent stpes to run per each evo trial
+const int AGENTSTEPLIMIT = 30;//agent stpes to run per each evo trial
 const int RDSTEPLIMIT = 5;//RD cycles to run per each agent step
 
 // Resolution
@@ -173,7 +173,7 @@ int main()
 double Fittness(TVector<double> &gene, RandomState &rs)
 {
     #ifdef DEBUG0
-    cout<<"RDTaskMain::Fittness: Evaluating Agent"<<endl;
+    cout<<"RDTaskMain::Fittness: Begin Evaluating Agent"<<endl;
     #endif
     
     // Init visual object  particle
@@ -190,24 +190,29 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     
     // prepare random initial state
     Agent.Controller.RandomReactorState();
+    Agent.SetPositionX(0.0);
     #ifdef DEBUG0
-    cout<<"RDTaskMain::Fittness: Randomize Reactor State COMPLETE"<<endl;
+    cout<<"RDTaskMain::Fittness: Randomize Initial Agent Position and Reactor State COMPLETE"<<endl;
     #endif
+
+
 
     // Main agent loop
     for( int t = 0; t<AGENTSTEPLIMIT; t++)
     {
         //place particle
-        #ifdef DEBUG0
-        cout<<"RDTaskMain::Fittness: Calling Track Particle"<<endl;
-        #endif
-
+        //#ifdef DEBUG0
+        //cout<<"RDTaskMain::Fittness: Calling Track Particle"<<endl;
+        //#endif
         TrackParticle(particle);
-        #ifdef DEBUG0
-        cout<<"RDTaskMain::Fittness: Calling Agent.step()"<<endl;
-        #endif
 
+       // #ifdef DEBUG0
+       // cout<<"RDTaskMain::Fittness: Calling Agent.step()"<<endl;
+       // #endif
+        cout<<"RDTaskMain::Fittness prechoke"<<endl;
         Agent.Step(particle);
+        cout<<"RDTaskMain::Fittness postchoke"<<endl;
+
     }
     #ifdef DEBUG0
     cout<<"RDTaskMain::Fittness: MAIN LOOP COMPLETE"<<endl;

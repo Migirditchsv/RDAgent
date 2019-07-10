@@ -215,6 +215,7 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
     // Loop over in perceptrons
     for(int p=1; p<inperceptronnum; p++)
     {
+        cout<<"AgentInterface::FireInputPerceptrons p: "<<p<<endl;
         // Reset perceptron state
         inperceptron(p).state=0.0;
         // Set index routes
@@ -231,7 +232,10 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
            // check for placeholder indx
            if(targetindx<=0){goto skip;}
            // inject
+           cout<<"AgentInterface::FireInputPerceptrons targetindx: "<<targetindx
+           <<" channelindx: "<<channelindx<<endl;
            controller.InjectCell(externalinput,targetindx,channelindx); 
+           cout<<"AgentInterface::FireInputPerceptrons post"<<endl;
 
            skip:;
         }//end target loop
@@ -246,11 +250,16 @@ void AgentInterface::FireOutputPerceptrons()
     // loop over out percs
     for(int p=1; p<=outperceptronnum; p++)
     {// loop over percs
+       // cout<<"AgentInterface::FireOutputPerceptrons p: "<<p<<endl;
         // Clear perceptronstate
         outperceptron(p).state=0.0;
         // get indicies
         channelindx = outperceptron(p).channel;
         targetindx  = outperceptron(p).target(1);
+       // cout<<"AgentInterface::FireOutputPerceptrons p: "<<p
+       // <<"\n   perceptron channel: "<<channelindx
+       // <<"\n   perceptron target index"<<targetindx
+       // <<endl;
 
         for(int source=1;source<=maxlinknum;source++)
         {//loop over sources & accumulate
@@ -264,12 +273,17 @@ void AgentInterface::FireOutputPerceptrons()
             //read from controller
             internalstate = controller.CellStateChannel(sourceindx, channelindx);
             outperceptron(p).state+= weight * internalstate;
+          //  cout<<"AgentInterface::FireOutputPerceptrons p: "<<p<<" sourceindx: "<<sourceindx
+          //  <<"\n weight: "<<weight
+          //  <<"\n internal state (controller): "<<internalstate
+          //  <<"\n outperceptron.state= "<<outperceptron(p).state
+          //  <<endl;
             //skipout from source loop
             skipout:;
         }// end source loop
 
         // Write state to acutator
-        cout<<"actuator.Size(): "<<actuator.Size()<<"targetindx: "<<targetindx<<endl;
+      //cout<<"actuator.Size(): "<<actuator.Size()<<"targetindx: "<<targetindx<<endl;
         actuator(targetindx)=outperceptron(p).state;
 
     }//end perc loop
