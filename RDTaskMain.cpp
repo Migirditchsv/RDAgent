@@ -7,6 +7,9 @@
 //
 //*****************************************************************************
 
+// Debug
+//#define DEBUGRDTASKMAIN
+
 // **************************** 
 // Includes
 // ****************************
@@ -29,7 +32,7 @@ using namespace std;
 // ****************************
 
 // define debug level. Comment to toggle on off
-//#define DEGBUGRDTASKMAIN
+#define DEGBUGRDTASKMAIN
 
 // **************************** 
 // Declarations
@@ -60,7 +63,7 @@ const int EVOPOPSIZE = 5;
 const long RANDOMSEED = 1;
 
 // Controller
-const int controllersize = 20;
+const int controllersize = 138;
 const int controllermodel = 0;// 0:Grey-Scott
 const int controllertopology = 0;// 0: 1D Near neigh. ring
 
@@ -98,7 +101,7 @@ int main()
 
     // Init Randomness Engine
     SetRandomSeed(RANDOMSEED);
-    #ifdef DEBUG0
+    #ifdef DEBUGRDTASKMAIN
     cout<<"Random Seed Initializaiton: COMPLETE\n"<<flush;
     #endif
 
@@ -106,7 +109,6 @@ int main()
     Agent;
     Agent.SetPositionX(0.0);
     // Agent.Controller stuff
-    cout<<"RDTaskMain- Init Phase: controllersize= "<<controllersize<<endl;
     Agent.Controller.SetReactorSize(controllersize);
     Agent.Controller.SetRDModel(controllermodel);
     Agent.Controller.SetReactorTopology(controllertopology);
@@ -120,7 +122,7 @@ int main()
 
     //  Compute Genome Size
     InitGenome();// gene of 0's: genome for testing
-    #ifdef DEBUG0
+    #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain.cpp: Genome size set: "<<genomesize<<endl;
     #endif
 
@@ -136,7 +138,7 @@ int main()
     s.SetMaxExpectedOffspring(1.1);
     s.SetElitistFraction(0.1);
     s.SetSearchConstraint(1);
-    #ifdef DEBUG0
+    #ifdef DEBUGRDTASKMAIN
     cout<<"Search Configuration: Complete"<<endl;
     #endif
 
@@ -152,26 +154,26 @@ int main()
 
 double Fittness(TVector<double> &gene, RandomState &rs)
 {
-    #ifdef DEBUG0
+    #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: Begin Evaluating Agent"<<endl;
     #endif
     
     // Init visual object  particle
     VisualObject particle;
-    #ifdef DEBUG0
+    #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: VisualObject Declared"<<endl;
     #endif
 
     // Insert gene into agent
     BilateralGenomeLinker(gene);
-    #ifdef DEBUG0
+    #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: Genome Linking COMPLETE"<<endl;
     #endif
     
     // prepare random initial state
     Agent.Controller.RandomReactorState();
     Agent.SetPositionX(0.0);
-    #ifdef DEBUG0
+    #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: Randomize Initial Agent Position and Reactor State COMPLETE"<<endl;
     #endif
 
@@ -181,24 +183,27 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     for( int t = 0; t<AGENTSTEPLIMIT; t++)
     {
         //place particle
-        //#ifdef DEBUG0
-        //cout<<"RDTaskMain::Fittness: Calling Track Particle"<<endl;
-        //#endif
         TrackParticle(particle);
+        #ifdef DEBUGRDTASKMAIN
+        cout<<"RDTaskMain::Fittness: Particle Tracking COMPLETE"<<endl;
+        #endif
 
-       // #ifdef DEBUG0
-       // cout<<"RDTaskMain::Fittness: Calling Agent.step()"<<endl;
-       // #endif
         Agent.Step(particle);
+        #ifdef DEBUGRDTASKMAIN
+        cout<<"RDTaskMain::Fittness: Calling Agent.step()"<<endl;
+        #endif
+
     }
-    #ifdef DEBUG0
+    #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: MAIN LOOP COMPLETE"<<endl;
     #endif
 
     // Compute score
     double fit = abs( Agent.PositionX() );// move away from center
 
+    #ifdef DEBUGRDTASKMAIN
     Agent.Printer(1);
+    #endif
     
     return fit;// does this have to be normalized?
 }
@@ -226,7 +231,7 @@ void InitGenome()// an actual TVector gene does not need to be created. TSearch 
     genomesize = rdparamnum + 3 * maxlinks * ( m + j );
     // set size
     genome.SetBounds(1,genomesize);
-    #ifdef DEBUG0
+    #ifdef DEBUGRDTASKMAIN
     cout<<"Genome defined with size:"<<genomesize<<"\n"<<flush;
     #endif
 }

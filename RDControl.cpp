@@ -7,6 +7,9 @@
 //
 //*****************************************************************************
 
+// Debug
+//#define DEBUGRDCONTROL
+
 // **************************** 
 // Includes
 // ****************************
@@ -35,14 +38,10 @@ int RDControl::GetReactorSize()
 
 void RDControl::SetReactorSize( int newsize )
 {
-    cout<<"RDControl::SetReactorSize: new size = "<< newsize<<endl;
     size = newsize;
-    cout<<"RDControl::SetReactorSize: size = "<< size<<endl;
     cellsize = 1.0 / size;
     cellstate.SetBounds(1,size,1,chemnum);// SETBOUNDS on mtx uses (colmin, colmax,rowmin,rowmax) convention
-    cout<<"RDControl::SetReactorSize: measuredsize = "<< cellstate.ColumnSize()<<endl;
     adjacency.SetBounds(1,size,1,size);
-    cout<<"RDControl::Reactor Size Set :"<<GetReactorSize()<<"\n"<<flush;// debug
 }
 
 TMatrix<double>& RDControl::GetReactorState()
@@ -145,10 +144,17 @@ void RDControl::SetCellState(TVector<double> newstate, int cellindx)
 // Inject an amount of a chemical into a single cell
 void RDControl::InjectCell(double amount, int cellindx, int chemindx)
 {
+    #ifdef DEBUGRDCONTROL
+    cout<<"RDControl::InjectCell\n  cellindex: "<<cellindx
+    <<"\n   chemindx: "<< chemindx
+    <<"\n   cellstate.GetReactorSize(): "<< GetReactorSize()
+    <<"\n   cellstate.GetChemicalNumber: "<<GetChemicalNumber()<<endl;
+    #endif
     cellstate(cellindx,chemindx)+=amount;
+
     NormalizeCellDensity(cellindx);
     #ifdef DEBUGRDCONTROL
-    cout>>"RDControl::InjectCell COMPLETE"<<endl;
+    cout<<"RDControl::InjectCell COMPLETE"<<endl;
     #endif
 }
 
@@ -168,7 +174,6 @@ void RDControl::SetRDModel(int modelindx)
         //model = 0;
 
         cellstate.SetBounds(1,size,1,chemnum);
-        cout<<"RDControl::SetRDModel: size set: "<<size<<endl;
         diffvec.SetBounds(1,chemnum);
         diffvec.FillContents(0);
 

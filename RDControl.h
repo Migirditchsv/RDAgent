@@ -57,7 +57,7 @@ class RDControl {
         // Single Cell Control
         void NormalizeCellDensity( int cellindx );
         void SetCellState( TVector<double> newstate, int cellindx);
-        void InjectCell( double amount, int chemindx, int cellindx);
+        void InjectCell( double amount, int cellindx, int chemindx);
 
         // Global Cell Controls
         void SetRDModel(int modelindx);

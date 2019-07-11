@@ -88,14 +88,10 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor_,
                 inperceptron(p).channel = 1; // Default to channel 1
                 inperceptron(p).source.SetBounds(1,1);//only one source
                 inperceptron(p).source.FillContents(p); // one perceptron per sense organ
-                cout<<"AI::RefferenceInterface: Inperc(p=:"<<p<<") source= "<<inperceptron(p).source<<endl;
                 inperceptron(p).state   = 0.0; // start clean
                 inperceptron(p).target.SetBounds(1,maxlinknum); //size target list
                 inperceptron(p).target.FillContents(0); // targets <=0 are skipped
-                cout<<"AI::RefferenceInterface: maxlinknum: "<<
-                maxlinknum<<endl;
                 inperceptron(p).weight.SetBounds(1,maxlinknum); // size weight list
-                cout<<"AI::RefferenceInterface: weight"<<inperceptron(p).weight<<endl;
                 inperceptron(p).weight.FillContents(1.0); //Index determines skip, nonzero default weights increase evolvability
             }
 
@@ -105,9 +101,6 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor_,
             {
                 outperceptron(p).channel = 1; // Default to channel 1
                 outperceptron(p).source.SetBounds(1,maxlinknum);
-                cout<<"DEBUG-AI.cpp::RefferenceInterface"<<
-                "maxlinknum: "<<maxlinknum<<
-                "source size: "<<inperceptron(p).source.Size()<<endl;
                 outperceptron(p).source.FillContents(0);// Default off all read out links
                 outperceptron(p).state   = 0.0; // start clean
                 outperceptron(p).target.SetBounds(1,1); //size target list
@@ -131,7 +124,6 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor_,
      //vars
     int linkindx;
     double weight;
-    cout<<"Interface::SetRandomInputLinks: maxlinknum: "<<maxlinknum<<endl;
 
     // Refresh controllersize
     controllersize = controller.GetReactorSize();
@@ -226,21 +218,41 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
     {
         // Reset perceptron state
         inperceptron(p).state=0.0;
+        
         // Set index routes
         sourceindx = inperceptron(p).source(1);
         channelindx = inperceptron(p).channel;
+
+        #ifdef DEBUGAGENTINTERFACE
+        cout<<"AgentInterface::FireInputPerceptron indicies read"<<endl;
+        #endif
+
         // measure sensor state
         object.RayIntersection(sensor(sourceindx));
         externalinput = (MaxRayLength - sensor(sourceindx).length/MaxRayLength);      
         inperceptron(p).state = externalinput;
+
+        #ifdef DEBUGAGENTINTERFACE
+        cout<<"AgentInterface::FireInputPerceptron External Input: "<<externalinput<<endl;
+        #endif
+
         // inject into controller targets
         for(int target=1; target<=maxlinknum; target++)
         {
            targetindx = inperceptron(p).target(target); 
            // check for placeholder indx
            if(targetindx<=0){goto skip;}
+
+            #ifdef DEBUGAGENTINTERFACE
+            cout<<"AgentInterface::FireInputPerceptron\n    targetindx"<<targetindx
+            <<"\n   channelindx"<<channelindx
+            <<"\n   controller.GetReactorSize(): "<<controller.GetReactorSize()
+            <<"\n   controller.GetChemicalNumber(): "<<controller.GetChemicalNumber()
+            <<endl;
+            #endif
+
            // inject
-           controller.InjectCell(externalinput,channelindx,targetindx);
+           controller.InjectCell(externalinput,targetindx, channelindx);
            skip:;
         }//end target loop
     }//end perceptron loop
