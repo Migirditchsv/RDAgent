@@ -330,11 +330,11 @@ void BilateralGenomeLinker(TVector<double> gene)
 int Discretize(double value, int minbound, int maxbound)
 {   
     //vars
-    int index;
+    double index;
     int truth = 1;
     double scale = maxbound - minbound;
 
-
+    cout<<"Value: "<<value<<endl;
 
     // if value is out of [-1,1] exit
     truth*= value>=-1;
@@ -345,20 +345,10 @@ int Discretize(double value, int minbound, int maxbound)
         exit(EXIT_FAILURE);
     }
 
-    index = value + 1;// now [0,2]
+    index = value + 1.0;// now [0,2]
     index *= 0.5;//now [0,1]
-    index *= scale;// now[min,max]
+    index = round( index * scale ) + minbound;// now on int [min,max]
 
-    // if value is out of [minbound,maxbound] exit
-    truth*= index>=minbound;
-    truth*=index<=maxbound;
-    if( truth==0 )
-    {
-        cerr<<"RDTaskMain::Discritize index= "<<index<<" out of bounds["
-        <<minbound<<","<<maxbound<<"].\n    Badly converted "<< value<<" to "<<index
-        <<" ABORTING."<<endl;
-        exit(EXIT_FAILURE);
-    }
-    
+
     return( index );
 }
