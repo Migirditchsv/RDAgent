@@ -9,7 +9,7 @@
 // ************************************************************
 
 // Debuging tools. comment/uncomment to enable/disable
-#define DEBUGRDAGENT
+//#define DEBUGRDAGENT
 
 
 // Std. Libs
@@ -57,8 +57,8 @@ void RDAgent::Printer(int linenum)
   cout<<"Controller Size: " <<controllersize<<"\n"<<flush;
   int controllerchannels = Controller.GetChemicalNumber();
   cout<<"Controller Channels: "<<controllerchannels<<"\n\n"<<flush;
-  //TMatrix<double> controllerstate = Controller.GetReactorState();
-  //cout<<"Controller State:"<<controllerstate<<endl;
+  TMatrix<double> controllerstate = Controller.GetReactorState();
+  cout<<"Controller State:\n"<<controllerstate<<endl;
   
   cout<<"---Agent State---\n"<<flush;
   double posx = PositionX();
@@ -176,7 +176,14 @@ void RDAgent::Step(VisualObject &object)// the object being looked for
   #endif
   Interface.FireOutputPerceptrons();
 
+  vx = Interface.actuator(1)-Interface.actuator(2);// motor(1) - motor(2);// <1[body]2> thruster orientation
   cx = cx + agentdt*vx;
+
+  #ifdef DEBUGRDAGENT
+  cout<<"RDAgent::Step() vx: "<<vx<<" cx: "<<cx
+  <<"\nInterface.actuator print:\n"<<Interface.actuator<<endl;
+  #endif
+
   if (cx < -EnvWidth/2) {
     cx = -EnvWidth/2;
   }

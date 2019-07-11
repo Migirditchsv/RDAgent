@@ -266,7 +266,7 @@ void RDControl::SetReactorTopology(int topologyindx)
         double check = sqrt(size);
         if ( ceil(check)!=floor(check) )
         {
-            cout<<"ERROR: RDControl.cpp-SetReactorTopology(indx): array size must be square number to use Index 1: 2D Cardinal NN torus"<<endl;
+            cerr<<"ERROR: RDControl.cpp-SetReactorTopology(indx): array size must be square number to use Index 1: 2D Cardinal NN torus"<<endl;
             exit(0);
         }
 

@@ -14,6 +14,10 @@
 //
 //*****************************************************************************
 
+
+// Debug controls
+//#define DEBUGAGENTINTERFACE
+
 // **************************** 
 // Includes
 // ****************************
@@ -167,7 +171,7 @@ void AgentInterface::ResetInterface()
 {
     // refresh controller size
     controllersize = controller.GetReactorSize();
-    
+
     // input layer
     for(int p=1; p<inperceptronnum; p++ )
     {
@@ -220,7 +224,6 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
     // Loop over in perceptrons
     for(int p=1; p<inperceptronnum; p++)
     {
-        cout<<"AgentInterface::FireInputPerceptrons p: "<<p<<endl;
         // Reset perceptron state
         inperceptron(p).state=0.0;
         // Set index routes
@@ -237,15 +240,14 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
            // check for placeholder indx
            if(targetindx<=0){goto skip;}
            // inject
-           cout<<"AgentInterface::FireInputPerceptrons targetindx: "<<targetindx
-           <<" channelindx: "<<channelindx
-           <<"Controller.GetReactorSize(): "<<controller.GetReactorSize()<<endl;
-           controller.InjectCell(externalinput,targetindx,channelindx); 
-           cout<<"AgentInterface::FireInputPerceptrons post"<<endl;
-
+           controller.InjectCell(externalinput,channelindx,targetindx);
            skip:;
         }//end target loop
     }//end perceptron loop
+    #ifdef DEBUGAGENTINTERFACE
+    cout<<"AgentInterface::FireInputPerceptrons Post Fire Reactor State:\n"
+    <<controller.GetReactorState()<<endl;
+    #endif
 }// end FireInputPerceptrons
 
 void AgentInterface::FireOutputPerceptrons()
@@ -253,19 +255,20 @@ void AgentInterface::FireOutputPerceptrons()
     // vars
     int sourceindx, channelindx, targetindx;
     double weight, internalstate;
+
+    // clear actuator state
+    actuator.FillContents(0.0);
+
     // loop over out percs
     for(int p=1; p<=outperceptronnum; p++)
     {// loop over percs
-       // cout<<"AgentInterface::FireOutputPerceptrons p: "<<p<<endl;
+
         // Clear perceptronstate
         outperceptron(p).state=0.0;
+
         // get indicies
         channelindx = outperceptron(p).channel;
         targetindx  = outperceptron(p).target(1);
-       // cout<<"AgentInterface::FireOutputPerceptrons p: "<<p
-       // <<"\n   perceptron channel: "<<channelindx
-       // <<"\n   perceptron target index"<<targetindx
-       // <<endl;
 
         for(int source=1;source<=maxlinknum;source++)
         {//loop over sources & accumulate
@@ -278,20 +281,35 @@ void AgentInterface::FireOutputPerceptrons()
             weight = outperceptron(p).weight(source);
             //read from controller
             internalstate = controller.CellStateChannel(sourceindx, channelindx);
+            if(internalstate==0.0)
+            {
+                cerr<<"AgentInterface::FireOutpurPerceptrons internal state= "<<internalstate
+                <<"highly unlikely.\n   manual check:\n    controller.cellstate("<<
+                sourceindx<<","<<channelindx<<")="<<controller.CellStateChannel(sourceindx,channelindx)
+                <<"ReactorState:\n"<<controller.GetReactorState()<<endl;
+            }
             outperceptron(p).state+= weight * internalstate;
-          //  cout<<"AgentInterface::FireOutputPerceptrons p: "<<p<<" sourceindx: "<<sourceindx
-          //  <<"\n weight: "<<weight
-          //  <<"\n internal state (controller): "<<internalstate
-          //  <<"\n outperceptron.state= "<<outperceptron(p).state
-          //  <<endl;
+
+           // #ifdef DEBUGAGENTINTERFACE
+           // cout<<"AgentInterface::FireOutputPerceptrons p: "<<p<<" sourceindx: "<<sourceindx
+           // <<"\n weight: "<<weight
+           // <<"\n internal state (controller): "<<internalstate
+           // <<"\n outperceptron.state= "<<outperceptron(p).state
+           // <<endl;
+           // #endif
+
             //skipout from source loop
             skipout:;
         }// end source loop
 
         // Write state to acutator
-      //cout<<"actuator.Size(): "<<actuator.Size()<<"targetindx: "<<targetindx<<endl;
-        actuator(targetindx)=outperceptron(p).state;
+        actuator(targetindx)+=outperceptron(p).state;
 
     }//end perc loop
+
+    #ifdef DEBUGAGENTINTERFACE
+    cout<<"actuator: "<<actuator<<endl;
+    #endif
+
 }// End FireOutPerceptrons
 

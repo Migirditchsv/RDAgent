@@ -29,7 +29,7 @@ using namespace std;
 // ****************************
 
 // define debug level. Comment to toggle on off
-#define DEGBUGRDTASKMAIN
+//#define DEGBUGRDTASKMAIN
 
 // **************************** 
 // Declarations
@@ -47,23 +47,22 @@ int Discretize(double value, int minbound, int maxbound);
 // ****************************
 
 // Timing
-const int EVOSTEPLIMIT = 10;// evo generations to run
-const int AGENTSTEPLIMIT = 30;//agent stpes to run per each evo trial
-const int RDSTEPLIMIT = 5;//RD cycles to run per each agent step
+const int EVOSTEPLIMIT = 5;// evo generations to run
+const int AGENTSTEPLIMIT = 10;//agent stpes to run per each evo trial
+const double AGENTSTEPSIZE = 0.5;// scales agent velocity on each agent step
+const double RDSTEPLIMIT = 1.0;// step limit of one controller step
+const double RDSTEPSIZE  = 0.1;// step size
 
-// Resolution
+// Evolution
 const int EVOPOPSIZE = 5;
-const int RDCELLNUM = 148;
 
 // Random
 const long RANDOMSEED = 1;
 
 // Controller
-const int controllersize = 138;
+const int controllersize = 20;
 const int controllermodel = 0;// 0:Grey-Scott
 const int controllertopology = 0;// 0: 1D Near neigh. ring
-const double controldt = 0.1;// controller step size
-const int controllimit = 1;// controller steps per agent step
 
 // Linker
 const int maxlinks = 8;// Max # of links controller a perceptron may have
@@ -109,16 +108,14 @@ int main()
     // Agent.Controller stuff
     cout<<"RDTaskMain- Init Phase: controllersize= "<<controllersize<<endl;
     Agent.Controller.SetReactorSize(controllersize);
-    Agent.Printer(-11);
     Agent.Controller.SetRDModel(controllermodel);
-    Agent.Printer(-22);
     Agent.Controller.SetReactorTopology(controllertopology);
     // Agent.Interface stuff
     Agent.Interface.RefferenceInterface(Agent.Rays, Agent.Controller, Agent.motor);
-    Agent.Printer(-33);
     Agent.Interface.SetLinkNum(maxlinks, initlinks);
     Agent.Interface.SetRandomInputLinks();
     Agent.Interface.SetRandomOutputLinks();
+    Agent.SetTimeResolutions(RDSTEPSIZE,RDSTEPLIMIT,AGENTSTEPSIZE);
     Agent.Printer(0);
 
     //  Compute Genome Size
@@ -192,10 +189,7 @@ double Fittness(TVector<double> &gene, RandomState &rs)
        // #ifdef DEBUG0
        // cout<<"RDTaskMain::Fittness: Calling Agent.step()"<<endl;
        // #endif
-        cout<<"RDTaskMain::Fittness prechoke"<<endl;
         Agent.Step(particle);
-        cout<<"RDTaskMain::Fittness postchoke"<<endl;
-
     }
     #ifdef DEBUG0
     cout<<"RDTaskMain::Fittness: MAIN LOOP COMPLETE"<<endl;
@@ -203,7 +197,9 @@ double Fittness(TVector<double> &gene, RandomState &rs)
 
     // Compute score
     double fit = abs( Agent.PositionX() );// move away from center
-    //cout<<"RDTaskMain::Fittness: Evaluation COMPLETE"<<endl;
+
+    Agent.Printer(1);
+    
     return fit;// does this have to be normalized?
 }
 
@@ -333,8 +329,6 @@ int Discretize(double value, int minbound, int maxbound)
     double index;
     int truth = 1;
     double scale = maxbound - minbound;
-
-    cout<<"Value: "<<value<<endl;
 
     // if value is out of [-1,1] exit
     truth*= value>=-1;
