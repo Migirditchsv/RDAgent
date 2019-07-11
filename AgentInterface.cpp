@@ -70,16 +70,11 @@ void AgentInterface::RefferenceInterface(TVector<Ray>& sensor_,
             controller = controller_;
             actuator = actuator_;
 
-            cout<<"RefferenceInterface: Initializing"<<endl;// debug
             // Compute sizes for initialization
             inperceptronnum      = sensor.Size();
-            cout<<"RefferenceInterface: sensor.Size ="<<inperceptronnum<<endl;
             controllersize  = controller.GetReactorSize();
-            cout<<"RefferenceInterface: controller.Size ="<<controllersize<<endl;
             controllerdimension = controller.GetChemicalNumber();
-            cout<<"RefferenceInterface: chemicals.Size ="<<controllerdimension<<endl;
             outperceptronnum    = actuator.Size();
-            cout<<"RefferenceInterface: actuator.Size ="<<outperceptronnum<<endl;
 
             // Initialize Input TVector
             inperceptron.SetBounds(1,inperceptronnum);
@@ -293,6 +288,7 @@ void AgentInterface::FireOutputPerceptrons()
             weight = outperceptron(p).weight(source);
             //read from controller
             internalstate = controller.CellStateChannel(sourceindx, channelindx);
+            #ifdef DEBUGAGENTINTERFACE
             if(internalstate==0.0)
             {
                 cerr<<"AgentInterface::FireOutpurPerceptrons internal state= "<<internalstate
@@ -300,6 +296,7 @@ void AgentInterface::FireOutputPerceptrons()
                 sourceindx<<","<<channelindx<<")="<<controller.CellStateChannel(sourceindx,channelindx)
                 <<"ReactorState:\n"<<controller.GetReactorState()<<endl;
             }
+            #endif
             outperceptron(p).state+= weight * internalstate;
 
            // #ifdef DEBUGAGENTINTERFACE
