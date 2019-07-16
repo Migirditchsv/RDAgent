@@ -78,6 +78,7 @@ class RDAgent {
 		// Accessors
 		void Printer(int linenum); // print state to terminal
 		void Writer();// write state to file
+		int  GetEnvWidth() {return EnvWidth;}
 		void SetTimeResolutions(double controldt_,// time delta on controller
 		                                  double controllimit_,// limit on controller steps per agent step
 		                                  double agentdt_// time delta on agent motion

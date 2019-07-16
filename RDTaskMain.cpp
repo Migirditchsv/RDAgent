@@ -34,20 +34,14 @@ using namespace std;
 // define debug level. Comment to toggle on off
 #define DEGBUGRDTASKMAIN
 
-// **************************** 
-// Declarations
-// ****************************
-
-double Fittness(TVector<double> &gene, RandomState &rs);
-void InitGenome();
-void TrackParticle(VisualObject particle);
-void BilateralGenomeLinker(TVector<double> gene);
-int Discretize(double value, int minbound, int maxbound);
-
 
 // **************************** 
 // Control  Vars: NEEDS SERIOUS LINKING/clean up
 // ****************************
+
+// IO
+const char EVODATAPATH[100] = "evodata.csv";
+const char BESTAGENTDATAPATH[100] = "bestagent.csv";
 
 // Timing
 const int EVOSTEPLIMIT = 5;// evo generations to run
@@ -73,8 +67,20 @@ const int initlinks = 4;// number of links to controller a perceptron starts wit
 
 
 // **************************** 
-// Global Objects
+// Global Declarations
 // ****************************
+
+// Fucntion declarations
+double Fittness(TVector<double> &gene, RandomState &rs);
+void InitGenome();
+void TrackParticle(VisualObject particle);
+void BilateralGenomeLinker(TVector<double> gene);
+int Discretize(double value, int minbound, int maxbound);
+void WriteEvoSearchStatae(int Generation,
+                        double BestPerf,
+                        double AvgPerf,
+                        double PerfVar);
+bool fileexists(const char *filename);
 
 // The agent
 RDAgent Agent;
@@ -82,6 +88,11 @@ RDAgent Agent;
 // The Genome;
 TVector<double> genome;//int values will be cast to int
 
+// The search
+TSearch s;
+
+// data files
+std::ofstream evodatafile;
 
 // Global Var Declarations
 int m,j;// in and out perceptron (respectively) index for bilateral symetry
@@ -98,6 +109,11 @@ int genomesize;// length of genome
 int main()
 {
     // Local Vars
+
+    // check data folders and prepare datafile
+    if(fileexists(EVODATAPATH)==1){remove(EVODATAPATH);}
+    evodatafile.open(EVODATAPATH);
+    evodatafile.close();
 
     // Init Randomness Engine
     SetRandomSeed(RANDOMSEED);
@@ -126,8 +142,8 @@ int main()
     cout<<"RDTaskMain.cpp: Genome size set: "<<genomesize<<endl;
     #endif
 
-    // Init and configure TSearch 
-    TSearch s(genomesize);
+    // Configure TSearch 
+    s.SetVectorSize(genomesize);
     s.SetRandomSeed(RANDOMSEED);
     s.SetEvaluationFunction(Fittness);
     s.SetSelectionMode(RANK_BASED);
@@ -138,6 +154,7 @@ int main()
     s.SetMaxExpectedOffspring(1.1);
     s.SetElitistFraction(0.1);
     s.SetSearchConstraint(1);
+    s.SetPopulationStatisticsDisplayFunction(WriteEvoSearchState);
     #ifdef DEBUGRDTASKMAIN
     cout<<"Search Configuration: Complete"<<endl;
     #endif
@@ -146,7 +163,7 @@ int main()
     s.ExecuteSearch();
     
     // Report on best individual
-    cout<<"\n\n\n ----SEARCH COMPLETE----\n\n"<<endl;
+    cout<<"\n\n\n----SEARCH COMPLETE----\n\n"<<endl;
     cout<<s.BestIndividual()<<endl;
 
     return(0);
@@ -199,7 +216,7 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     #endif
 
     // Compute score
-    double fit = abs( Agent.PositionX() );// move away from center
+    double fit = abs( Agent.PositionX() / Agent.GetEnvWidth() );// move away from center, normalized
 
     #ifdef DEBUGRDTASKMAIN
     Agent.Printer(1);
@@ -350,4 +367,24 @@ int Discretize(double value, int minbound, int maxbound)
 
 
     return( index );
+}
+
+void WriteEvoSearchState(int Generation, double BestPerf, double AvgPerf, double PerfVar)
+{
+    // If file does not exist, warn
+    if(fileexists(EVODATAPATH)==0)
+    {
+        cerr<<"Error: Evolutionary Data Storage File Not Found In RDTaskMain::WriteEvoSearch"
+        <<"\n   Attempted File Path: "<<EVODATAPATH<<endl;
+        exit(0);
+    }
+
+    // write to file
+    evodatafile<<Generation<<","<<BestPerf<<","<<AvgPerf<<","<<PerfVar<<endl;
+}
+
+
+bool fileexists(const char *filename) {
+  std::ifstream ifile(filename);
+  return (bool)ifile;
 }
