@@ -32,7 +32,7 @@ using namespace std;
 // ****************************
 
 // define debug level. Comment to toggle on off
-#define DEGBUGRDTASKMAIN
+//#define DEGBUGRDTASKMAIN
 
 
 // **************************** 
@@ -76,7 +76,7 @@ void InitGenome();
 void TrackParticle(VisualObject particle);
 void BilateralGenomeLinker(TVector<double> gene);
 int Discretize(double value, int minbound, int maxbound);
-void WriteEvoSearchStatae(int Generation,
+void WriteEvoSearchState(int Generation,
                         double BestPerf,
                         double AvgPerf,
                         double PerfVar);
@@ -86,10 +86,10 @@ bool fileexists(const char *filename);
 RDAgent Agent;
 
 // The Genome;
-TVector<double> genome;//int values will be cast to int
+//TVector<double> genome;//int values will be cast to int
 
 // The search
-TSearch s;
+TSearch s(1);// Need a place holder size, TSearch can't init witout a real size. Resized later.
 
 // data files
 std::ofstream evodatafile;
@@ -108,12 +108,18 @@ int genomesize;// length of genome
 
 int main()
 {
+    #ifdef DEBUGRDTASKMAIN
+    cout<<"RDTaskMain::Main BEGIN"<<endl;
+    #endif    
     // Local Vars
 
     // check data folders and prepare datafile
     if(fileexists(EVODATAPATH)==1){remove(EVODATAPATH);}
     evodatafile.open(EVODATAPATH);
     evodatafile.close();
+    #ifdef DEBUGRDTASKMAIN
+    cout<<"RDTaskMain::Main Data Storage Paths Created"<<endl;
+    #endif
 
     // Init Randomness Engine
     SetRandomSeed(RANDOMSEED);
@@ -126,14 +132,22 @@ int main()
     Agent.SetPositionX(0.0);
     // Agent.Controller stuff
     Agent.Controller.SetReactorSize(controllersize);
+    cout<<"###########################  QUICK DEBUG reactor size ###############################"<<endl;
     Agent.Controller.SetRDModel(controllermodel);
+    cout<<"###########################  QUICK DEBUG RD Model ###############################"<<endl;
     Agent.Controller.SetReactorTopology(controllertopology);
+    cout<<"###########################  QUICK DEBUG Topo ###############################"<<endl;
     // Agent.Interface stuff
     Agent.Interface.RefferenceInterface(Agent.Rays, Agent.Controller, Agent.motor);
+    cout<<"###########################  QUICK DEBUG Reset Interface ###############################"<<endl;
     Agent.Interface.SetLinkNum(maxlinks, initlinks);
+    cout<<"###########################  QUICK DEBUG Set Link Num ###############################"<<endl;
     Agent.Interface.SetRandomInputLinks();
+    cout<<"###########################  QUICK DEBUG Random links set ###############################"<<endl;
     Agent.Interface.SetRandomOutputLinks();
+    cout<<"###########################  QUICK DEBUG random out links set ###############################"<<endl;
     Agent.SetTimeResolutions(RDSTEPSIZE,RDSTEPLIMIT,AGENTSTEPSIZE);
+    cout<<"###########################  QUICK DEBUG time resolitions set ###############################"<<endl;
     Agent.Printer(0);
 
     //  Compute Genome Size
@@ -246,8 +260,6 @@ void InitGenome()// an actual TVector gene does not need to be created. TSearch 
     m = ceil( inpercs / 2.0 );
     j = ceil( outpercs / 2.0 );
     genomesize = rdparamnum + 3 * maxlinks * ( m + j );
-    // set size
-    genome.SetBounds(1,genomesize);
     #ifdef DEBUGRDTASKMAIN
     cout<<"Genome defined with size:"<<genomesize<<"\n"<<flush;
     #endif
@@ -312,7 +324,7 @@ void BilateralGenomeLinker(TVector<double> gene)
             Agent.Interface.inperceptron(antip).weight(target) = gene(poscounter);
             poscounter++;
             //channel [discrete]
-            dgene = genome(poscounter);
+            dgene = gene(poscounter);
             igene = Discretize(dgene,1,channelnum);
             Agent.Interface.inperceptron(p).channel= igene;
             Agent.Interface.inperceptron(p).channel= igene;
@@ -324,19 +336,19 @@ void BilateralGenomeLinker(TVector<double> gene)
     for(int p = 1; p<= 0; p++)
     {
             //channel [discrete]
-            dgene = genome(poscounter);
+            dgene = gene(poscounter);
             igene = Discretize(dgene,1,channelnum);
             Agent.Interface.inperceptron[p].channel= igene;
             poscounter++;
         for(int source=1; source<=maxlinks; source++)
         {
             // Target [discrete]
-            dgene = genome(poscounter);
+            dgene = gene(poscounter);
             igene = Discretize(dgene, 1, controllersize);
             Agent.Interface.outperceptron[p].source(source) = igene;
             poscounter++;
             //weight
-            Agent.Interface.inperceptron[p].weight(source) = genome(poscounter);
+            Agent.Interface.inperceptron[p].weight(source) = gene(poscounter);
             poscounter++;
 
         }
@@ -381,6 +393,11 @@ void WriteEvoSearchState(int Generation, double BestPerf, double AvgPerf, double
 
     // write to file
     evodatafile<<Generation<<","<<BestPerf<<","<<AvgPerf<<","<<PerfVar<<endl;
+
+    // Print Status
+    cout<<"RDTaskMain::WriteEvoSearchState Generation "<<Generation<<" of "
+    <<EVOSTEPLIMIT<<" COMPLETE.\n"
+    <<"Best: "<<BestPerf<<"Average: "<<AvgPerf<<"Variance: "<<PerfVar<<endl;
 }
 
 
