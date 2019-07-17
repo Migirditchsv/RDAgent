@@ -44,14 +44,15 @@ const char EVODATAPATH[100] = "evodata.csv";
 const char BESTAGENTDATAPATH[100] = "bestagent.csv";
 
 // Timing
-const int EVOSTEPLIMIT = 100;// evo generations to run
+const int EVOSTEPLIMIT = 500;// evo generations to run
 const int AGENTSTEPLIMIT = 10;//agent stpes to run per each evo trial
 const double AGENTSTEPSIZE = 0.1;// scales agent velocity on each agent step
-const double RDSTEPLIMIT = 1.0;// step limit of one controller step
+const double RDSTEPLIMIT = 5.0;// step limit of one controller step
 const double RDSTEPSIZE  = 0.1;// step size
 
 // Evolution
-const int EVOPOPSIZE = 20;
+const int EVOPOPSIZE = 100;
+const double EVOVARIANCE = 1.5;
 
 // Random
 const long RANDOMSEED = 1;
@@ -120,6 +121,8 @@ int main()
     // check data folders and prepare datafile
     if(fileexists(EVODATAPATH)==1){remove(EVODATAPATH);}
     evodatafile.open(EVODATAPATH);
+    //print in headers
+    evodatafile<<"Generation,Best,Average,Variance"<<endl;
     evodatafile.close();
     #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Main Data Storage Paths Created"<<endl;
@@ -162,8 +165,8 @@ int main()
     s.SetReproductionMode(GENETIC_ALGORITHM);
     s.SetPopulationSize(EVOPOPSIZE);
     s.SetMaxGenerations(EVOSTEPLIMIT);
-    s.SetMutationVariance(3.0);
-    s.SetMaxExpectedOffspring(1.2);
+    s.SetMutationVariance(EVOVARIANCE);
+    s.SetMaxExpectedOffspring(1.1);
     s.SetElitistFraction(0.1);
     s.SetSearchConstraint(1);
     #ifdef DEBUGRDTASKMAIN
