@@ -44,14 +44,14 @@ const char EVODATAPATH[100] = "evodata.csv";
 const char BESTAGENTDATAPATH[100] = "bestagent.csv";
 
 // Timing
-const int EVOSTEPLIMIT = 50;// evo generations to run
+const int EVOSTEPLIMIT = 100;// evo generations to run
 const int AGENTSTEPLIMIT = 10;//agent stpes to run per each evo trial
-const double AGENTSTEPSIZE = 0.5;// scales agent velocity on each agent step
+const double AGENTSTEPSIZE = 0.1;// scales agent velocity on each agent step
 const double RDSTEPLIMIT = 1.0;// step limit of one controller step
 const double RDSTEPSIZE  = 0.1;// step size
 
 // Evolution
-const int EVOPOPSIZE = 5;
+const int EVOPOPSIZE = 20;
 
 // Random
 const long RANDOMSEED = 1;
@@ -136,22 +136,14 @@ int main()
     Agent.SetPositionX(0.0);
     // Agent.Controller stuff
     Agent.Controller.SetReactorSize(controllersize);
-    cout<<"###########################  QUICK DEBUG reactor size ###############################"<<endl;
     Agent.Controller.SetRDModel(controllermodel);
-    cout<<"###########################  QUICK DEBUG RD Model ###############################"<<endl;
     Agent.Controller.SetReactorTopology(controllertopology);
-    cout<<"###########################  QUICK DEBUG Topo ###############################"<<endl;
     // Agent.Interface stuff
     Agent.Interface.RefferenceInterface(Agent.Rays, Agent.Controller, Agent.motor);
-    cout<<"###########################  QUICK DEBUG Reset Interface ###############################"<<endl;
     Agent.Interface.SetLinkNum(maxlinks, initlinks);
-    cout<<"###########################  QUICK DEBUG Set Link Num ###############################"<<endl;
     Agent.Interface.SetRandomInputLinks();
-    cout<<"###########################  QUICK DEBUG Random links set ###############################"<<endl;
     Agent.Interface.SetRandomOutputLinks();
-    cout<<"###########################  QUICK DEBUG random out links set ###############################"<<endl;
     Agent.SetTimeResolutions(RDSTEPSIZE,RDSTEPLIMIT,AGENTSTEPSIZE);
-    cout<<"###########################  QUICK DEBUG time resolitions set ###############################"<<endl;
     Agent.Printer(0);
 
     //  Compute Genome Size
@@ -168,10 +160,10 @@ int main()
     s.SetSearchTerminationFunction(TerminationFunction);
     s.SetSelectionMode(RANK_BASED);
     s.SetReproductionMode(GENETIC_ALGORITHM);
-    s.SetPopulationSize(500);
-    s.SetMaxGenerations(50);
-    s.SetMutationVariance(0.8);
-    s.SetMaxExpectedOffspring(1.1);
+    s.SetPopulationSize(EVOPOPSIZE);
+    s.SetMaxGenerations(EVOSTEPLIMIT);
+    s.SetMutationVariance(3.0);
+    s.SetMaxExpectedOffspring(1.2);
     s.SetElitistFraction(0.1);
     s.SetSearchConstraint(1);
     #ifdef DEBUGRDTASKMAIN
@@ -396,23 +388,27 @@ void WriteEvoSearchState(int Generation, double BestPerf, double AvgPerf, double
         exit(0);
     }
 
+    // Open file
+    evodatafile.open(EVODATAPATH, std::ios::app);
     // write to file
     evodatafile<<Generation<<","<<BestPerf<<","<<AvgPerf<<","<<PerfVar<<endl;
+    // Close file
+    evodatafile.close();
 
     // Print Status
     cout<<"RDTaskMain::WriteEvoSearchState Generation "<<Generation<<" of "
     <<EVOSTEPLIMIT<<" COMPLETE.\n"
-    <<"Best: "<<BestPerf<<"Average: "<<AvgPerf<<"Variance: "<<PerfVar<<endl;
+    <<"Best: "<<BestPerf<<" Average: "<<AvgPerf<<" Variance: "<<PerfVar<<endl;
 }
 
 int TerminationFunction(int Generation, double BestPerf, double AvgPerf, double PerfVar)
 {
-    int truth = 1;
+    int truth = 0;
 
     // Kill if bestperf is perfect
-    truth *= ( BestPerf < 1.0 );
+    truth += ( BestPerf >= 1.0 );
     // Kill if evo step limit reached
-    truth *= ( Generation <= EVOSTEPLIMIT );
+    truth += ( Generation > EVOSTEPLIMIT );
 
     return truth;
 }
