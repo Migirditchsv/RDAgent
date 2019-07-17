@@ -44,7 +44,7 @@ const char EVODATAPATH[100] = "evodata.csv";
 const char BESTAGENTDATAPATH[100] = "bestagent.csv";
 
 // Timing
-const int EVOSTEPLIMIT = 5;// evo generations to run
+const int EVOSTEPLIMIT = 50;// evo generations to run
 const int AGENTSTEPLIMIT = 10;//agent stpes to run per each evo trial
 const double AGENTSTEPSIZE = 0.5;// scales agent velocity on each agent step
 const double RDSTEPLIMIT = 1.0;// step limit of one controller step
@@ -77,6 +77,10 @@ void TrackParticle(VisualObject particle);
 void BilateralGenomeLinker(TVector<double> gene);
 int Discretize(double value, int minbound, int maxbound);
 void WriteEvoSearchState(int Generation,
+                        double BestPerf,
+                        double AvgPerf,
+                        double PerfVar);
+int TerminationFunction(int Generation,
                         double BestPerf,
                         double AvgPerf,
                         double PerfVar);
@@ -160,6 +164,8 @@ int main()
     s.SetVectorSize(genomesize);
     s.SetRandomSeed(RANDOMSEED);
     s.SetEvaluationFunction(Fittness);
+    s.SetPopulationStatisticsDisplayFunction(WriteEvoSearchState);
+    s.SetSearchTerminationFunction(TerminationFunction);
     s.SetSelectionMode(RANK_BASED);
     s.SetReproductionMode(GENETIC_ALGORITHM);
     s.SetPopulationSize(500);
@@ -168,7 +174,6 @@ int main()
     s.SetMaxExpectedOffspring(1.1);
     s.SetElitistFraction(0.1);
     s.SetSearchConstraint(1);
-    s.SetPopulationStatisticsDisplayFunction(WriteEvoSearchState);
     #ifdef DEBUGRDTASKMAIN
     cout<<"Search Configuration: Complete"<<endl;
     #endif
@@ -400,6 +405,17 @@ void WriteEvoSearchState(int Generation, double BestPerf, double AvgPerf, double
     <<"Best: "<<BestPerf<<"Average: "<<AvgPerf<<"Variance: "<<PerfVar<<endl;
 }
 
+int TerminationFunction(int Generation, double BestPerf, double AvgPerf, double PerfVar)
+{
+    int truth = 1;
+
+    // Kill if bestperf is perfect
+    truth *= ( BestPerf < 1.0 );
+    // Kill if evo step limit reached
+    truth *= ( Generation <= EVOSTEPLIMIT );
+
+    return truth;
+}
 
 bool fileexists(const char *filename) {
   std::ifstream ifile(filename);
