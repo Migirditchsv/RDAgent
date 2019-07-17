@@ -14,20 +14,29 @@ with open(data_path, 'r') as f:
     
 print(headers)
 print(data.shape)
-print(data[:3])
 
-# Plot the data
+# Plot best perf
 plt.plot(data[:, 1])
 plt.xlabel(headers[0])
 plt.ylabel(headers[1])
 plt.show()
 
+#plot avg perf
 plt.plot(data[:, 2])
 plt.xlabel(headers[0])
 plt.ylabel(headers[2])
 plt.show()
 
+#plot perf variance
 plt.plot(data[:, 3])
 plt.xlabel(headers[0])
 plt.ylabel(headers[3])
+plt.show()
+
+#plot population history
+for r in range(0,len(data)):
+    for c in range(4,len(data[r])):
+        plt.plot(data[r,0],data[r,c],color="grey",alpha=0.5)
+plt.xlabel(headers[0])
+plt.ylabel("Population Performance")
 plt.show()

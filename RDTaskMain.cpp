@@ -393,8 +393,16 @@ void WriteEvoSearchState(int Generation, double BestPerf, double AvgPerf, double
 
     // Open file
     evodatafile.open(EVODATAPATH, std::ios::app);
-    // write to file
-    evodatafile<<Generation<<","<<BestPerf<<","<<AvgPerf<<","<<PerfVar<<endl;
+    // write stats to file
+    evodatafile<<Generation<<","<<BestPerf<<","<<AvgPerf<<","<<PerfVar<<","<<flush;
+    // write population to file
+    for(int i=1; i<=EVOPOPSIZE-1; i++)
+    {
+        evodatafile<<s.Performance(i)<<","<<flush;
+    }
+    // Line break to end entry
+    evodatafile<<s.Performance(EVOPOPSIZE)<<endl;
+
     // Close file
     evodatafile.close();
 
