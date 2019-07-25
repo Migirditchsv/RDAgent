@@ -23,13 +23,12 @@ const double Pi = 3.1415926535897;
 // Agent Settings
 //***************************
 // Agent
-const double BodySize = 30.0; 
-const double EnvWidth = 400.0;
-const double MaxRayLength = 220.0;
+const double BodySize = 0.1; 
+const double EnvWidth = 1.0;
+const double MaxRayLength = BodySize * 5.0;
 const double InputGain = 1.0; //Maybe remove
 const double VisualAngle = Pi/6;
-const double VelGain = 5;
-const int 	 NumRays = 7;
+const int 	 NumRays = 5;
 const int    ActuatorNum = 2;
 const double agentdt = 0.1;// agent time step size
 const double defaultxpos = 0.0; // x position at initialization

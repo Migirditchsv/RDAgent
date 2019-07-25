@@ -118,7 +118,9 @@ void RDControl::NormalizeCellDensity( int cellindx )
     // Division Safety
     if (totalchem<=0)
     {
-        cerr<<"ERROR! RDControl.cpp>NormalizeCellDensity: div by totalchem=0";
+        cerr<<"ERROR! RDControl.cpp>NormalizeCellDensity: div by totalchem=0"
+        <<"Reactor Cell: "<<cellindx
+        <<"Reactor State: \n"<<cellstate<<endl;
         exit(0);
     }
 
@@ -216,7 +218,7 @@ void RDControl::RandomReactorState()
     {
        for ( int chemindx=1; chemindx<=chemnum; chemindx++)
        {
-            holder = UniformRandom(0.0,1.0);
+            holder = UniformRandom(0.01,1.0);
             cellstate(target, chemindx) = holder;
        }    
    }

@@ -44,16 +44,16 @@ const char EVODATAPATH[100] = "evodata.csv";
 const char BESTAGENTDATAPATH[100] = "bestagent.csv";
 
 // Timing
-const int EVOSTEPLIMIT = 500;// evo generations to run
-const int AGENTSTEPLIMIT = 10;//agent stpes to run per each evo trial
+const int EVOSTEPLIMIT = 200;// evo generations to run. Make sure these are reasonable relative to arena width
+const int AGENTSTEPLIMIT = 1.0;//agent stpes to run per each evo trial
 const double AGENTSTEPSIZE = 0.1;// scales agent velocity on each agent step
-const double RDSTEPLIMIT = 5.0;// step limit of one controller step
+const double RDSTEPLIMIT = 0.2;// step limit of one controller step
 const double RDSTEPSIZE  = 0.1;// step size
 
 // Evolution
-const int EVOPOPSIZE = 100;
-const double EVOVARIANCE = 1.5;
-
+const int EVOPOPSIZE = 10000;
+const double EVOVARIANCE = 0.15;// D&H use stdev = 0.25
+const double EVOELITEFRACTION = 0.5;
 // Random
 const long RANDOMSEED = 1;
 
@@ -63,9 +63,10 @@ const int controllermodel = 0;// 0:Grey-Scott
 const int controllertopology = 0;// 0: 1D Near neigh. ring
 
 // Linker
-const int maxlinks = 8;// Max # of links controller a perceptron may have
-const int initlinks = 4;// number of links to controller a perceptron starts with
-
+const int maxlinks = 6;// Max # of links controller a perceptron may have
+const int initlinks = 6;// number of links to controller a perceptron starts with
+// Note using TSearch makes the GA radically inefficient if initlinks!=maxlinks. They should always be
+// equal until TSearch can be optimized. 
 
 // **************************** 
 // Global Declarations
@@ -73,9 +74,11 @@ const int initlinks = 4;// number of links to controller a perceptron starts wit
 
 // Fucntion declarations
 double Fittness(TVector<double> &gene, RandomState &rs);
-void InitGenome();
+void SetGenomeSize();// assumes symetric body/controller. 
+void SetRestrictedGenomeSize();// omits channel and target/source from evolution. assumes symetric body/controller
 void TrackParticle(VisualObject particle);
 void BilateralGenomeLinker(TVector<double> gene);
+void RestrictedBilateralGenomeLinker(TVector<double> gene);
 int Discretize(double value, int minbound, int maxbound);
 void WriteEvoSearchState(int Generation,
                         double BestPerf,
@@ -141,6 +144,7 @@ int main()
     Agent.Controller.SetReactorSize(controllersize);
     Agent.Controller.SetRDModel(controllermodel);
     Agent.Controller.SetReactorTopology(controllertopology);
+    Agent.Controller.RandomReactorState();
     // Agent.Interface stuff
     Agent.Interface.RefferenceInterface(Agent.Rays, Agent.Controller, Agent.motor);
     Agent.Interface.SetLinkNum(maxlinks, initlinks);
@@ -150,7 +154,7 @@ int main()
     Agent.Printer(0);
 
     //  Compute Genome Size
-    InitGenome();// gene of 0's: genome for testing
+    SetRestrictedGenomeSize();// gene of 0's: genome for testing
     #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain.cpp: Genome size set: "<<genomesize<<endl;
     #endif
@@ -163,12 +167,12 @@ int main()
     s.SetSearchTerminationFunction(TerminationFunction);
     s.SetSelectionMode(RANK_BASED);
     s.SetReproductionMode(GENETIC_ALGORITHM);
-    s.SetPopulationSize(EVOPOPSIZE);
-    s.SetMaxGenerations(EVOSTEPLIMIT);
-    s.SetMutationVariance(EVOVARIANCE);
-    s.SetMaxExpectedOffspring(1.1);
-    s.SetElitistFraction(0.1);
+    s.SetPopulationSize( EVOPOPSIZE );
+    s.SetMutationVariance( EVOVARIANCE );
+    //s.SetMaxExpectedOffspring(1.25);
+    s.SetElitistFraction( EVOELITEFRACTION );
     s.SetSearchConstraint(1);
+    s.SetMaxGenerations( EVOSTEPLIMIT );
     #ifdef DEBUGRDTASKMAIN
     cout<<"Search Configuration: Complete"<<endl;
     #endif
@@ -190,13 +194,13 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     #endif
     
     // Init visual object  particle
-    VisualObject particle;
+    Circle particle(0,0,0,Agent.GetBodySize()/2.0 );
     #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: VisualObject Declared"<<endl;
     #endif
 
     // Insert gene into agent
-    BilateralGenomeLinker(gene);
+    RestrictedBilateralGenomeLinker(gene);
     #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: Genome Linking COMPLETE"<<endl;
     #endif
@@ -211,7 +215,7 @@ double Fittness(TVector<double> &gene, RandomState &rs)
 
 
     // Main agent loop
-    for( int t = 0; t<AGENTSTEPLIMIT; t++)
+    for( double t = 0.0; t<AGENTSTEPLIMIT; t++)
     {
         //place particle
         TrackParticle(particle);
@@ -230,7 +234,8 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     #endif
 
     // Compute score
-    double fit = abs( Agent.PositionX() / Agent.GetEnvWidth() );// move away from center, normalized
+    double normalize =  1.0 / ( 0.5 * Agent.GetEnvWidth() );
+    double fit = abs( Agent.PositionX() * normalize  );// move away from center, normalized
 
     #ifdef DEBUGRDTASKMAIN
     Agent.Printer(1);
@@ -241,14 +246,14 @@ double Fittness(TVector<double> &gene, RandomState &rs)
 
 void TrackParticle( VisualObject particle )
 {
-    double py = Agent.GetBodySize() + 0.2 * Agent.GetRayLength() ;
+    double py = Agent.GetBodySize() + 0.5 * Agent.GetRayLength() ;
     double px = Agent.PositionX() - 0.5 * Agent.GetBodySize() ;
     particle.SetPositionY( py );
     particle.SetPositionX( px );
 }
 
 
-void InitGenome()// an actual TVector gene does not need to be created. TSearch handles that. Change later
+void SetGenomeSize()// an actual TVector gene does not need to be created. TSearch handles that. Change later
 {
   //Controller traits
     int rdparamnum = Agent.Controller.GetParameterNumber();
@@ -263,6 +268,23 @@ void InitGenome()// an actual TVector gene does not need to be created. TSearch 
     #ifdef DEBUGRDTASKMAIN
     cout<<"Genome defined with size:"<<genomesize<<"\n"<<flush;
     #endif
+}
+
+void SetRestrictedGenomeSize()
+{
+int rdparamnum = Agent.Controller.GetParameterNumber;
+// Interface params
+int inpercs = Agent.Interface.inperceptronnum;
+int outpercs = Agent.Interface.outperceptronnum;
+int maxlinks = Agent.Interface.maxlinknum;
+// rescale for bilateral symetry
+m = ceil( inpercs / 2.0 );
+j = ceil( outpercs / 2.0 );
+// add it all up
+genomesize = rdparamnum + maxlinks * (m + j);
+#ifdef DEBUGRDTASKMAIN
+cout<<"RDTaskMain::SetRestricedGenomeSize(): Complete"<<endl;
+#endif
 }
 
 
@@ -354,6 +376,122 @@ void BilateralGenomeLinker(TVector<double> gene)
         }
     }
     //cout<<"BilateralGenomeLinker: COMPLETE:"<<endl;
+}
+
+void RestrictedBilateralGenomeLinker(TVector<double> gene)
+{// Configured for 1D ring with vertical symetry
+    //vars
+    int poscounter=1;//tracks position in search vector
+    double dgene; // holder for genome values to be Discritized
+    int    igene; // holder for integer converted genes
+    // Parameters
+    int inpercs = Agent.Interface.inperceptronnum;
+    int outpercs = Agent.Interface.outperceptronnum;
+    int parameters = Agent.Controller.GetParameterNumber();
+    int channelnum = Agent.Controller.GetChemicalNumber();
+    int localcontrolsize = Agent.Controller.GetReactorSize();
+    #ifdef DEBUGRDTASKMAIN
+    cout<<"RestrictedBilateralGenomeLinker: Parameters Read"<<endl;
+    #endif
+
+    // manually configure connectome and io channels
+    // speciffic to many parameters. I should move this up top asap. from Dale & husbands
+    TVector<int> inchannel;
+    inchannel.SetBounds(1,inpercs);
+    inchannel.InitializeContents(2,2,1,2,2);
+
+    TVector<int> outchannel;
+    inchannel.SetBounds(1,outpercs);
+    inchannel.InitializeContents(2,2);
+
+    TMatrix<int> inconnectome; //bilateral w/ middle
+    inconnectome.SetBounds(1,m,1,maxlinks);
+    inconnectome.InitializeContents(115,115,115,115, // p1
+                                    50,60,70,80,     // p2
+                                    10,70,80,125    // middle p3
+                                    //50,60,70,80,     // p4
+                                    //115,115,115,115  // p5
+    );
+
+    TMatrix<int> outconnectome;
+    outconnectome.SetBounds(1,j,1,maxlinks)
+
+    //PARAMETER LINK
+    // RD Parameters
+    while(poscounter<=parameters)
+    {
+    Agent.Controller.SetParameter( poscounter , gene(poscounter) );
+    poscounter++;
+    }
+    // Inperceptrons
+    for(int p = 1; p<= m; p++)
+    {
+        int antip = 2*m-p;// Indexes backwards into the array
+        #ifdef DEBUGRDTASKMAIN
+        cout<<"RestrictedBilateralGenomeLinker: Input perceptron p: "<<p<<" m: "<<m<<" antip: "<<antip<<endl;
+        #endif
+        
+        for(int target=1; target<=maxlinks; target++)
+        {
+            // Target [discrete]
+            dgene = gene(poscounter);
+            #ifdef DEBUGRDTASKMAIN
+            cout<<"BilateralGenomeLinker: target dgene: "<<dgene<<endl;
+            #endif
+            igene = Discretize(dgene, 1, localcontrolsize);
+
+            #ifdef DEBUGRDTASKMAIN
+            cout<<"BilateralGenomeLinker: target igene: "<<igene<<endl;
+            #endif
+            
+            Agent.Interface.inperceptron(p).target(target) = igene;
+            int mirrortarget = localcontrolsize - igene + 1;
+            #ifdef DEBUGRDTASKMAIN
+            cout<<"BilateralGenomeLinker: mirrortarget: "<<mirrortarget<<endl;
+            #endif
+
+            Agent.Interface.inperceptron(antip).target(target) = mirrortarget;
+            poscounter++;
+            #ifdef DEBUGRDTASKMAIN
+            cout<<"BilateralGenomeLinker: Weight pos:"<<poscounter<<endl;
+            #endif
+            //weight
+            Agent.Interface.inperceptron(p).weight(target) = gene(poscounter);
+            Agent.Interface.inperceptron(antip).weight(target) = gene(poscounter);
+            poscounter++;
+            //channel [discrete]
+            dgene = gene(poscounter);
+            igene = Discretize(dgene,1,channelnum);
+            Agent.Interface.inperceptron(p).channel= igene;
+            Agent.Interface.inperceptron(p).channel= igene;
+            poscounter++;
+        }
+    }
+    
+    // out perceptrons
+    for(int p = 1; p<= 0; p++)
+    {
+            //channel [discrete]
+            dgene = gene(poscounter);
+            igene = Discretize(dgene,1,channelnum);
+            Agent.Interface.inperceptron[p].channel= igene;
+            poscounter++;
+        for(int source=1; source<=maxlinks; source++)
+        {
+            // Target [discrete]
+            dgene = gene(poscounter);
+            igene = Discretize(dgene, 1, controllersize);
+            Agent.Interface.outperceptron[p].source(source) = igene;
+            poscounter++;
+            //weight
+            Agent.Interface.inperceptron[p].weight(source) = gene(poscounter);
+            poscounter++;
+
+        }
+    }
+    //cout<<"BilateralGenomeLinker: COMPLETE:"<<endl;
+
+
 }
 
 //Takes a double on [-1,1] and 

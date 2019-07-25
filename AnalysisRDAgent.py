@@ -33,10 +33,11 @@ plt.xlabel(headers[0])
 plt.ylabel(headers[3])
 plt.show()
 
+#too slow :(
 #plot population history
-for r in range(0,len(data)):
-    for c in range(4,len(data[r])):
-        plt.plot(data[r,0],data[r,c],color="grey",alpha=0.5)
-plt.xlabel(headers[0])
-plt.ylabel("Population Performance")
-plt.show()
+#for r in range(0,len(data)):
+#    for c in range(4,len(data[r])):
+#        plt.plot(data[r,0],data[r,c],color="grey",alpha=0.5)
+#plt.xlabel(headers[0])
+#plt.ylabel("Population Performance")
+#plt.show()
