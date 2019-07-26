@@ -16,7 +16,7 @@
 
 
 // Debug controls
-#define DEBUGAGENTINTERFACE
+//#define DEBUGAGENTINTERFACE
 
 // **************************** 
 // Includes

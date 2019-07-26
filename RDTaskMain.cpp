@@ -36,7 +36,7 @@ using namespace std;
 
 
 // **************************** 
-// Control  Vars: NEEDS SERIOUS LINKING/clean up
+// Control  Vars: NEEDS LINKING/clean up
 // ****************************
 
 // IO
@@ -44,7 +44,7 @@ const char EVODATAPATH[100] = "evodata.csv";
 const char BESTAGENTDATAPATH[100] = "bestagent.csv";
 
 // Timing
-const int EVOSTEPLIMIT = 2;// evo generations to run. Make sure these are reasonable relative to arena width
+const int EVOSTEPLIMIT = 200;// evo generations to run. Make sure these are reasonable relative to arena width
 const int AGENTSTEPLIMIT = 1.0;//agent stpes to run per each evo trial
 const double AGENTSTEPSIZE = 0.1;// scales agent velocity on each agent step
 const double RDSTEPLIMIT = 0.2;// step limit of one controller step
@@ -67,6 +67,11 @@ const int maxlinks = 6;// Max # of links controller a perceptron may have
 const int initlinks = 6;// number of links to controller a perceptron starts with
 // Note using TSearch makes the GA radically inefficient if initlinks!=maxlinks. They should always be
 // equal until TSearch can be optimized. 
+
+// Particle -- arena width is 1.0 and time steps are tuned so this is max distance covered by agent
+const double PARTICLESTARTHEIGHT = 3.0;
+const double PARTICLEVELOCITY = PARTICLESTARTHEIGHT / ( AGENTSTEPLIMIT / AGENTSTEPSIZE);
+const double PARTICLESCALEFACTOR = 10.0; 
 
 // **************************** 
 // Global Declarations
@@ -194,7 +199,10 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     #endif
     
     // Init visual object  particle
-    Circle particle(0,0,0,Agent.GetBodySize() );
+    double leftwall = -Agent.GetEnvWidth()/2.0;
+    double rightwall = Agent.GetEnvWidth()/2.0;
+    double randpos = UniformRandom(leftwall, rightwall);
+    Circle particle(randpos, PARTICLESTARTHEIGHT, PARTICLEVELOCITY, PARTICLESCALEFACTOR *Agent.GetBodySize());
     #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: VisualObject Declared"<<endl;
     #endif
@@ -218,7 +226,7 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     for( double t = 0.0; t<AGENTSTEPLIMIT; t++)
     {
         //place particle
-        TrackParticle(particle);
+        particle.Step(AGENTSTEPSIZE);
         #ifdef DEBUGRDTASKMAIN
         cout<<"RDTaskMain::Fittness: Particle Tracking COMPLETE"<<endl;
         #endif
@@ -234,20 +242,24 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     #endif
 
     // Compute score
-    double normalize =  1.0 / ( 0.5 * Agent.GetEnvWidth() );
-    double fit = abs( Agent.PositionX() * normalize  );// move away from center, normalized
+    double ax = Agent.PositionX();
+    double px = particle.PositionX();
+    #ifdef DEBUGRDTASKMAIN
+    cout<<"RDTaskMain::Fittness: ax: "<<ax<<" ,px: "<<px<<endl;
+    #endif
+    double fit =   1.0 / abs(ax-px)  ;
 
     #ifdef DEBUGRDTASKMAIN
     Agent.Printer(1);
     #endif
     
-    return fit;// does this have to be normalized?
+    return fit;
 }
 
 void TrackParticle( VisualObject particle )
 {
-    double py = Agent.GetBodySize();// + 0.5 * Agent.GetRayLength() ;
-    double px = Agent.PositionX();// - 0.5 * Agent.GetBodySize() ;
+    double py = 2.0 * Agent.GetBodySize();// + 0.5 * Agent.GetRayLength() ;
+    double px = Agent.PositionX() - Agent.GetBodySize() ;
     particle.SetPositionY( py );
     particle.SetPositionX( px );
 }
@@ -529,6 +541,11 @@ void WriteEvoSearchState(int Generation, double BestPerf, double AvgPerf, double
         exit(0);
     }
 
+    // we're measuring 1/distance, so flip for score
+
+    BestPerf = 1.0 / BestPerf;
+    AvgPerf = 1.0 / AvgPerf;
+
     // Open file
     evodatafile.open(EVODATAPATH, std::ios::app);
     // write stats to file
@@ -555,7 +572,7 @@ int TerminationFunction(int Generation, double BestPerf, double AvgPerf, double 
     int truth = 0;
 
     // Kill if bestperf is perfect
-    truth += ( BestPerf >= 1.0 );
+    //truth += ( BestPerf >= 1.0 );
     // Kill if evo step limit reached
     truth += ( Generation > EVOSTEPLIMIT );
 
