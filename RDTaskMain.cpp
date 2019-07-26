@@ -54,6 +54,7 @@ const double RDSTEPSIZE  = 0.1;// step size
 const int EVOPOPSIZE = 10000;
 const double EVOVARIANCE = 0.15;// D&H use stdev = 0.25
 const double EVOELITEFRACTION = 0.5;
+const int SAMPLENUM = 5;// number of times to run each agent
 // Random
 const long RANDOMSEED = 1;
 
@@ -71,7 +72,7 @@ const int initlinks = 6;// number of links to controller a perceptron starts wit
 // Particle -- arena width is 1.0 and time steps are tuned so this is max distance covered by agent
 const double PARTICLESTARTHEIGHT = 3.0;
 const double PARTICLEVELOCITY = PARTICLESTARTHEIGHT / ( AGENTSTEPLIMIT / AGENTSTEPSIZE);
-const double PARTICLESCALEFACTOR = 10.0; 
+const double PARTICLESCALEFACTOR = 1.0; 
 
 // **************************** 
 // Global Declarations
@@ -197,7 +198,9 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: Begin Evaluating Agent"<<endl;
     #endif
-    
+    // vars
+    double fit = 0.0;
+
     // Init visual object  particle
     double leftwall = -Agent.GetEnvWidth()/2.0;
     double rightwall = Agent.GetEnvWidth()/2.0;
@@ -221,39 +224,38 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     #endif
 
 
-
-    // Main agent loop
-    for( double t = 0.0; t<AGENTSTEPLIMIT; t++)
+    for(int sample=1; sample<=SAMPLENUM; sample++)
     {
-        //place particle
-        particle.Step(AGENTSTEPSIZE);
-        #ifdef DEBUGRDTASKMAIN
-        cout<<"RDTaskMain::Fittness: Particle Tracking COMPLETE"<<endl;
-        #endif
+        // Main agent loop
+        for( double t = 0.0; t<AGENTSTEPLIMIT; t++)
+        {
+            //place particle
+            particle.Step(AGENTSTEPSIZE);
+            #ifdef DEBUGRDTASKMAIN
+            cout<<"RDTaskMain::Fittness: Particle Tracking COMPLETE"<<endl;
+            #endif
 
-        Agent.Step(particle);
-        #ifdef DEBUGRDTASKMAIN
-        cout<<"RDTaskMain::Fittness: Calling Agent.step()"<<endl;
-        #endif
+            Agent.Step(particle);
+            #ifdef DEBUGRDTASKMAIN
+            cout<<"RDTaskMain::Fittness: Calling Agent.step()"<<endl;
+            #endif
 
+        }
+
+        // Compute score
+        double ax = Agent.PositionX();
+        double px = particle.PositionX();
+        #ifdef DEBUGRDTASKMAIN
+        cout<<"RDTaskMain::Fittness: ax: "<<ax<<" ,px: "<<px<<endl;
+        #endif
+        fit +=   Agent.GetEnvWidth()  / abs(ax-px)  ;
     }
+
     #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: MAIN LOOP COMPLETE"<<endl;
     #endif
-
-    // Compute score
-    double ax = Agent.PositionX();
-    double px = particle.PositionX();
-    #ifdef DEBUGRDTASKMAIN
-    cout<<"RDTaskMain::Fittness: ax: "<<ax<<" ,px: "<<px<<endl;
-    #endif
-    double fit =   1.0 / abs(ax-px)  ;
-
-    #ifdef DEBUGRDTASKMAIN
-    Agent.Printer(1);
-    #endif
-    
-    return fit;
+  
+    return fit/SAMPLENUM;
 }
 
 void TrackParticle( VisualObject particle )
@@ -542,9 +544,10 @@ void WriteEvoSearchState(int Generation, double BestPerf, double AvgPerf, double
     }
 
     // we're measuring 1/distance, so flip for score
+    double width = Agent.GetEnvWidth();
 
-    BestPerf = 1.0 / BestPerf;
-    AvgPerf = 1.0 / AvgPerf;
+    BestPerf =  width / BestPerf;
+    AvgPerf = width / AvgPerf;
 
     // Open file
     evodatafile.open(EVODATAPATH, std::ios::app);
