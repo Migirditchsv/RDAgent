@@ -16,7 +16,7 @@
 
 
 // Debug controls
-//#define DEBUGAGENTINTERFACE
+#define DEBUGAGENTINTERFACE
 
 // **************************** 
 // Includes
@@ -209,7 +209,7 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
     int sourceindx, channelindx, targetindx;
     double externalinput;
     // Loop over in perceptrons
-    for(int p=1; p<inperceptronnum; p++)
+    for(int p=1; p<=inperceptronnum; p++)
     {
         // Reset perceptron state
         inperceptron(p).state=0.0;
@@ -224,11 +224,14 @@ void AgentInterface::FireInputPerceptrons(VisualObject &object)
 
         // measure sensor state
         object.RayIntersection(sensor(sourceindx));
-        externalinput = (MaxRayLength - sensor(sourceindx).length/MaxRayLength);      
+        externalinput = (MaxRayLength - sensor(sourceindx).length)/MaxRayLength;      
         inperceptron(p).state = externalinput;
 
         #ifdef DEBUGAGENTINTERFACE
-        cout<<"AgentInterface::FireInputPerceptron External Input: "<<externalinput<<endl;
+        cout<<"AgentInterface::FireInputPerceptron External Input: "<<externalinput
+        <<"\n     (MaxRayLength[ "<<MaxRayLength<<" ] - sensor( sourceindx[ "<<sourceindx
+        <<"] ).length["<<sensor(sourceindx).length<<"] ) / MaxRayLength"
+        <<(MaxRayLength - sensor(sourceindx).length)/MaxRayLength<<endl;
         #endif
 
         // inject into controller targets

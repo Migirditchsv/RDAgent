@@ -44,7 +44,7 @@ const char EVODATAPATH[100] = "evodata.csv";
 const char BESTAGENTDATAPATH[100] = "bestagent.csv";
 
 // Timing
-const int EVOSTEPLIMIT = 200;// evo generations to run. Make sure these are reasonable relative to arena width
+const int EVOSTEPLIMIT = 2;// evo generations to run. Make sure these are reasonable relative to arena width
 const int AGENTSTEPLIMIT = 1.0;//agent stpes to run per each evo trial
 const double AGENTSTEPSIZE = 0.1;// scales agent velocity on each agent step
 const double RDSTEPLIMIT = 0.2;// step limit of one controller step
@@ -154,7 +154,7 @@ int main()
     Agent.Printer(0);
 
     //  Compute Genome Size
-    SetRestrictedGenomeSize();// gene of 0's: genome for testing
+    SetGenomeSize();// gene of 0's: genome for testing
     #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain.cpp: Genome size set: "<<genomesize<<endl;
     #endif
@@ -181,8 +181,8 @@ int main()
     s.ExecuteSearch();
     
     // Report on best individual
-    cout<<"\n\n\n----SEARCH COMPLETE----\n\n"<<endl;
-    cout<<s.BestIndividual()<<endl;
+    std::cout<<"\n\n\n----SEARCH COMPLETE----\n\n"<<endl;
+    std::cout<<s.BestIndividual()<<endl;
 
     return(0);
 }
@@ -194,13 +194,13 @@ double Fittness(TVector<double> &gene, RandomState &rs)
     #endif
     
     // Init visual object  particle
-    Circle particle(0,0,0,Agent.GetBodySize()/2.0 );
+    Circle particle(0,0,0,Agent.GetBodySize() );
     #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: VisualObject Declared"<<endl;
     #endif
 
     // Insert gene into agent
-    RestrictedBilateralGenomeLinker(gene);
+    BilateralGenomeLinker(gene);
     #ifdef DEBUGRDTASKMAIN
     cout<<"RDTaskMain::Fittness: Genome Linking COMPLETE"<<endl;
     #endif
@@ -246,8 +246,8 @@ double Fittness(TVector<double> &gene, RandomState &rs)
 
 void TrackParticle( VisualObject particle )
 {
-    double py = Agent.GetBodySize() + 0.5 * Agent.GetRayLength() ;
-    double px = Agent.PositionX() - 0.5 * Agent.GetBodySize() ;
+    double py = Agent.GetBodySize();// + 0.5 * Agent.GetRayLength() ;
+    double px = Agent.PositionX();// - 0.5 * Agent.GetBodySize() ;
     particle.SetPositionY( py );
     particle.SetPositionX( px );
 }
@@ -272,7 +272,7 @@ void SetGenomeSize()// an actual TVector gene does not need to be created. TSear
 
 void SetRestrictedGenomeSize()
 {
-int rdparamnum = Agent.Controller.GetParameterNumber;
+int rdparamnum = Agent.Controller.GetParameterNumber();
 // Interface params
 int inpercs = Agent.Interface.inperceptronnum;
 int outpercs = Agent.Interface.outperceptronnum;
@@ -355,7 +355,7 @@ void BilateralGenomeLinker(TVector<double> gene)
     }
     
     // out perceptrons
-    for(int p = 1; p<= 0; p++)
+    for(int p = 1; p<= j; p++)
     {
             //channel [discrete]
             dgene = gene(poscounter);
@@ -414,7 +414,7 @@ void RestrictedBilateralGenomeLinker(TVector<double> gene)
     );
 
     TMatrix<int> outconnectome;
-    outconnectome.SetBounds(1,j,1,maxlinks)
+    outconnectome.SetBounds(1,j,1,maxlinks);
 
     //PARAMETER LINK
     // RD Parameters
@@ -469,7 +469,7 @@ void RestrictedBilateralGenomeLinker(TVector<double> gene)
     }
     
     // out perceptrons
-    for(int p = 1; p<= 0; p++)
+    for(int p = 1; p<= j; p++)
     {
             //channel [discrete]
             dgene = gene(poscounter);
@@ -545,7 +545,7 @@ void WriteEvoSearchState(int Generation, double BestPerf, double AvgPerf, double
     evodatafile.close();
 
     // Print Status
-    cout<<"RDTaskMain::WriteEvoSearchState Generation "<<Generation<<" of "
+    std::cout<<"RDTaskMain::WriteEvoSearchState Generation "<<Generation<<" of "
     <<EVOSTEPLIMIT<<" COMPLETE.\n"
     <<"Best: "<<BestPerf<<" Average: "<<AvgPerf<<" Variance: "<<PerfVar<<endl;
 }

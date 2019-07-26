@@ -22,5 +22,10 @@ int main()
     cout<<"Height = "<<height<<" Width = "<<width<<endl;
     cout<<"mtx\n"<<mtx<<endl;
 
+    const double bigo = 3.5;
+    double smallo;
+    smallo = bigo -2.1;
+    cout<<"smallo"<<smallo<<endl;
+
 }
 
